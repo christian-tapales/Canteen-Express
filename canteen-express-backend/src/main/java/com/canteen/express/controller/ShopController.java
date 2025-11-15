@@ -1,14 +1,18 @@
 package com.canteen.express.controller;
 
+import com.canteen.express.dto.ShopDTO;
+import com.canteen.express.dto.FoodItemDTO;
 import com.canteen.express.entity.ShopEntity;
-import com.canteen.express.entity.FoodItemEntity;
 import com.canteen.express.service.ShopService;
 import com.canteen.express.service.FoodItemService;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,23 +33,35 @@ public class ShopController {
     private FoodItemService foodItemService;
 
     /**
+     * Create a new shop.
+     * @param shopEntity Shop entity containing shop details.
+     * @return Created shop as DTO.
+     */
+    @PostMapping
+    public ResponseEntity<ShopDTO> createShop(@Valid @RequestBody ShopEntity shopEntity) {
+        ShopEntity createdShop = shopService.createShop(shopEntity);
+        ShopDTO shopDTO = shopService.convertToShopDTO(createdShop);
+        return ResponseEntity.ok(shopDTO);
+    }
+
+    /**
      * Get all available shops.
-     * @return List of all shops.
+     * @return List of all shops as DTOs.
      */
     @GetMapping
-    public ResponseEntity<List<ShopEntity>> getAllShops() {
-        List<ShopEntity> shops = shopService.getAllShops();
+    public ResponseEntity<List<ShopDTO>> getAllShops() {
+        List<ShopDTO> shops = shopService.getAllShops();
         return ResponseEntity.ok(shops);
     }
 
     /**
      * Get menu for a specific shop.
      * @param shopId The ID of the shop.
-     * @return List of food items in the shop's menu.
+     * @return List of food items in the shop's menu as DTOs.
      */
     @GetMapping("/{shopId}/menu")
-    public ResponseEntity<List<FoodItemEntity>> getShopMenu(@PathVariable Integer shopId) {
-        List<FoodItemEntity> menu = foodItemService.getFoodItemsByShop(shopId);
+    public ResponseEntity<List<FoodItemDTO>> getShopMenu(@PathVariable Integer shopId) {
+        List<FoodItemDTO> menu = foodItemService.getFoodItemsByShop(shopId);
         return ResponseEntity.ok(menu);
     }
 }

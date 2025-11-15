@@ -45,14 +45,6 @@ const LoginPage = () => {
     }
   };
 
-  // --- NEW MODERN COLOR PALETTE ---
-  // Outer Background: #F5F5F5 (light grey for a clean, modern look)
-  // Main Container Background: #FFFFFF (white for contrast and simplicity)
-  // Accent Color: #2563EB (vibrant blue for a fresh, professional feel)
-  // Input Field Background: #FAFAFA (subtle off-white for depth)
-  // Input Field Border: #E5E7EB (light grey for subtle definition)
-  // Button Text: #FFFFFF (white for readability)
-
   return (
     <div className="flex justify-center items-center h-[calc(100vh-64px)]" style={{ backgroundColor: '#DEC67E' }}>
       <div className="w-full max-w-md p-10 space-y-6 shadow-2xl" style={{ backgroundColor: '#EEC56E', border: '4px solid #5B050B' }}>

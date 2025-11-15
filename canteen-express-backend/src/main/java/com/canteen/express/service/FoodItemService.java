@@ -1,5 +1,6 @@
 package com.canteen.express.service;
 
+import com.canteen.express.dto.FoodItemDTO;
 import com.canteen.express.entity.FoodItemEntity;
 import com.canteen.express.entity.ShopEntity;
 import com.canteen.express.repository.FoodItemRepository;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Service class for FoodItem-related business logic.
@@ -23,12 +25,26 @@ public class FoodItemService {
     private ShopRepository shopRepository;
 
     /**
-     * Retrieves all food items for a specific shop.
+     * Retrieves all food items for a specific shop as DTOs.
      */
-    public List<FoodItemEntity> getFoodItemsByShop(Integer shopId) {
+    public List<FoodItemDTO> getFoodItemsByShop(Integer shopId) {
         ShopEntity shop = shopRepository.findById(shopId)
             .orElseThrow(() -> new IllegalStateException("Shop not found"));
-        return foodItemRepository.findByShop(shop);
+        return foodItemRepository.findByShop(shop).stream()
+                .map(this::convertToFoodItemDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Converts FoodItemEntity to FoodItemDTO.
+     */
+    private FoodItemDTO convertToFoodItemDTO(FoodItemEntity item) {
+        FoodItemDTO dto = new FoodItemDTO();
+        dto.setId(item.getFoodItemId());
+        dto.setName(item.getItemName());
+        dto.setDescription(item.getDescription());
+        dto.setPrice(item.getPrice());
+        return dto;
     }
 
 
