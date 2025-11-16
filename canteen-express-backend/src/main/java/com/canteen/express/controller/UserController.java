@@ -6,8 +6,7 @@ import com.canteen.express.dto.RegisterRequest;
 
 import com.canteen.express.entity.UserEntity;
 import com.canteen.express.service.UserService;
-import jakarta.validation.Valid; // This import is now used!
-import lombok.RequiredArgsConstructor; // Import this for constructor injection
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +24,16 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/auth") // Base path for authentication
-@RequiredArgsConstructor
 public class UserController {
 
-    // Use final fields for constructor injection (safer than @Autowired)
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
+
+    @Autowired
+    public UserController(UserService userService, AuthenticationManager authenticationManager) {
+        this.userService = userService;
+        this.authenticationManager = authenticationManager;
+    }
 
     /**
      * Endpoint for registering a new user.

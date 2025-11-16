@@ -39,6 +39,10 @@ public class FoodItemEntity {
     @Column(name = "category", length = 50)
     private String category;
 
+    @Size(max = 500)
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
     /**
      * FOREIGN KEY to the 'shops' table.
      * Each food item belongs to a specific shop.
@@ -81,6 +85,15 @@ public class FoodItemEntity {
         this.shop = shop;
     }
 
+    public FoodItemEntity(String itemName, String description, BigDecimal price, String category, String imageUrl, ShopEntity shop) {
+        this.itemName = itemName;
+        this.description = description;
+        this.price = price;
+        this.category = category;
+        this.imageUrl = imageUrl;
+        this.shop = shop;
+    }
+
     // --- Getters and Setters ---
 
     public Integer getFoodItemId() { return foodItemId; }
@@ -97,6 +110,9 @@ public class FoodItemEntity {
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
     public ShopEntity getShop() { return shop; }
     public void setShop(ShopEntity shop) { this.shop = shop; }
