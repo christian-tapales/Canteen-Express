@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import axios from 'axios';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -21,24 +20,29 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', {
-        email,
-        password,
-      });
+      // Check for admin credentials first
+      if (email === 'admin@canteenexpress.com' && password === '6canteen7') {
+        // Admin login - manually set in localStorage and update auth state
+        localStorage.setItem('token', 'admin-token');
+        localStorage.setItem('userId', 'admin');
+        localStorage.setItem('role', 'ADMIN');
+        
+        // Trigger a page reload to update auth context
+        window.location.href = '/admin/dashboard';
+        return;
+      }
 
-      const { token, userId } = response.data;
-      const user = { userId, role: response.data.role }; 
+      // Regular user login
+      const result = await auth.login(email, password);
       
-      auth.login(token, user);
-      
-      navigate(from, { replace: true });
+      if (result.success) {
+        navigate(from, { replace: true });
+      } else {
+        setError(result.message || 'Login failed');
+      }
 
     } catch (err) {
-      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-        setError('Invalid email or password.');
-      } else {
-        setError('Login failed. Please try again later.');
-      }
+      setError('Login failed. Please try again later.');
       console.error('Login error:', err);
     } finally {
       setLoading(false);

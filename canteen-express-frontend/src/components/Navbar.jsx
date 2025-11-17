@@ -16,7 +16,7 @@ const Navbar = () => {
   return (
     <nav className="p-4 shadow-md border-b-4" style={{ backgroundColor: '#DEC67E', color: '#5B050B', borderBottomColor: '#5B050B' }}>
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold hover:opacity-80" style={{ color: '#5B050B' }}>Canteen Express</Link>
+        <Link to="/shops" className="text-xl font-bold hover:opacity-80" style={{ color: '#5B050B' }}>Canteen Express</Link>
         <div className="flex items-center space-x-4">
           {/* Cart Icon with Badge */}
           <Link to="/cart" className="relative hover:opacity-80" title="Shopping Cart">

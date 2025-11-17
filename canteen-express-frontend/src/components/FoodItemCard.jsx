@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import AddToCartModal from './AddToCartModal';
 
 /**
@@ -9,10 +11,22 @@ import AddToCartModal from './AddToCartModal';
  */
 const FoodItemCard = ({ item }) => {
   const { cartItems } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   const itemInCart = cartItems.find(cartItem => cartItem.id === item.id);
   const quantityInCart = itemInCart ? itemInCart.quantity : 0;
+
+  const handleAddToCart = () => {
+    if (!user) {
+      // Redirect to login if not authenticated
+      alert('Please login to add items to your cart');
+      navigate('/login');
+      return;
+    }
+    setIsModalOpen(true);
+  };
   return (
     <div 
       className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-200 overflow-hidden"
@@ -53,11 +67,12 @@ const FoodItemCard = ({ item }) => {
             ₱{item.price?.toFixed(2)}
           </p>
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleAddToCart}
             className="px-4 py-2 rounded-lg font-semibold text-white transition-all duration-200 hover:opacity-90 active:scale-95"
-            style={{ backgroundColor: '#8C343A' }}
+            style={{ backgroundColor: user ? '#8C343A' : '#999999' }}
+            title={!user ? 'Login to add items to cart' : ''}
           >
-            Add to Cart {quantityInCart > 0 && `(${quantityInCart})`}
+            {user ? `Add to Cart ${quantityInCart > 0 ? `(${quantityInCart})` : ''}` : 'Login to Order'}
           </button>
         </div>
       </div>

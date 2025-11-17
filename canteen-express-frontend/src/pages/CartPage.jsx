@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -5,10 +6,34 @@ const CartPage = () => {
   const { cartItems, updateQuantity, removeFromCart, getCartTotal, clearCart } = useCart();
   const navigate = useNavigate();
 
+  // Checkout form state
+  const [pickupTime, setPickupTime] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [specialInstructions, setSpecialInstructions] = useState('');
+
   const handleCheckout = () => {
+    if (!pickupTime) {
+      alert('Please select an estimated pickup time');
+      return;
+    }
+    if (!paymentMethod) {
+      alert('Please select a payment method');
+      return;
+    }
+
     // TODO: Implement actual checkout/payment integration
-    alert(`Order total: ₱${getCartTotal().toFixed(2)}\n\nCheckout functionality will be implemented soon!`);
+    alert(
+      `Order Confirmed!\n\n` +
+      `Total: ₱${getCartTotal().toFixed(2)}\n` +
+      `Pickup Time: ${pickupTime}\n` +
+      `Payment Method: ${paymentMethod}\n` +
+      `Special Instructions: ${specialInstructions || 'None'}\n\n` +
+      `Your order will be ready at the specified time!`
+    );
     clearCart();
+    setPickupTime('');
+    setPaymentMethod('');
+    setSpecialInstructions('');
     navigate('/shops');
   };
 
@@ -118,27 +143,81 @@ const CartPage = () => {
           ))}
         </div>
 
-        {/* Order Summary */}
+        {/* Checkout Box */}
         <div className="lg:col-span-1">
           <div
             className="bg-white rounded-lg shadow-md p-6 sticky top-4"
             style={{ borderTop: '4px solid #DFAD13' }}
           >
             <h2 className="text-2xl font-bold mb-6" style={{ color: '#5B050B' }}>
-              Order Summary
+              Checkout
             </h2>
 
-            <div className="space-y-3 mb-6">
-              <div className="flex justify-between text-gray-600">
-                <span>Items ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})</span>
-                <span>₱{getCartTotal().toFixed(2)}</span>
+            {/* Estimated Pickup Time */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-2" style={{ color: '#5B050B' }}>
+                Estimated Pickup Time *
+              </label>
+              <input
+                type="time"
+                value={pickupTime}
+                onChange={(e) => setPickupTime(e.target.value)}
+                className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-opacity-50"
+                style={{ borderColor: '#8C343A' }}
+                required
+              />
+            </div>
+
+            {/* Payment Method */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-2" style={{ color: '#5B050B' }}>
+                Method of Payment *
+              </label>
+              <select
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-opacity-50"
+                style={{ borderColor: '#8C343A' }}
+                required
+              >
+                <option value="">Select mode of payment</option>
+                <option value="Cash">Cash</option>
+                <option value="GCash">GCash</option>
+                <option value="Maya">Maya</option>
+                <option value="Credit Card">Credit Card</option>
+                <option value="Debit Card">Debit Card</option>
+              </select>
+            </div>
+
+            {/* Special Instructions */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-2" style={{ color: '#5B050B' }}>
+                Special Instructions
+              </label>
+              <textarea
+                value={specialInstructions}
+                onChange={(e) => setSpecialInstructions(e.target.value)}
+                placeholder="Any special requests? (optional)"
+                className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-opacity-50 resize-none"
+                style={{ borderColor: '#8C343A' }}
+                rows="3"
+              />
+            </div>
+
+            {/* Order Summary */}
+            <div className="border-t-2 pt-4 mb-4" style={{ borderColor: '#FAE7BF' }}>
+              <div className="space-y-2 mb-3">
+                <div className="flex justify-between text-gray-600">
+                  <span>Items ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})</span>
+                  <span>₱{getCartTotal().toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>Service Fee</span>
+                  <span>₱0.00</span>
+                </div>
               </div>
-              <div className="flex justify-between text-gray-600">
-                <span>Delivery Fee</span>
-                <span>₱0.00</span>
-              </div>
-              <div className="border-t pt-3 flex justify-between text-xl font-bold" style={{ color: '#5B050B' }}>
-                <span>Total</span>
+              <div className="flex justify-between text-xl font-bold pt-3 border-t" style={{ color: '#5B050B' }}>
+                <span>Total Amount</span>
                 <span style={{ color: '#DFAD13' }}>₱{getCartTotal().toFixed(2)}</span>
               </div>
             </div>
@@ -148,7 +227,7 @@ const CartPage = () => {
               className="w-full py-3 rounded-lg font-semibold text-white transition-all duration-200 hover:opacity-90 mb-3"
               style={{ backgroundColor: '#8C343A' }}
             >
-              Proceed to Checkout
+              Place Order
             </button>
 
             <button
