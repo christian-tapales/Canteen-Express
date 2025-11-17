@@ -42,12 +42,56 @@ const ShopMenuPage = () => {
     }
   };
 
-  if (loading) return <div className="text-center mt-8 text-lg">Loading menu...</div>;
-  if (error) return <div className="text-center mt-8 text-red-500 text-lg">{error}</div>;
+  if (loading) return (
+    <div className="container mx-auto px-4 py-12 text-center text-lg" style={{ color: '#8C343A' }}>
+      Loading menu...
+    </div>
+  );
+  
+  if (error) return (
+    <div className="container mx-auto px-4 py-12 text-center text-lg" style={{ color: '#DC2626' }}>
+      {error}
+    </div>
+  );
 
   return (
-    <div className="max-w-7xl mx-auto py-8">
-      <h1 className="text-4xl font-bold mb-6 text-center" style={{ color: '#5B050B' }}>Menu</h1>
+    <div className="container mx-auto px-4 py-8">
+      {/* Header Card */}
+      <div 
+        className="rounded-2xl p-6 mb-8 shadow-md flex items-center gap-6"
+        style={{ 
+          backgroundColor: '#FFFFFF',
+          border: '2px solid #8C343A'
+        }}
+      >
+        {/* Canteen Image */}
+        <div 
+          className="w-32 h-32 rounded-xl overflow-hidden flex-shrink-0"
+          style={{ 
+            backgroundColor: '#E5E7EB',
+            backgroundImage: 'url(https://images.unsplash.com/photo-1567521464027-f127ff144326?w=400)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        />
+        
+        {/* Canteen Info */}
+        <div className="flex-grow">
+          <h1 className="text-3xl font-bold mb-2" style={{ color: '#8C343A' }}>
+            Main Canteen
+          </h1>
+          <button 
+            onClick={() => window.history.back()}
+            className="flex items-center gap-2 px-5 py-2 rounded-full font-semibold transition-all hover:opacity-90 shadow-sm"
+            style={{ 
+              backgroundColor: '#8C343A',
+              color: '#FFFFFF'
+            }}
+          >
+            ← Back to Shops
+          </button>
+        </div>
+      </div>
       
       {/* Category Filter Component */}
       <CategoryFilter 
@@ -56,15 +100,11 @@ const ShopMenuPage = () => {
         onCategoryChange={handleCategoryFilter}
       />
 
-      {/* Menu Items Count */}
-      <p className="text-center mb-4 text-gray-600">
-        Showing {filteredMenu.length} item{filteredMenu.length !== 1 ? 's' : ''}
-        {selectedCategory !== 'All' && ` in ${selectedCategory}`}
-      </p>
-
       {/* Menu Items Grid */}
       {filteredMenu.length === 0 ? (
-        <div className="text-center text-gray-500 mt-8">No items found in this category</div>
+        <div className="text-center text-lg py-12" style={{ color: '#666666' }}>
+          No items found in this category
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredMenu.map((item) => (

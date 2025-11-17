@@ -20,21 +20,24 @@ const FoodItemCard = ({ item }) => {
 
   const handleAddToCart = () => {
     if (!user) {
-      // Redirect to login if not authenticated
       alert('Please login to add items to your cart');
       navigate('/login');
       return;
     }
     setIsModalOpen(true);
   };
+
   return (
     <div 
-      className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-200 overflow-hidden"
-      style={{ borderTop: '4px solid #8C343A' }}
+      className="rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
+      style={{ 
+        backgroundColor: '#FFFFFF',
+        border: '2px solid #8C343A'
+      }}
     >
       {/* Image */}
       {item.imageUrl && (
-        <div className="w-full h-48 overflow-hidden bg-gray-100">
+        <div className="w-full h-48 overflow-hidden" style={{ backgroundColor: '#F3F4F6' }}>
           <img 
             src={item.imageUrl} 
             alt={item.name}
@@ -49,32 +52,53 @@ const FoodItemCard = ({ item }) => {
       {/* Content */}
       <div className="p-5">
         <div className="flex justify-between items-start mb-2">
-          <h2 className="text-xl font-semibold" style={{ color: '#5B050B' }}>
+          <h2 className="text-lg font-bold" style={{ color: '#8C343A' }}>
             {item.name}
           </h2>
           {item.category && (
             <span 
-              className="text-xs px-2 py-1 rounded-full font-semibold whitespace-nowrap ml-2"
-              style={{ backgroundColor: '#FAE7BF', color: '#8C343A' }}
+              className="text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap ml-2"
+              style={{ 
+                backgroundColor: '#FEF3C7',
+                color: '#92400E'
+              }}
             >
               {item.category}
             </span>
           )}
         </div>
-        <p className="text-gray-600 mb-3 text-sm">{item.description}</p>
-        <div className="flex justify-between items-center">
-          <p className="text-2xl font-bold" style={{ color: '#DFAD13' }}>
-            ₱{item.price?.toFixed(2)}
+        
+        <p className="text-sm mb-3" style={{ color: '#666666' }}>
+          {item.description}
+        </p>
+        
+        <div className="flex justify-between items-center mt-4">
+          <p className="text-xl font-bold" style={{ color: '#B78A00' }}>
+            ₱{item.price?.toFixed(0)}
           </p>
           <button
             onClick={handleAddToCart}
-            className="px-4 py-2 rounded-lg font-semibold text-white transition-all duration-200 hover:opacity-90 active:scale-95"
-            style={{ backgroundColor: user ? '#8C343A' : '#999999' }}
+            className="px-5 py-2 rounded-full font-semibold text-white transition-all duration-200 hover:opacity-90 shadow-sm"
+            style={{ 
+              backgroundColor: user ? '#8C343A' : '#9CA3AF'
+            }}
             title={!user ? 'Login to add items to cart' : ''}
           >
-            {user ? `Add to Cart ${quantityInCart > 0 ? `(${quantityInCart})` : ''}` : 'Login to Order'}
+            {user ? 'Order Now' : 'Login to Order'}
           </button>
         </div>
+        
+        {quantityInCart > 0 && (
+          <div 
+            className="mt-3 text-center text-sm font-semibold py-1 rounded-full"
+            style={{ 
+              backgroundColor: '#FEF3C7',
+              color: '#92400E'
+            }}
+          >
+            {quantityInCart} in cart
+          </div>
+        )}
       </div>
 
       <AddToCartModal 

@@ -41,15 +41,15 @@ const CartPage = () => {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <div className="max-w-md mx-auto">
-          <h1 className="text-4xl font-bold mb-4" style={{ color: '#5B050B' }}>
+          <h1 className="text-4xl font-bold mb-4" style={{ color: '#8C343A' }}>
             Your Cart is Empty
           </h1>
-          <p className="text-gray-600 mb-8">
+          <p className="text-base mb-8" style={{ color: '#666666' }}>
             Add some delicious items from our shops to get started!
           </p>
           <button
             onClick={() => navigate('/shops')}
-            className="px-6 py-3 rounded-lg font-semibold text-white transition-all duration-200 hover:opacity-90"
+            className="px-8 py-3 rounded-full font-semibold text-white transition-all duration-200 hover:opacity-90 shadow-md"
             style={{ backgroundColor: '#8C343A' }}
           >
             Browse Shops
@@ -60,184 +60,223 @@ const CartPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8" style={{ color: '#5B050B' }}>
-        Shopping Cart
-      </h1>
+    <div className="container mx-auto px-4 py-8" style={{ backgroundColor: '#FBCA30', minHeight: 'calc(100vh - 80px)' }}>
+      <div className="flex items-center gap-3 mb-6">
+        <button 
+          onClick={() => navigate('/shops')}
+          className="text-2xl font-bold"
+          style={{ color: '#8C343A' }}
+        >
+          ← Back
+        </button>
+        <h1 className="text-2xl font-bold" style={{ color: '#8C343A' }}>
+          My Cart
+        </h1>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Cart Items */}
-        <div className="lg:col-span-2 space-y-4">
-          {cartItems.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-lg shadow-md p-4 flex items-center gap-4"
-              style={{ borderLeft: '4px solid #8C343A' }}
-            >
-              {/* Image */}
-              {item.imageUrl && (
-                <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
-                  <img
-                    src={item.imageUrl}
-                    alt={item.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                </div>
-              )}
+        <div className="lg:col-span-2">
+          <div 
+            className="rounded-2xl p-6 shadow-lg"
+            style={{ 
+              backgroundColor: '#FFFFFF',
+              border: '2px solid #8C343A'
+            }}
+          >
+            <h2 className="text-lg font-bold mb-6 flex items-center gap-2" style={{ color: '#8C343A' }}>
+              🛍️ Products
+            </h2>
+            
+            <div className="space-y-6">
+              {cartItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-4 pb-6"
+                  style={{ 
+                    borderBottom: '2px solid #F3F4F6'
+                  }}
+                >
+                  {/* Image */}
+                  {item.imageUrl && (
+                    <div className="w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden" style={{ backgroundColor: '#F3F4F6' }}>
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
 
-              {/* Details */}
-              <div className="flex-grow">
-                <h3 className="text-lg font-semibold mb-1" style={{ color: '#5B050B' }}>
-                  {item.name}
-                </h3>
-                {item.category && (
-                  <span
-                    className="text-xs px-2 py-1 rounded-full font-semibold"
-                    style={{ backgroundColor: '#FAE7BF', color: '#8C343A' }}
+                  {/* Details */}
+                  <div className="flex-grow">
+                    <h3 className="text-base font-bold mb-1" style={{ color: '#8C343A' }}>
+                      {item.name}
+                    </h3>
+                    <p className="text-sm mb-2" style={{ color: '#666666' }}>
+                      {item.category || 'No add-ons'}
+                    </p>
+                    <p className="text-base font-bold" style={{ color: '#B78A00' }}>
+                      ₱{item.price.toFixed(0)}
+                    </p>
+                  </div>
+
+                  {/* Quantity Controls */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      className="w-8 h-8 rounded-full font-bold transition-all duration-200 hover:opacity-90 shadow-sm"
+                      style={{ backgroundColor: '#FBCA30', color: '#8C343A' }}
+                    >
+                      −
+                    </button>
+                    <span className="text-base font-semibold w-8 text-center" style={{ color: '#2D2D2D' }}>
+                      {item.quantity}
+                    </span>
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      className="w-8 h-8 rounded-full font-bold transition-all duration-200 hover:opacity-90 shadow-sm"
+                      style={{ backgroundColor: '#FBCA30', color: '#8C343A' }}
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  {/* Remove Button */}
+                  <button
+                    onClick={() => removeFromCart(item.id)}
+                    className="text-xl transition-opacity hover:opacity-70"
+                    style={{ color: '#8C343A' }}
+                    title="Remove item"
                   >
-                    {item.category}
-                  </span>
-                )}
-                <p className="text-xl font-bold mt-2" style={{ color: '#DFAD13' }}>
-                  ₱{item.price.toFixed(2)} each
-                </p>
-              </div>
-
-              {/* Quantity Controls */}
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                  className="w-8 h-8 rounded-full font-bold text-white transition-all duration-200 hover:opacity-90"
-                  style={{ backgroundColor: '#8C343A' }}
-                >
-                  -
-                </button>
-                <span className="text-lg font-semibold w-8 text-center">
-                  {item.quantity}
-                </span>
-                <button
-                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                  className="w-8 h-8 rounded-full font-bold text-white transition-all duration-200 hover:opacity-90"
-                  style={{ backgroundColor: '#8C343A' }}
-                >
-                  +
-                </button>
-              </div>
-
-              {/* Subtotal & Remove */}
-              <div className="text-right">
-                <p className="text-xl font-bold mb-2" style={{ color: '#5B050B' }}>
-                  ₱{(item.price * item.quantity).toFixed(2)}
-                </p>
-                <button
-                  onClick={() => removeFromCart(item.id)}
-                  className="text-red-600 hover:text-red-800 text-sm font-semibold"
-                >
-                  Remove
-                </button>
-              </div>
+                    🗑️
+                  </button>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
 
-        {/* Checkout Box */}
-        <div className="lg:col-span-1">
+        {/* Checkout Sidebar */}
+        <div className="lg:col-span-1 space-y-6">
+          {/* Estimated Time Box */}
           <div
-            className="bg-white rounded-lg shadow-md p-6 sticky top-4"
-            style={{ borderTop: '4px solid #DFAD13' }}
+            className="rounded-2xl p-6 shadow-lg"
+            style={{ 
+              backgroundColor: '#FFFFFF',
+              border: '2px solid #8C343A'
+            }}
           >
-            <h2 className="text-2xl font-bold mb-6" style={{ color: '#5B050B' }}>
-              Checkout
-            </h2>
+            <h3 className="text-base font-bold mb-4" style={{ color: '#8C343A' }}>
+              Estimated Time
+            </h3>
+            <input
+              type="time"
+              value={pickupTime}
+              onChange={(e) => setPickupTime(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl focus:outline-none text-center font-semibold"
+              style={{ 
+                backgroundColor: '#FFF9E6',
+                border: '2px solid #E5E7EB',
+                color: '#8C343A'
+              }}
+              required
+            />
+          </div>
 
-            {/* Estimated Pickup Time */}
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2" style={{ color: '#5B050B' }}>
-                Estimated Pickup Time *
-              </label>
-              <input
-                type="time"
-                value={pickupTime}
-                onChange={(e) => setPickupTime(e.target.value)}
-                className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-opacity-50"
-                style={{ borderColor: '#8C343A' }}
-                required
-              />
-            </div>
-
-            {/* Payment Method */}
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2" style={{ color: '#5B050B' }}>
-                Method of Payment *
-              </label>
-              <select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-opacity-50"
-                style={{ borderColor: '#8C343A' }}
-                required
-              >
-                <option value="">Select mode of payment</option>
-                <option value="Cash">Cash</option>
-                <option value="GCash">GCash</option>
-                <option value="Maya">Maya</option>
-                <option value="Credit Card">Credit Card</option>
-                <option value="Debit Card">Debit Card</option>
-              </select>
-            </div>
-
-            {/* Special Instructions */}
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2" style={{ color: '#5B050B' }}>
-                Special Instructions
-              </label>
-              <textarea
-                value={specialInstructions}
-                onChange={(e) => setSpecialInstructions(e.target.value)}
-                placeholder="Any special requests? (optional)"
-                className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-opacity-50 resize-none"
-                style={{ borderColor: '#8C343A' }}
-                rows="3"
-              />
-            </div>
-
-            {/* Order Summary */}
-            <div className="border-t-2 pt-4 mb-4" style={{ borderColor: '#FAE7BF' }}>
-              <div className="space-y-2 mb-3">
-                <div className="flex justify-between text-gray-600">
-                  <span>Items ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})</span>
-                  <span>₱{getCartTotal().toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Service Fee</span>
-                  <span>₱0.00</span>
-                </div>
-              </div>
-              <div className="flex justify-between text-xl font-bold pt-3 border-t" style={{ color: '#5B050B' }}>
-                <span>Total Amount</span>
-                <span style={{ color: '#DFAD13' }}>₱{getCartTotal().toFixed(2)}</span>
-              </div>
-            </div>
-
-            <button
-              onClick={handleCheckout}
-              className="w-full py-3 rounded-lg font-semibold text-white transition-all duration-200 hover:opacity-90 mb-3"
-              style={{ backgroundColor: '#8C343A' }}
+          {/* Payment Method Box */}
+          <div
+            className="rounded-2xl p-6 shadow-lg"
+            style={{ 
+              backgroundColor: '#FFFFFF',
+              border: '2px solid #8C343A'
+            }}
+          >
+            <h3 className="text-base font-bold mb-4" style={{ color: '#8C343A' }}>
+              Method of Payment
+            </h3>
+            <select
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl focus:outline-none font-semibold"
+              style={{ 
+                backgroundColor: '#FFF9E6',
+                border: '2px solid #E5E7EB',
+                color: '#8C343A'
+              }}
+              required
             >
-              Place Order
-            </button>
-
-            <button
-              onClick={() => navigate('/shops')}
-              className="w-full py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-gray-100"
-              style={{ backgroundColor: '#FAE7BF', color: '#8C343A' }}
+              <option value="">Selected Method of Payment</option>
+              <option value="Cash">Cash</option>
+              <option value="GCash">GCash</option>
+              <option value="Maya">Maya</option>
+              <option value="Credit Card">Credit Card</option>
+              <option value="Debit Card">Debit Card</option>
+            </select>
+            <button 
+              className="w-full mt-3 py-3 rounded-xl font-semibold transition-all hover:opacity-90"
+              style={{ 
+                backgroundColor: '#FFF9E6',
+                border: '2px solid #E5E7EB',
+                color: '#666666'
+              }}
             >
-              Continue Shopping
+              Add New Payment Method
             </button>
           </div>
+
+          {/* Special Instructions Box */}
+          <div
+            className="rounded-2xl p-6 shadow-lg"
+            style={{ 
+              backgroundColor: '#FFFFFF',
+              border: '2px solid #8C343A'
+            }}
+          >
+            <h3 className="text-base font-bold mb-4" style={{ color: '#8C343A' }}>
+              Special Instructions
+            </h3>
+            <textarea
+              value={specialInstructions}
+              onChange={(e) => setSpecialInstructions(e.target.value)}
+              placeholder="Enter special instructions..."
+              className="w-full px-4 py-3 rounded-xl focus:outline-none resize-none"
+              style={{ 
+                backgroundColor: '#FFF9E6',
+                border: '2px solid #E5E7EB',
+                color: '#2D2D2D'
+              }}
+              rows="4"
+            />
+          </div>
+
+          {/* Total Amount Box */}
+          <div
+            className="rounded-2xl p-6 shadow-lg"
+            style={{ 
+              backgroundColor: '#FFFFFF',
+              border: '2px solid #8C343A'
+            }}
+          >
+            <h3 className="text-base font-bold mb-4" style={{ color: '#8C343A' }}>
+              Total Amount:
+            </h3>
+            <p className="text-2xl font-bold text-center" style={{ color: '#B78A00' }}>
+              ₱{getCartTotal().toFixed(0)}
+            </p>
+          </div>
+
+          {/* Checkout Button */}
+          <button
+            onClick={handleCheckout}
+            className="w-full py-4 rounded-full font-bold text-white transition-all duration-200 hover:opacity-90 shadow-lg"
+            style={{ backgroundColor: '#8C343A', fontSize: '18px' }}
+          >
+            Place Order
+          </button>
         </div>
       </div>
     </div>

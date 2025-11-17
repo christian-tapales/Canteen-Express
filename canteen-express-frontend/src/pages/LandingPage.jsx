@@ -10,56 +10,59 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+    <div className="min-h-screen relative overflow-hidden">
       {/* Background Image - Full canteen background */}
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1567521464027-f127ff144326?w=800)',
-          filter: 'brightness(0.5)'
+          backgroundImage: 'url(https://images.unsplash.com/photo-1567521464027-f127ff144326?w=1600)',
+          filter: 'brightness(0.6)'
         }}
       />
 
-      {/* Gradient overlay */}
+      {/* Gradient overlay for depth */}
       <div 
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(to bottom, rgba(91, 5, 11, 0.3), rgba(140, 52, 58, 0.5))'
+          background: 'linear-gradient(to bottom, rgba(140, 52, 58, 0.3), rgba(140, 52, 58, 0.6))'
         }}
       />
 
       {/* Content Container */}
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Top Section - Clear Background with Logo */}
-        <div className="flex-1 flex items-center justify-center py-20">
+        {/* Top Section - Logo and Branding */}
+        <div className="flex-1 flex items-center justify-center py-20 px-4">
           <div className="text-center">
-            <div className="mb-6 flex items-center justify-center gap-4">
+            {/* Logo */}
+            <div className="mb-8 flex items-center justify-center gap-5">
               <div 
-                className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg"
+                className="w-24 h-24 rounded-full flex items-center justify-center shadow-2xl"
                 style={{ 
                   backgroundColor: '#8C343A',
-                  border: '3px solid #DFAD13'
+                  border: '4px solid #FBCA30'
                 }}
               >
-                <span className="text-5xl">🍽️</span>
+                <span className="text-6xl">🍽️</span>
               </div>
               <div>
                 <h1 
-                  className="text-7xl font-bold tracking-wide uppercase"
+                  className="text-8xl font-bold tracking-wider"
                   style={{ 
-                    color: '#DFAD13',
-                    textShadow: '3px 3px 8px rgba(0,0,0,0.8)',
-                    fontWeight: '700'
+                    color: '#FBCA30',
+                    textShadow: '4px 4px 12px rgba(0,0,0,0.9)',
+                    fontWeight: '800',
+                    lineHeight: '1'
                   }}
                 >
                   Canteen
                 </h1>
                 <h1 
-                  className="text-7xl font-bold tracking-wide uppercase"
+                  className="text-8xl font-bold tracking-wider"
                   style={{ 
-                    color: '#DFAD13',
-                    textShadow: '3px 3px 8px rgba(0,0,0,0.8)',
-                    fontWeight: '700'
+                    color: '#FBCA30',
+                    textShadow: '4px 4px 12px rgba(0,0,0,0.9)',
+                    fontWeight: '800',
+                    lineHeight: '1'
                   }}
                 >
                   Express
@@ -67,10 +70,10 @@ const LandingPage = () => {
               </div>
             </div>
             <p 
-              className="text-2xl font-semibold"
+              className="text-3xl font-semibold"
               style={{ 
-                color: '#FAE7BF',
-                textShadow: '2px 2px 6px rgba(0,0,0,0.7)'
+                color: '#FFFFFF',
+                textShadow: '3px 3px 8px rgba(0,0,0,0.8)'
               }}
             >
               Your Campus Food Ordering Solution
@@ -78,116 +81,77 @@ const LandingPage = () => {
           </div>
         </div>
 
-        {/* Bottom Section - Transparent Blurry Background */}
-        <div className="relative">
-          {/* Blurred Background Overlay */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage: 'url(https://images.unsplash.com/photo-1567521464027-f127ff144326?w=1200)',
-              filter: 'blur(10px) brightness(0.4)',
-              backdropFilter: 'blur(15px)'
-            }}
-          />
-          
-          {/* Transparent overlay with border */}
+        {/* Bottom Hero Section - Blurred Panel */}
+        <div 
+          className="relative"
+          style={{
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)'
+          }}
+        >
+          {/* Semi-transparent panel */}
           <div 
             className="absolute inset-0"
             style={{ 
-              backgroundColor: 'rgba(91, 5, 11, 0.75)',
-              borderTop: '4px solid #DFAD13'
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              borderTop: '3px solid #8C343A'
             }}
           />
 
           {/* Content */}
-          <div className="relative z-10 py-16 px-8 text-center">
-            <h2 
-              className="text-5xl font-bold mb-4 uppercase"
-              style={{ 
-                color: '#FAE7BF',
-                textShadow: '2px 2px 6px rgba(0,0,0,0.8)',
-                fontWeight: '700'
+          <div className="relative z-10 py-20 px-8 text-center">
+            <div 
+              className="max-w-3xl mx-auto rounded-3xl p-10 shadow-2xl"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                border: '3px solid #8C343A'
               }}
             >
-              Welcome to Canteen Express!
-            </h2>
-            <p 
-              className="text-2xl mb-8 font-semibold"
-              style={{ 
-                color: '#FAE7BF',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.7)'
-              }}
-            >
-              Your Campus Food Ordering Solution
-            </p>
-            
-            <button
-              onClick={handleGetStarted}
-              className="px-12 py-4 rounded text-xl font-bold uppercase tracking-wide transition-all duration-300 hover:opacity-90"
-              style={{ 
-                backgroundColor: '#8C343A',
-                color: '#DFAD13',
-                border: '2px solid #DFAD13',
-                fontWeight: '700'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#DFAD13';
-                e.target.style.color = '#5B050B';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#8C343A';
-                e.target.style.color = '#DFAD13';
-              }}
-            >
-              Get Started
-            </button>
-
-            {/* Features */}
-            <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-              <div className="text-center p-5 rounded" 
+              <h2 
+                className="text-5xl font-bold mb-4"
                 style={{ 
-                  backgroundColor: 'rgba(140, 52, 58, 0.5)',
-                  border: '2px solid #DFAD13'
-                }}>
-                <h3 className="text-xl font-bold uppercase mb-2" style={{ color: '#DFAD13' }}>
-                  Multiple Shops
-                </h3>
-                <p className="text-sm font-semibold" style={{ color: '#FAE7BF' }}>
-                  Choose from various campus canteens
-                </p>
-              </div>
+                  color: '#8C343A',
+                  fontWeight: '800'
+                }}
+              >
+                Welcome to Canteen Express!
+              </h2>
+              <p 
+                className="text-xl mb-8"
+                style={{ 
+                  color: '#666666'
+                }}
+              >
+                Order delicious meals from your favorite campus canteens. Fast, easy, and convenient.
+              </p>
               
-              <div className="text-center p-5 rounded" 
+              <button
+                onClick={handleGetStarted}
+                className="px-16 py-5 rounded-full text-2xl font-bold transition-all duration-300 hover:opacity-90 shadow-xl"
                 style={{ 
-                  backgroundColor: 'rgba(140, 52, 58, 0.5)',
-                  border: '2px solid #DFAD13'
-                }}>
-                <h3 className="text-xl font-bold uppercase mb-2" style={{ color: '#DFAD13' }}>
-                  Wide Selection
-                </h3>
-                <p className="text-sm font-semibold" style={{ color: '#FAE7BF' }}>
-                  Browse menus from all canteens
-                </p>
-              </div>
-              
-              <div className="text-center p-5 rounded" 
-                style={{ 
-                  backgroundColor: 'rgba(140, 52, 58, 0.5)',
-                  border: '2px solid #DFAD13'
-                }}>
-                <h3 className="text-xl font-bold uppercase mb-2" style={{ color: '#DFAD13' }}>
-                  Quick Ordering
-                </h3>
-                <p className="text-sm font-semibold" style={{ color: '#FAE7BF' }}>
-                  Order ahead and skip the lines
-                </p>
-              </div>
+                  backgroundColor: '#8C343A',
+                  color: '#FFFFFF',
+                  border: '3px solid #8C343A'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#FBCA30';
+                  e.target.style.color = '#8C343A';
+                  e.target.style.borderColor = '#8C343A';
+                  e.target.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#8C343A';
+                  e.target.style.color = '#FFFFFF';
+                  e.target.style.borderColor = '#8C343A';
+                  e.target.style.transform = 'scale(1)';
+                }}
+              >
+                Get Started
+              </button>
             </div>
           </div>
         </div>
       </div>
-
-
     </div>
   );
 };

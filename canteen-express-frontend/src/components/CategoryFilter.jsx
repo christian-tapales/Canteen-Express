@@ -11,15 +11,15 @@ const CategoryFilter = ({ categories, selectedCategory, onCategoryChange }) => {
         <button
           key={category}
           onClick={() => onCategoryChange(category)}
-          className={`px-6 py-2 rounded-lg font-semibold transition-all duration-200 ${
+          className={`px-6 py-2 rounded-full font-semibold transition-all duration-200 shadow-sm ${
             selectedCategory === category
-              ? 'shadow-lg transform scale-105'
+              ? 'transform scale-105'
               : 'hover:opacity-80'
           }`}
           style={{
-            backgroundColor: selectedCategory === category ? '#8C343A' : '#DEC67E',
-            color: selectedCategory === category ? '#DFAD13' : '#5B050B',
-            border: `2px solid ${selectedCategory === category ? '#5B050B' : '#8C343A'}`
+            backgroundColor: selectedCategory === category ? '#FBCA30' : '#FFFFFF',
+            color: selectedCategory === category ? '#8C343A' : '#666666',
+            border: `2px solid ${selectedCategory === category ? '#8C343A' : '#E5E7EB'}`
           }}
         >
           {category}
