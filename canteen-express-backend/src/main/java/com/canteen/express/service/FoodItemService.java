@@ -44,6 +44,8 @@ public class FoodItemService {
         dto.setName(item.getItemName());
         dto.setDescription(item.getDescription());
         dto.setPrice(item.getPrice());
+        dto.setCategory(item.getCategory());
+        dto.setImageUrl(item.getImageUrl());
         return dto;
     }
 

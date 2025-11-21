@@ -3,8 +3,8 @@ package com.canteen.express.service;
 import com.canteen.express.entity.UserEntity;
 import com.canteen.express.repository.UserRepository;
 import com.canteen.express.security.JwtService;
-import com.canteen.express.dto.RegisterRequest; // <-- Import the DTO
-import lombok.RequiredArgsConstructor;
+import com.canteen.express.dto.RegisterRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,14 +19,18 @@ import java.util.Map;
  * focusing on authentication and registration.
  */
 @Service
-@RequiredArgsConstructor // This annotation provides the constructor for your final fields
 public class UserService implements UserDetailsService {
 
-    // Use private final fields with @RequiredArgsConstructor.
-    // This is safer than @Autowired.
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+
+    @Autowired
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+    }
 
     /**
      * Registers a new user in the system.

@@ -1,19 +1,38 @@
 @import "tailwindcss";
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  /* Color Palette - Professional Canteen Theme */
+  --primary-maroon: #8C343A;
+  --secondary-yellow: #FBCA30;
+  --accent-price: #B78A00;
+  --dark-maroon: #5B050B;
+  --bg-cream: #FFF9E6;
+  --bg-light-cream: #FFFCF2;
+  --card-bg: #FFFFFF;
+  --border-maroon: #8C343A;
+  --text-dark: #2D2D2D;
+  --text-gray: #666666;
+  --success-green: #10B981;
+  --error-red: #DC2626;
+  
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  line-height: 1.6;
   font-weight: 400;
-
+  
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #EEC56E;
+  background-color: var(--bg-cream);
+  color: var(--text-dark);
 }
