@@ -1,0 +1,9 @@
+# ===============================================
+# GIT ATTRIBUTES (Applies to the entire Monorepo)
+# -----------------------------------------------
+
+# Ensure Maven Wrapper shell script (for Linux/Mac) uses LF line endings.
+/backend/mvnw text eol=lf
+
+# Ensure Windows Command scripts use CRLF line endings.
+/backend/*.cmd text eol=crlf
