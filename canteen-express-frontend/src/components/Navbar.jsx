@@ -18,9 +18,19 @@ const Navbar = () => {
       <div className="container mx-auto px-4 flex justify-between items-center">
         {/* Logo and Brand */}
         <Link to="/shops" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+          <img 
+            src="/assets/logo.png" 
+            alt="Canteen Express Logo" 
+            className="w-10 h-10 rounded-full object-cover"
+            style={{ border: '2px solid #8C343A' }}
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextElementSibling.style.display = 'flex';
+            }}
+          />
           <div 
-            className="w-10 h-10 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: '#8C343A' }}
+            className="w-10 h-10 rounded-full items-center justify-center"
+            style={{ backgroundColor: '#8C343A', display: 'none' }}
           >
             <span className="text-2xl">🍽️</span>
           </div>

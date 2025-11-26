@@ -35,11 +35,22 @@ const LandingPage = () => {
           <div className="text-center">
             {/* Logo */}
             <div className="mb-8 flex items-center justify-center gap-5">
+              <img 
+                src="/assets/logo.png" 
+                alt="Canteen Express Logo" 
+                className="w-24 h-24 rounded-full object-cover shadow-2xl"
+                style={{ border: '4px solid #FBCA30' }}
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextElementSibling.style.display = 'flex';
+                }}
+              />
               <div 
-                className="w-24 h-24 rounded-full flex items-center justify-center shadow-2xl"
+                className="w-24 h-24 rounded-full items-center justify-center shadow-2xl"
                 style={{ 
                   backgroundColor: '#8C343A',
-                  border: '4px solid #FBCA30'
+                  border: '4px solid #FBCA30',
+                  display: 'none'
                 }}
               >
                 <span className="text-6xl">🍽️</span>

@@ -32,19 +32,44 @@ const RegisterPage = () => {
       style={{ backgroundColor: '#FFF9E6' }}
     >
       <div 
-        className="w-full max-w-md rounded-3xl p-10 shadow-2xl"
+        className="w-full max-w-md rounded-3xl p-10 shadow-2xl relative"
         style={{ 
           backgroundColor: '#FFFFFF',
           border: '3px solid #8C343A'
         }}
       >
+        {/* Back Button */}
+        <button
+          onClick={() => navigate('/login')}
+          className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all hover:opacity-80"
+          style={{ 
+            color: '#8C343A',
+            border: '2px solid #8C343A',
+            backgroundColor: 'transparent'
+          }}
+        >
+          <span>←</span>
+          <span>Back</span>
+        </button>
+
         {/* Logo/Brand */}
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-6 mt-8">
+          <img 
+            src="/assets/logo.png" 
+            alt="Canteen Express Logo" 
+            className="w-16 h-16 rounded-full object-cover shadow-lg"
+            style={{ border: '3px solid #FBCA30' }}
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextElementSibling.style.display = 'flex';
+            }}
+          />
           <div 
-            className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg"
+            className="w-16 h-16 rounded-full items-center justify-center shadow-lg"
             style={{ 
               backgroundColor: '#8C343A',
-              border: '3px solid #FBCA30'
+              border: '3px solid #FBCA30',
+              display: 'none'
             }}
           >
             <span className="text-4xl">🍽️</span>

@@ -13,18 +13,64 @@ export const useCart = () => {
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
-  // Load cart from localStorage on mount
+  // Load cart from localStorage on mount and when user changes
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      setCartItems(JSON.parse(savedCart));
+    const userId = localStorage.getItem('userId');
+    setCurrentUserId(userId);
+    
+    if (userId) {
+      // Load cart specific to this user
+      const savedCart = localStorage.getItem(`cart_${userId}`);
+      if (savedCart) {
+        setCartItems(JSON.parse(savedCart));
+      } else {
+        setCartItems([]);
+      }
+    } else {
+      // No user logged in, clear cart
+      setCartItems([]);
     }
   }, []);
 
-  // Save cart to localStorage whenever it changes
+  // Monitor userId changes (for login/logout/switch account)
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cartItems));
+    const checkUserChange = () => {
+      const userId = localStorage.getItem('userId');
+      
+      if (userId !== currentUserId) {
+        setCurrentUserId(userId);
+        
+        if (userId) {
+          // User logged in or switched account - load their cart
+          const savedCart = localStorage.getItem(`cart_${userId}`);
+          if (savedCart) {
+            setCartItems(JSON.parse(savedCart));
+          } else {
+            setCartItems([]);
+          }
+        } else {
+          // User logged out - clear cart
+          setCartItems([]);
+        }
+      }
+    };
+
+    // Check immediately
+    checkUserChange();
+
+    // Set up interval to check for changes
+    const interval = setInterval(checkUserChange, 500);
+    return () => clearInterval(interval);
+  }, [currentUserId]);
+
+  // Save cart to localStorage whenever it changes (user-specific)
+  useEffect(() => {
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      localStorage.setItem(`cart_${userId}`, JSON.stringify(cartItems));
+    }
   }, [cartItems]);
 
   const addToCart = (item) => {
@@ -62,6 +108,11 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => {
     setCartItems([]);
+    // Also clear from localStorage for current user
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      localStorage.removeItem(`cart_${userId}`);
+    }
   };
 
   const getCartTotal = () => {
