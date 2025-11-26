@@ -60,18 +60,47 @@ const CartPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8" style={{ backgroundColor: '#FBCA30', minHeight: 'calc(100vh - 80px)' }}>
-      <div className="flex items-center gap-3 mb-6">
+    <div className="container mx-auto px-4 py-8" style={{ backgroundColor: '#FFF9E6', minHeight: 'calc(100vh - 80px)' }}>
+      {/* Header Section with Back Button and Cart Title */}
+      <div className="mb-6">
+        {/* Back Button - Clearly Separated */}
         <button 
           onClick={() => navigate('/shops')}
-          className="text-2xl font-bold"
-          style={{ color: '#8C343A' }}
+          className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold transition-all hover:shadow-lg mb-4"
+          style={{ 
+            color: '#FFFFFF',
+            backgroundColor: '#8C343A',
+            border: '2px solid #8C343A',
+            boxShadow: '0 2px 4px rgba(140, 52, 58, 0.2)'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = '#6B2A2F';
+            e.target.style.transform = 'translateX(-4px)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = '#8C343A';
+            e.target.style.transform = 'translateX(0)';
+          }}
         >
-          ← Back
+          <span className="text-lg font-bold">←</span>
+          <span>Back to Shops</span>
         </button>
-        <h1 className="text-2xl font-bold" style={{ color: '#8C343A' }}>
-          My Cart
-        </h1>
+
+        {/* Ribbon Header for "My Cart" - Distinct and Prominent */}
+        <div 
+          className="rounded-2xl px-10 py-5 shadow-lg"
+          style={{ 
+            backgroundColor: '#8C343A',
+            color: '#FFFFFF',
+            border: '3px solid #FBCA30',
+            background: 'linear-gradient(135deg, #8C343A 0%, #6B2A2F 100%)'
+          }}
+        >
+          <h1 className="text-4xl font-bold flex items-center gap-4">
+            <span className="text-5xl">🛒</span>
+            <span>My Cart</span>
+          </h1>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -253,7 +282,7 @@ const CartPage = () => {
             />
           </div>
 
-          {/* Total Amount Box */}
+          {/* Receipt Breakdown Box */}
           <div
             className="rounded-2xl p-6 shadow-lg"
             style={{ 
@@ -261,12 +290,49 @@ const CartPage = () => {
               border: '2px solid #8C343A'
             }}
           >
-            <h3 className="text-base font-bold mb-4" style={{ color: '#8C343A' }}>
-              Total Amount:
+            <h3 className="text-lg font-bold mb-4 pb-3" style={{ color: '#8C343A', borderBottom: '2px solid #E5E7EB' }}>
+              📝 Order Summary
             </h3>
-            <p className="text-2xl font-bold text-center" style={{ color: '#B78A00' }}>
-              ₱{getCartTotal().toFixed(0)}
-            </p>
+            
+            {/* Itemized List */}
+            <div className="space-y-4 mb-4">
+              {cartItems.map((item) => (
+                <div key={item.id} className="pb-3" style={{ borderBottom: '1px solid #F3F4F6' }}>
+                  {/* Item Name and Quantity */}
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="font-semibold text-sm" style={{ color: '#8C343A' }}>
+                      {item.name}
+                    </span>
+                    <span className="text-xs font-medium" style={{ color: '#666666' }}>
+                      x{item.quantity}
+                    </span>
+                  </div>
+                  
+                  {/* Unit Price and Item Total */}
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs" style={{ color: '#666666' }}>
+                      ₱{item.price.toFixed(0)} each
+                    </span>
+                    <span className="text-sm font-bold" style={{ color: '#B78A00' }}>
+                      ₱{(item.price * item.quantity).toFixed(0)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Divider */}
+            <div className="my-4" style={{ borderTop: '2px solid #8C343A' }} />
+            
+            {/* Total Amount */}
+            <div className="flex justify-between items-center pt-2">
+              <span className="text-lg font-bold" style={{ color: '#8C343A' }}>
+                Total Amount:
+              </span>
+              <span className="text-2xl font-bold" style={{ color: '#B78A00' }}>
+                ₱{getCartTotal().toFixed(0)}
+              </span>
+            </div>
           </div>
 
           {/* Checkout Button */}

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 export const useAuth = () => {
   return useContext(AuthContext);
@@ -45,9 +45,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    const userId = localStorage.getItem('userId');
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
     localStorage.removeItem('role');
+    // Note: Cart will auto-clear via CartContext's useEffect when userId becomes null
     setUser(null);
   };
 

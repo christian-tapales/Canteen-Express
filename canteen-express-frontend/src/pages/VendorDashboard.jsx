@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const AdminDashboard = () => {
+const VendorDashboard = () => {
   const navigate = useNavigate();
   const { user, logout, loading } = useAuth();
 
   // Check authentication and redirect if needed
   useEffect(() => {
-    if (!loading && (!user || user.role !== 'ADMIN')) {
+    if (!loading && (!user || user.role !== 'VENDOR')) {
       navigate('/login', { replace: true });
     }
   }, [user, loading, navigate]);
@@ -47,7 +47,7 @@ const AdminDashboard = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `canteen-express-report-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `canteen-express-vendor-report-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
   };
 
@@ -63,17 +63,17 @@ const AdminDashboard = () => {
   // Show loading while checking authentication
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#FAE7BF' }}>
+      <div className="min-h-screen flex items-center justify-center bg-[#FFF9E6]">
         <div className="text-center">
           <div className="text-4xl mb-4">🔄</div>
-          <p className="text-xl font-semibold" style={{ color: '#5B050B' }}>Loading...</p>
+          <p className="text-xl font-semibold text-[#8C343A]">Loading...</p>
         </div>
       </div>
     );
   }
 
-  // Don't render if not admin (useEffect will handle redirect)
-  if (!user || user.role !== 'ADMIN') {
+  // Don't render if not vendor (useEffect will handle redirect)
+  if (!user || user.role !== 'VENDOR') {
     return null;
   }
 
@@ -82,33 +82,33 @@ const AdminDashboard = () => {
       {/* Sidebar */}
       <aside className="w-64 bg-[#F5DEB3] flex flex-col">
         <div className="p-6">
-          <h1 className="text-2xl font-bold text-[#8C343A]">Admin Panel</h1>
+          <h1 className="text-2xl font-bold text-[#8C343A]">Vendor Panel</h1>
         </div>
         
         <nav className="flex-1 px-4">
           <ul className="space-y-2">
             <li>
-              <Link to="/admin/dashboard" className="bg-[#8C343A] text-white block py-2 px-4 rounded">
+              <Link to="/vendor/dashboard" className="bg-[#8C343A] text-white block py-2 px-4 rounded">
                 Dashboard
               </Link>
             </li>
             <li>
-              <Link to="/admin/orders" className="block py-2 px-4 rounded hover:bg-[#8C343A] hover:text-white transition-colors">
+              <Link to="/vendor/orders" className="block py-2 px-4 rounded hover:bg-[#8C343A] hover:text-white transition-colors">
                 Orders
               </Link>
             </li>
             <li>
-              <Link to="/admin/store" className="block py-2 px-4 rounded hover:bg-[#8C343A] hover:text-white transition-colors">
+              <Link to="/vendor/store" className="block py-2 px-4 rounded hover:bg-[#8C343A] hover:text-white transition-colors">
                 Store
               </Link>
             </li>
             <li>
-              <Link to="/admin/menu" className="block py-2 px-4 rounded hover:bg-[#8C343A] hover:text-white transition-colors">
+              <Link to="/vendor/menu" className="block py-2 px-4 rounded hover:bg-[#8C343A] hover:text-white transition-colors">
                 Food Menu
               </Link>
             </li>
             <li>
-              <Link to="/admin/sales" className="block py-2 px-4 rounded hover:bg-[#8C343A] hover:text-white transition-colors">
+              <Link to="/vendor/sales" className="block py-2 px-4 rounded hover:bg-[#8C343A] hover:text-white transition-colors">
                 Sales Report
               </Link>
             </li>
@@ -223,4 +223,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default VendorDashboard;

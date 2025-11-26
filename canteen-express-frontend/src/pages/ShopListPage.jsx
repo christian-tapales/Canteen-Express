@@ -52,7 +52,7 @@ const ShopListPage = () => {
         <button 
           className="px-6 py-2 rounded-full font-semibold transition-all hover:opacity-90 shadow-sm"
           style={{ 
-            backgroundColor: '#10B981',
+            backgroundColor: '#8C343A',
             color: '#FFFFFF'
           }}
         >
@@ -101,7 +101,7 @@ const ShopListPage = () => {
                 to={`/shop/${shop.id}/menu`}
                 className="inline-block w-full text-center px-6 py-2 rounded-full font-semibold transition-all hover:opacity-90 shadow-sm"
                 style={{ 
-                  backgroundColor: '#10B981',
+                  backgroundColor: '#8C343A',
                   color: '#FFFFFF'
                 }}
               >
