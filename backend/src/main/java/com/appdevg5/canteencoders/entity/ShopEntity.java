@@ -27,6 +27,14 @@ public class ShopEntity {
     @Column(name = "description", length = 255)
     private String description;
 
+    @Size(max = 50)
+    @Column(name = "payment_number", length = 50)
+    private String paymentNumber;
+
+    @Size(max = 255)
+    @Column(name = "image_url", length = 255)
+    private String imageUrl;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -67,6 +75,12 @@ public class ShopEntity {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public String getPaymentNumber() { return paymentNumber; }
+    public void setPaymentNumber(String paymentNumber) { this.paymentNumber = paymentNumber; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

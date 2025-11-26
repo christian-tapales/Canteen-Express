@@ -11,12 +11,31 @@ DELETE FROM tbl_shops;
 ALTER TABLE tbl_shops AUTO_INCREMENT = 1;
 ALTER TABLE tbl_food_items AUTO_INCREMENT = 1;
 
--- Add sample shops
--- UPDATED: Added 'is_open' column with value 1 (Open)
-INSERT INTO tbl_shops (shop_name, description, is_open, created_at) VALUES
-('Campus Cafe', 'Fresh coffee, pastries, and breakfast items', 1, NOW()),
-('Lunch Corner', 'Daily meal specials, rice bowls, and main courses', 1, NOW()),
-('Snack Shack', 'Quick snacks, drinks, and desserts', 1, NOW());
+-- ============================================
+-- ADD SAMPLE SHOPS (Updated with Image URLs)
+-- ============================================
+INSERT INTO tbl_shops (shop_name, description, is_open, image_url, created_at) VALUES
+(
+ 'Campus Cafe', 
+ 'Fresh coffee, pastries, and breakfast items', 
+ 1, 
+ 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400', 
+ NOW()
+),
+(
+ 'Lunch Corner', 
+ 'Daily meal specials, rice bowls, and main courses', 
+ 1, 
+ 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400', 
+ NOW()
+),
+(
+ 'Snack Shack', 
+ 'Quick snacks, drinks, and desserts', 
+ 1, 
+ 'https://images.unsplash.com/photo-1599658880436-c61792e70672?w=400', 
+ NOW()
+);
 
 -- ============================================
 -- Campus Cafe (shop_id = 1)

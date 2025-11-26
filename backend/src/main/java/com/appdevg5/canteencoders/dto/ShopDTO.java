@@ -8,6 +8,7 @@ public class ShopDTO {
     private Integer id;
     private String name;
     private String description;
+    private String imageUrl;
 
     // Explicit getters and setters for compatibility
     public Integer getId() {
@@ -32,5 +33,11 @@ public class ShopDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+    public String getImageUrl() { 
+        return imageUrl; 
+    }
+    public void setImageUrl(String imageUrl) { 
+        this.imageUrl = imageUrl; 
     }
 }

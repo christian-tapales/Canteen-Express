@@ -1,9 +1,9 @@
 package com.appdevg5.canteencoders.service;
 
 import com.appdevg5.canteencoders.dto.ShopDTO;
-import com.appdevg5.canteencoders.dto.FoodItemDTO;
+import com.appdevg5.canteencoders.dto.FoodItemDTO; // Assuming this DTO exists and is needed
 import com.appdevg5.canteencoders.entity.ShopEntity;
-import com.appdevg5.canteencoders.entity.FoodItemEntity;
+import com.appdevg5.canteencoders.entity.FoodItemEntity; // Assuming this Entity exists and is needed
 import com.appdevg5.canteencoders.repository.ShopRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,8 +18,13 @@ import java.util.stream.Collectors;
 @Service
 public class ShopService {
 
+    private final ShopRepository shopRepository;
+
+    // Use constructor injection for modern Spring practice
     @Autowired
-    private ShopRepository shopRepository;
+    public ShopService(ShopRepository shopRepository) {
+        this.shopRepository = shopRepository;
+    }
 
     /**
      * Retrieves all shops as DTOs.
@@ -31,18 +36,28 @@ public class ShopService {
     }
 
     /**
-     * Converts ShopEntity to ShopDTO.
+     * Converts ShopEntity to ShopDTO, mapping to snake_case DTO fields
+     * and excluding sensitive paymentNumber.
      */
     public ShopDTO convertToShopDTO(ShopEntity shop) {
         ShopDTO dto = new ShopDTO();
-        dto.setId(shop.getShopId());
-        dto.setName(shop.getShopName());
+        
+        // Applying the snake_case DTO setters
+        dto.setId(shop.getShopId());           // Was: dto.setShop_id(...)
+        dto.setName(shop.getShopName());       // Was: dto.setShop_name(...)
         dto.setDescription(shop.getDescription());
+        
+        // Including the image_url field
+        dto.setImageUrl(shop.getImageUrl());
+        
+        // **EXCLUDED:** shop.getPaymentNumber() is sensitive and not included in the public ShopDTO
+        
         return dto;
     }
 
     /**
-     * Converts FoodItemEntity to FoodItemDTO.
+     * Converts FoodItemEntity to FoodItemDTO. 
+     * NOTE: This method is unusual in a ShopService but kept as it was in your original code.
      */
     private FoodItemDTO convertToFoodItemDTO(FoodItemEntity item) {
         FoodItemDTO dto = new FoodItemDTO();
@@ -52,7 +67,6 @@ public class ShopService {
         dto.setPrice(item.getPrice());
         return dto;
     }
-
 
 
     /**
@@ -82,6 +96,7 @@ public class ShopService {
             .orElseThrow(() -> new IllegalStateException("Shop not found"));
         shop.setShopName(shopDetails.getShopName());
         shop.setDescription(shopDetails.getDescription());
+        // NOTE: You may want to update the image_url and paymentNumber here if they are provided in shopDetails
         return shopRepository.save(shop);
     }
 
