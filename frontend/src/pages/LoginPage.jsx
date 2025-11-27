@@ -12,6 +12,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
+  // Default fallback if no specific destination was requested
   const from = location.state?.from?.pathname || '/shops';
 
   const handleSubmit = async (e) => {
@@ -20,23 +21,22 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      // Check for admin credentials first
-      if (email === 'admin@canteenexpress.com' && password === '6canteen7') {
-        // Admin login - manually set in localStorage and update auth state
-        localStorage.setItem('token', 'admin-token');
-        localStorage.setItem('userId', 'admin');
-        localStorage.setItem('role', 'ADMIN');
-        
-        // Trigger a page reload to update auth context
-        window.location.href = '/admin/dashboard';
-        return;
-      }
-
-      // Regular user login
+      // 1. Attempt Login
       const result = await auth.login(email, password);
       
       if (result.success) {
-        navigate(from, { replace: true });
+        // 2. CHECK ROLE AND REDIRECT ACCORDINGLY
+        // This is the "Traffic Cop" logic
+        if (result.role === 'ADMIN') {
+            navigate('/admin/dashboard', { replace: true });
+        } else if (result.role === 'VENDOR') {
+            navigate('/vendor/dashboard', { replace: true });
+        } else {
+            // Default to customer page (or where they tried to go)
+            // If 'from' is just login, go to shops, otherwise go to their intended destination
+            const destination = from === '/login' ? '/shops' : from;
+            navigate(destination, { replace: true });
+        }
       } else {
         setError(result.message || 'Login failed');
       }

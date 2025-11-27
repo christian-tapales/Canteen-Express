@@ -25,11 +25,15 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.post('http://localhost:8080/api/auth/login', { email, password });
       const { token, userId, role } = response.data;
+      
       localStorage.setItem('token', token);
       localStorage.setItem('userId', userId);
       localStorage.setItem('role', role);
+      
       setUser({ token, userId, role });
-      return { success: true };
+      
+      // CRITICAL CHANGE: We return the role here so LoginPage can use it
+      return { success: true, role: role }; 
     } catch (error) {
       return { success: false, message: error.response?.data?.message || 'Login failed' };
     }
