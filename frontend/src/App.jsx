@@ -8,6 +8,15 @@ import ShopListPage from './pages/ShopListPage.jsx';
 import ShopMenuPage from './pages/ShopMenuPage.jsx';
 import CartPage from './pages/CartPage.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
+import AdminOrders from './pages/AdminOrders.jsx';
+import AdminStore from './pages/AdminStore.jsx';
+import AdminMenu from './pages/AdminMenu.jsx';
+import AdminSales from './pages/AdminSales.jsx';
+import VendorDashboard from './pages/VendorDashboard.jsx';
+import VendorOrders from './pages/VendorOrders.jsx';
+import VendorStore from './pages/VendorStore.jsx';
+import VendorMenu from './pages/VendorMenu.jsx';
+import VendorSales from './pages/VendorSales.jsx';
 
 function App() {
   return (
@@ -16,23 +25,46 @@ function App() {
         {/* Landing Page - No Navbar */}
         <Route path="/" element={<LandingPage />} />
         
-        {/* Admin Dashboard - No Navbar */}
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        
         {/* Login/Register Pages - No Navbar */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         
+        {/* Admin Routes - No Navbar */}
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/orders" element={<AdminOrders />} />
+        <Route path="/admin/store" element={<AdminStore />} />
+        <Route path="/admin/menu" element={<AdminMenu />} />
+        <Route path="/admin/sales" element={<AdminSales />} />
+        
+        {/* Vendor Routes - No Navbar */}
+        <Route path="/vendor/dashboard" element={<VendorDashboard />} />
+        <Route path="/vendor/orders" element={<VendorOrders />} />
+        <Route path="/vendor/store" element={<VendorStore />} />
+        <Route path="/vendor/menu" element={<VendorMenu />} />
+        <Route path="/vendor/sales" element={<VendorSales />} />
+        
         {/* Regular Routes with Navbar */}
-        <Route path="*" element={
+        <Route path="/shops" element={
           <>
             <Navbar />
             <main className="container mx-auto p-4">
-              <Routes>
-                <Route path="/shops" element={<ShopListPage />} />
-                <Route path="/shop/:shopId/menu" element={<ShopMenuPage />} />
-                <Route path="/cart" element={<CartPage />} />
-              </Routes>
+              <ShopListPage />
+            </main>
+          </>
+        } />
+        <Route path="/shop/:shopId/menu" element={
+          <>
+            <Navbar />
+            <main className="container mx-auto p-4">
+              <ShopMenuPage />
+            </main>
+          </>
+        } />
+        <Route path="/cart" element={
+          <>
+            <Navbar />
+            <main className="container mx-auto p-4">
+              <CartPage />
             </main>
           </>
         } />
