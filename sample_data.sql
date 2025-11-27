@@ -1,3 +1,6 @@
+-- Disable Safe Update Mode temporarily to allow mass deletion
+SET SQL_SAFE_UPDATES = 0;
+
 USE canteen_express_db;
 
 -- Clear existing data (in correct order due to foreign key constraints)
@@ -8,11 +11,31 @@ DELETE FROM tbl_shops;
 ALTER TABLE tbl_shops AUTO_INCREMENT = 1;
 ALTER TABLE tbl_food_items AUTO_INCREMENT = 1;
 
--- Add sample shops
-INSERT INTO tbl_shops (shop_name, description, created_at) VALUES
-('Campus Cafe', 'Fresh coffee, pastries, and breakfast items', NOW()),
-('Lunch Corner', 'Daily meal specials, rice bowls, and main courses', NOW()),
-('Snack Shack', 'Quick snacks, drinks, and desserts', NOW());
+-- ============================================
+-- ADD SAMPLE SHOPS (Updated with Image URLs)
+-- ============================================
+INSERT INTO tbl_shops (shop_name, description, is_open, image_url, created_at) VALUES
+(
+ 'Campus Cafe', 
+ 'Fresh coffee, pastries, and breakfast items', 
+ 1, 
+ 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400', 
+ NOW()
+),
+(
+ 'Lunch Corner', 
+ 'Daily meal specials, rice bowls, and main courses', 
+ 1, 
+ 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400', 
+ NOW()
+),
+(
+ 'Snack Shack', 
+ 'Quick snacks, drinks, and desserts', 
+ 1, 
+ 'https://images.unsplash.com/photo-1599658880436-c61792e70672?w=400', 
+ NOW()
+);
 
 -- ============================================
 -- Campus Cafe (shop_id = 1)
@@ -147,3 +170,6 @@ INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, cr
 ('Pretzel Dog', 'Hot dog wrapped in pretzel dough', 5.00, 'Quick Bites', 3, NOW());
 
 SELECT 'Data inserted successfully!' AS Status;
+
+-- Re-enable Safe Update Mode
+SET SQL_SAFE_UPDATES = 1;
