@@ -148,7 +148,7 @@ const AdminDashboard = () => {
             <span className="text-white font-bold">👤</span>
           </div>
           <div>
-            <p className="font-semibold text-sm" style={{ color: '#8C343A' }}>Vendor Seller</p>
+            <p className="font-semibold text-sm" style={{ color: '#8C343A' }}>Admin User</p>
             <p className="text-xs text-gray-600">admin@canteenexpress.com</p>
           </div>
         </div>
