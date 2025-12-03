@@ -57,29 +57,26 @@ export const AuthProvider = ({ children }) => {
   // ===================================
 
   useEffect(() => {
-    // FIX: Move the entire session check and state setting logic 
-    // inside the deferred execution block.
-    const timer = setTimeout(() => {
+    // 1. Define the function to run the logic
+    const initializeAuth = () => {
         const token = sessionStorage.getItem('token');
         const userId = sessionStorage.getItem('userId');
         const role = sessionStorage.getItem('role');
         const firstName = sessionStorage.getItem('firstName');
         
         if (token && userId && role && firstName) {
-            // This is now deferred and runs outside the synchronous render phase.
+            // 2. Set the user state if valid data is found
             setUser({ token, userId, role, firstName }); 
         }
 
-        // setLoading(false) is the last state update, ensuring the component
-        // is marked as finished loading only after the user check is complete.
+        // 3. Mark the loading process as complete (This is critical)
         setLoading(false);
-        
-    }, 0); // Defer execution until after the browser paints the initial component
+    };
 
-    // Cleanup function to clear the timeout if the component unmounts quickly
-    return () => clearTimeout(timer);
-    
-}, []); // Empty dependency array
+    // Call the function
+    initializeAuth();
+
+}, []); // Run only once on mount
 
   const value = {
     user,
