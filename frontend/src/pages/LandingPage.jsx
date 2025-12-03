@@ -1,9 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   const handleGetStarted = () => {
     navigate('/shops');

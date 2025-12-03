@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../context/useCart';
 
 /**
  * Modal component for adding items to cart with quantity controls
@@ -12,11 +12,16 @@ const AddToCartModal = ({ item, isOpen, onClose }) => {
   const itemInCart = cartItems.find(cartItem => cartItem.id === item?.id);
 
   useEffect(() => {
-    if (isOpen && itemInCart) {
-      setQuantity(itemInCart.quantity);
-    } else if (isOpen) {
-      setQuantity(1);
-    }
+    // FIX: Wrap logic in setTimeout to defer state update
+    const timer = setTimeout(() => {
+      if (isOpen && itemInCart) {
+        setQuantity(itemInCart.quantity);
+      } else if (isOpen) {
+        setQuantity(1);
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [isOpen, itemInCart]);
 
   if (!isOpen || !item) return null;
