@@ -12,9 +12,9 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userId = localStorage.getItem('userId');
-    const role = localStorage.getItem('role');
+    const token = sessionStorage.getItem('token');
+    const userId = sessionStorage.getItem('userId');
+    const role = sessionStorage.getItem('role');
     if (token && userId && role) {
       setUser({ token, userId, role });
     }
@@ -26,9 +26,9 @@ export const AuthProvider = ({ children }) => {
       const response = await axios.post('http://localhost:8080/api/auth/login', { email, password });
       const { token, userId, role } = response.data;
       
-      localStorage.setItem('token', token);
-      localStorage.setItem('userId', userId);
-      localStorage.setItem('role', role);
+      sessionStorage.setItem('token', token);
+      sessionStorage.setItem('userId', userId);
+      sessionStorage.setItem('role', role);
       
       setUser({ token, userId, role });
       
@@ -49,9 +49,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('role');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('userId');
+    sessionStorage.removeItem('role');
     setUser(null);
   };
 

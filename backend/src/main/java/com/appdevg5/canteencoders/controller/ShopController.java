@@ -9,14 +9,17 @@ import com.appdevg5.canteencoders.service.FoodItemService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * REST Controller for Shop-related endpoints.
@@ -50,8 +53,48 @@ public class ShopController {
      */
     @GetMapping
     public ResponseEntity<List<ShopDTO>> getAllShops() {
-        List<ShopDTO> shops = shopService.getAllShops();
+        List<ShopDTO> shops = shopService.getAllShopsAsDTO();
         return ResponseEntity.ok(shops);
+    }
+
+    /**
+     * Get a shop by ID.
+     * @param shopId The ID of the shop.
+     * @return Shop as DTO.
+     */
+    @GetMapping("/{shopId}")
+    public ResponseEntity<ShopDTO> getShopById(@PathVariable Integer shopId) {
+        Optional<ShopEntity> shop = shopService.getShopById(shopId);
+        if (shop.isPresent()) {
+            ShopDTO shopDTO = shopService.convertToShopDTO(shop.get());
+            return ResponseEntity.ok(shopDTO);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * Update a shop.
+     * @param shopId The ID of the shop.
+     * @param shopDetails Updated shop details.
+     * @return Updated shop as DTO.
+     */
+    @PutMapping("/{shopId}")
+    public ResponseEntity<ShopDTO> updateShop(@PathVariable Integer shopId, @Valid @RequestBody ShopEntity shopDetails) {
+        ShopEntity updatedShop = shopService.updateShop(shopId, shopDetails);
+        ShopDTO shopDTO = shopService.convertToShopDTO(updatedShop);
+        return ResponseEntity.ok(shopDTO);
+    }
+
+    /**
+     * Delete a shop.
+     * @param shopId The ID of the shop.
+     * @return No content.
+     */
+    @DeleteMapping("/{shopId}")
+    public ResponseEntity<Void> deleteShop(@PathVariable Integer shopId) {
+        shopService.deleteShop(shopId);
+        return ResponseEntity.noContent().build();
     }
 
     /**

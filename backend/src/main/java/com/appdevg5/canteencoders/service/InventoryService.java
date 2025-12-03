@@ -7,6 +7,7 @@ import com.appdevg5.canteencoders.repository.FoodItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -63,5 +64,49 @@ public class InventoryService {
     public InventoryEntity createInventory(FoodItemEntity foodItem, Integer quantity) {
         InventoryEntity inventory = new InventoryEntity(foodItem, quantity);
         return inventoryRepository.save(inventory);
+    }
+
+    /**
+     * Creates inventory from entity.
+     */
+    @Transactional
+    public InventoryEntity createInventory(InventoryEntity inventory) {
+        return inventoryRepository.save(inventory);
+    }
+
+    /**
+     * Retrieves all inventory.
+     */
+    public List<InventoryEntity> getAllInventory() {
+        return inventoryRepository.findAll();
+    }
+
+    /**
+     * Retrieves inventory by ID.
+     */
+    public Optional<InventoryEntity> getInventoryById(Integer inventoryId) {
+        return inventoryRepository.findById(inventoryId);
+    }
+
+    /**
+     * Updates inventory.
+     */
+    @Transactional
+    public InventoryEntity updateInventory(Integer inventoryId, InventoryEntity inventoryDetails) {
+        InventoryEntity inventory = inventoryRepository.findById(inventoryId)
+            .orElseThrow(() -> new IllegalStateException("Inventory not found"));
+        inventory.setQuantityAvailable(inventoryDetails.getQuantityAvailable());
+        return inventoryRepository.save(inventory);
+    }
+
+    /**
+     * Deletes inventory by ID.
+     */
+    @Transactional
+    public void deleteInventory(Integer inventoryId) {
+        if (!inventoryRepository.existsById(inventoryId)) {
+            throw new IllegalStateException("Inventory not found");
+        }
+        inventoryRepository.deleteById(inventoryId);
     }
 }
