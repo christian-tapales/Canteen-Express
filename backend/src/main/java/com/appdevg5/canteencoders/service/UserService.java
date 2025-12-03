@@ -12,7 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Service class for User-related business logic,
@@ -70,6 +72,20 @@ public class UserService implements UserDetailsService {
     }
 
     /**
+     * Finds a user by ID.
+     */
+    public Optional<UserEntity> findById(Integer userId) {
+        return userRepository.findById(userId);
+    }
+
+    /**
+     * Retrieves all users.
+     */
+    public List<UserEntity> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    /**
      * Generates authentication response for a user.
      */
     public Map<String, Object> generateAuthResponse(UserEntity user) {
@@ -87,12 +103,39 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity user = userRepository.findByEmail(username)
             .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        
+
         // This is correct. It builds a Spring Security UserDetails object.
         return org.springframework.security.core.userdetails.User.builder()
             .username(user.getEmail())
             .password(user.getPasswordHash())
             .roles(user.getRole().toString())
             .build();
+    }
+
+    /**
+     * Updates an existing user.
+     */
+    @Transactional
+    public UserEntity updateUser(Integer userId, UserEntity userDetails) {
+        UserEntity user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalStateException("User not found"));
+        user.setFirstName(userDetails.getFirstName());
+        user.setLastName(userDetails.getLastName());
+        user.setEmail(userDetails.getEmail());
+        user.setPhoneNumber(userDetails.getPhoneNumber());
+        user.setRole(userDetails.getRole());
+        // Note: Password update would require separate handling for security
+        return userRepository.save(user);
+    }
+
+    /**
+     * Deletes a user by ID.
+     */
+    @Transactional
+    public void deleteUser(Integer userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new IllegalStateException("User not found");
+        }
+        userRepository.deleteById(userId);
     }
 }

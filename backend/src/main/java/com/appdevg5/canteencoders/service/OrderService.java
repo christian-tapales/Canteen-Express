@@ -166,4 +166,34 @@ public class OrderService {
         order.setStatus(status);
         return orderRepository.save(order);
     }
+
+    /**
+     * Deletes an order by ID.
+     */
+    @Transactional
+    public void deleteOrder(Integer orderId) {
+        if (!orderRepository.existsById(orderId)) {
+            throw new IllegalStateException("Order not found");
+        }
+        orderRepository.deleteById(orderId);
+    }
+
+    /**
+     * Retrieves all orders.
+     */
+    public List<OrderEntity> getAllOrders() {
+        return orderRepository.findAll();
+    }
+
+    /**
+     * Updates an order.
+     */
+    @Transactional
+    public OrderEntity updateOrder(Integer orderId, OrderEntity orderDetails) {
+        OrderEntity order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new IllegalStateException("Order not found"));
+        order.setStatus(orderDetails.getStatus());
+        order.setTotalAmount(orderDetails.getTotalAmount());
+        return orderRepository.save(order);
+    }
 }

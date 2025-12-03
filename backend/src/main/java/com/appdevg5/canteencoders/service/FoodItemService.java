@@ -102,4 +102,11 @@ public class FoodItemService {
         }
         foodItemRepository.deleteById(foodItemId);
     }
+
+    /**
+     * Retrieves all food items.
+     */
+    public List<FoodItemEntity> getAllFoodItems() {
+        return foodItemRepository.findAll();
+    }
 }

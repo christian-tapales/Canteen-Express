@@ -27,9 +27,16 @@ public class ShopService {
     }
 
     /**
-     * Retrieves all shops as DTOs.
+     * Retrieves all shops as entities (for admin use).
      */
-    public List<ShopDTO> getAllShops() {
+    public List<ShopEntity> getAllShops() {
+        return shopRepository.findAll();
+    }
+
+    /**
+     * Retrieves all shops as DTOs (for public use).
+     */
+    public List<ShopDTO> getAllShopsAsDTO() {
         return shopRepository.findAll().stream()
                 .map(this::convertToShopDTO)
                 .collect(Collectors.toList());
