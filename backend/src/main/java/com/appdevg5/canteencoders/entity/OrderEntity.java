@@ -5,10 +5,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.DecimalMin;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents an order placed by a customer.
- * An order can contain multiple order items.
+ * Updated to support Vendor Confirmation workflow.
  */
 @Entity
 @Table(name = "tbl_orders")
@@ -37,17 +39,32 @@ public class OrderEntity {
     @JoinColumn(name = "shop_id", nullable = false)
     private ShopEntity shop;
 
+    /**
+     * One-to-Many link to Order Items.
+     * Essential for accessing the specific food items when deducting inventory.
+     */
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItemEntity> orderItems = new ArrayList<>();
+
+    /**
+     * One-to-One link to Payment.
+     * Useful for checking payment details directly from the order.
+     */
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private PaymentEntity payment;
+
     @NotNull
     @DecimalMin(value = "0.0", inclusive = false)
     @Column(name = "total_amount", precision = 10, scale = 2, nullable = false)
     private BigDecimal totalAmount;
 
     /**
-     * Status of the order (e.g., PENDING, CONFIRMED, PREPARING, READY, COMPLETED, CANCELLED).
+     * Status of the order.
+     * Now includes PAID_PENDING_VENDOR for the confirmation workflow.
      */
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 20, nullable = false)
+    @Column(name = "status", length = 30, nullable = false)
     private OrderStatus status = OrderStatus.PENDING;
 
     @Column(name = "pickup_time")
@@ -59,13 +76,24 @@ public class OrderEntity {
     @Column(name = "order_date", updatable = false)
     private LocalDateTime orderDate;
 
+    // --- NEW FIELD: Tracks when the vendor clicked "Confirm" ---
+    @Column(name = "confirmed_at")
+    private LocalDateTime confirmedAt;
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     // --- Enum Definition for OrderStatus ---
 
     public enum OrderStatus {
-        PENDING, CONFIRMED, PREPARING, READY, COMPLETED, CANCELLED
+        PENDING,            // Customer created order, waiting for payment
+        PAID_PENDING_VENDOR,// Customer paid (or Gcash confirmed), waiting for Vendor to accept
+        CONFIRMED,          // Vendor accepted, Inventory deducted
+        PREPARING,          // Vendor is cooking/packing
+        READY,              // Ready for pickup
+        COMPLETED,          // Customer picked up
+        CANCELLED,          // Order cancelled/refunded
+        REJECTED            // Vendor rejected the order
     }
 
     // --- Life Cycle Methods (for timestamps) ---
@@ -104,6 +132,12 @@ public class OrderEntity {
     public ShopEntity getShop() { return shop; }
     public void setShop(ShopEntity shop) { this.shop = shop; }
 
+    public List<OrderItemEntity> getOrderItems() { return orderItems; }
+    public void setOrderItems(List<OrderItemEntity> orderItems) { this.orderItems = orderItems; }
+
+    public PaymentEntity getPayment() { return payment; }
+    public void setPayment(PaymentEntity payment) { this.payment = payment; }
+
     public BigDecimal getTotalAmount() { return totalAmount; }
     public void setTotalAmount(BigDecimal totalAmount) { this.totalAmount = totalAmount; }
 
@@ -117,10 +151,11 @@ public class OrderEntity {
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
     public LocalDateTime getPickupTime() { return pickupTime; }
-
     public void setPickupTime(LocalDateTime pickupTime) { this.pickupTime = pickupTime; }
 
     public String getSpecialInstructions() { return specialInstructions; }
-
     public void setSpecialInstructions(String specialInstructions) { this.specialInstructions = specialInstructions; }
+
+    public LocalDateTime getConfirmedAt() { return confirmedAt; }
+    public void setConfirmedAt(LocalDateTime confirmedAt) { this.confirmedAt = confirmedAt; }
 }

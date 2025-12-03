@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 /**
  * Represents a payment for an order.
- * Tracks payment details and status.
+ * Updated to include Transaction Reference for tracking digital payments (GCash, etc.).
  */
 @Entity
 @Table(name = "tbl_payments")
@@ -21,6 +21,7 @@ public class PaymentEntity {
 
     /**
      * FOREIGN KEY to the 'orders' table.
+     * Links this payment to a specific order.
      */
     @NotNull
     @OneToOne(fetch = FetchType.LAZY)
@@ -33,16 +34,18 @@ public class PaymentEntity {
     private BigDecimal amount;
 
     /**
-     * Payment method (e.g., CASH, CARD, DIGITAL_WALLET).
+     * ✅ NEW: Stores the External Transaction ID (e.g., GCash Ref No).
+     * Crucial for disputes ("I paid but app says pending!").
+     * Nullable because Cash payments won't have one.
      */
+    @Column(name = "transaction_reference", length = 100)
+    private String transactionReference;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", length = 20, nullable = false)
     private PaymentMethod paymentMethod;
 
-    /**
-     * Status of the payment (e.g., PENDING, COMPLETED, FAILED, REFUNDED).
-     */
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
@@ -61,7 +64,7 @@ public class PaymentEntity {
         PENDING, COMPLETED, FAILED, REFUNDED
     }
 
-    // --- Life Cycle Methods (for timestamps) ---
+    // --- Life Cycle Methods ---
 
     @PrePersist
     protected void onCreate() {
@@ -80,13 +83,19 @@ public class PaymentEntity {
     // --- Constructors ---
 
     public PaymentEntity() {
-        // Default constructor required by JPA
     }
 
     public PaymentEntity(OrderEntity order, BigDecimal amount, PaymentMethod paymentMethod) {
         this.order = order;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
+    }
+
+    public PaymentEntity(OrderEntity order, BigDecimal amount, PaymentMethod paymentMethod, String transactionReference) {
+        this.order = order;
+        this.amount = amount;
+        this.paymentMethod = paymentMethod;
+        this.transactionReference = transactionReference;
     }
 
     // --- Getters and Setters ---
@@ -99,6 +108,9 @@ public class PaymentEntity {
 
     public BigDecimal getAmount() { return amount; }
     public void setAmount(BigDecimal amount) { this.amount = amount; }
+
+    public String getTransactionReference() { return transactionReference; }
+    public void setTransactionReference(String transactionReference) { this.transactionReference = transactionReference; }
 
     public PaymentMethod getPaymentMethod() { return paymentMethod; }
     public void setPaymentMethod(PaymentMethod paymentMethod) { this.paymentMethod = paymentMethod; }
