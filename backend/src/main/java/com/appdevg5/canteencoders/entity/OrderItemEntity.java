@@ -1,10 +1,12 @@
 package com.appdevg5.canteencoders.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.DecimalMin;
 import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * Represents an item within an order.
@@ -12,6 +14,7 @@ import java.math.BigDecimal;
  */
 @Entity
 @Table(name = "tbl_order_items")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class OrderItemEntity {
 
     @Id
@@ -25,6 +28,7 @@ public class OrderItemEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
+    @JsonBackReference("order-items")
     private OrderEntity order;
 
     /**

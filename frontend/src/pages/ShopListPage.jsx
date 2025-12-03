@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/useAuth';
 
 const ShopListPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -48,9 +49,10 @@ const ShopListPage = () => {
         <h1 className="text-3xl font-bold mb-2" style={{ color: '#8C343A' }}>
           {user ? `Hi ${user.firstName}, Welcome to Canteen Express!` : 'Hello, Welcome! 👋'}
         </h1>
-        <button 
+        <button
+          onClick={() => navigate('/order-history')}
           className="px-6 py-2 rounded-full font-semibold transition-all hover:opacity-90 shadow-sm"
-          style={{ 
+          style={{
             backgroundColor: '#10B981',
             color: '#FFFFFF'
           }}

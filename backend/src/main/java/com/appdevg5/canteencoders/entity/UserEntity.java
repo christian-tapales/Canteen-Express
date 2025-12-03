@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 /**
  * Represents a user (Customer, Vendor, or Admin).
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "tbl_users")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class UserEntity {
 
     @Id
@@ -25,6 +28,7 @@ public class UserEntity {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shop_id", nullable = true)
+    @JsonBackReference
     private ShopEntity shop;
 
     @NotNull

@@ -5,12 +5,17 @@ import com.appdevg5.canteencoders.dto.OrderItemDTO;
 import com.appdevg5.canteencoders.entity.FoodItemEntity;
 import com.appdevg5.canteencoders.entity.OrderEntity;
 import com.appdevg5.canteencoders.entity.OrderItemEntity;
+import com.appdevg5.canteencoders.entity.UserEntity;
 import com.appdevg5.canteencoders.service.FoodItemService;
 import com.appdevg5.canteencoders.service.OrderService;
+import com.appdevg5.canteencoders.service.UserService;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +37,9 @@ public class OrderController {
 
     @Autowired
     private FoodItemService foodItemService;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * Create a new order from DTO (single atomic order with items).
@@ -58,6 +66,22 @@ public class OrderController {
 
             return ResponseEntity.ok(created);
         } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    /**
+     * Get all orders for the authenticated user.
+     */
+    @GetMapping("/user")
+    public ResponseEntity<List<OrderEntity>> getUserOrders() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            UserEntity user = userService.findByEmail(email);
+            List<OrderEntity> orders = orderService.getOrdersByUser(user.getUserId());
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
         }
     }
