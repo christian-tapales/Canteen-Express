@@ -96,6 +96,7 @@ public class UserService implements UserDetailsService {
         response.put("token", jwtToken);
         response.put("userId", user.getUserId());
         response.put("role", user.getRole().toString());
+        response.put("firstName", user.getFirstName());
         return response;
     }
 
