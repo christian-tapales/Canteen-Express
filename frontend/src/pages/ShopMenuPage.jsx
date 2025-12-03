@@ -18,11 +18,13 @@ const ShopMenuPage = () => {
       try {
         const response = await axios.get(`http://localhost:8080/api/shops/${shopId}/menu`);
         const menuData = response.data;
-        setMenu(menuData);
-        setFilteredMenu(menuData);
+        // Ensure each item carries shopId for cart/checkout
+        const enrichedMenu = (menuData || []).map((it) => ({ ...it, shopId: Number(shopId) }));
+        setMenu(enrichedMenu);
+        setFilteredMenu(enrichedMenu);
         
         // Extract unique categories
-        const uniqueCategories = [...new Set(menuData.map(item => item.category).filter(Boolean))];
+        const uniqueCategories = [...new Set(enrichedMenu.map(item => item.category).filter(Boolean))];
         setCategories(['All', ...uniqueCategories]);
       } catch {
         setError('Failed to load menu');

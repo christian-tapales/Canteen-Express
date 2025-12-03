@@ -14,6 +14,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -23,28 +29,56 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
         HttpSecurity http,
         JwtAuthenticationFilter jwtAuthFilter,
-        AuthenticationProvider authenticationProvider // <--- FIX 1: Inject the provider here
+        AuthenticationProvider authenticationProvider
     ) throws Exception {
         http
+            // 1. ENABLE CORS HERE (This is the specific fix for your error)
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authz -> authz
+                // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/shops/**").permitAll()  // TEMPORARILY DISABLED FOR TESTING
+                .requestMatchers("/api/shops/**").permitAll()
+                // Allow preflight OPTIONS requests
+                .requestMatchers("OPTIONS", "/**").permitAll()
+                .requestMatchers("/api/orders/**").authenticated()
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            .authenticationProvider(authenticationProvider) // <--- FIX 2: Use the injected provider
+            .authenticationProvider(authenticationProvider)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
+    // 2. Define the Rules: Allow localhost:5173
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        
+        // Allow your frontend origin
+        configuration.setAllowedOrigins(List.of("http://localhost:5173")); 
+        
+        // Allow all standard methods (GET, POST for orders, etc.)
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        
+        // Allow all headers (Authorization tokens, Content-Type)
+        configuration.setAllowedHeaders(List.of("*"));
+        
+        // Allow credentials (important for authenticated requests)
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
     @Bean
     public AuthenticationProvider authenticationProvider(
         PasswordEncoder passwordEncoder,
-        UserDetailsService userDetailsService // Spring will automatically find your 'UserService'
+        UserDetailsService userDetailsService
     ) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);

@@ -21,7 +21,6 @@ public class ShopService {
     private final ShopRepository shopRepository;
 
     // Use constructor injection for modern Spring practice
-    @Autowired
     public ShopService(ShopRepository shopRepository) {
         this.shopRepository = shopRepository;
     }

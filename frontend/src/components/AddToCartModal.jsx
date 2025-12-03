@@ -78,7 +78,7 @@ const AddToCartModal = ({ item, isOpen, onClose }) => {
           {/* Item Details */}
           <div className="flex gap-4 mb-6">
             {item.imageUrl && (
-              <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+              <div className="w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-gray-100">
                 <img
                   src={item.imageUrl}
                   alt={item.name}
@@ -89,7 +89,7 @@ const AddToCartModal = ({ item, isOpen, onClose }) => {
                 />
               </div>
             )}
-            <div className="flex-grow">
+            <div className="grow">
               <h3 className="text-lg font-semibold mb-1" style={{ color: '#5B050B' }}>
                 {item.name}
               </h3>

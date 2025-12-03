@@ -7,7 +7,6 @@ import com.appdevg5.canteencoders.entity.UserEntity;
 import com.appdevg5.canteencoders.service.UserService;
 import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,7 +27,7 @@ public class UserController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
 
-    @Autowired
+
     public UserController(UserService userService, AuthenticationManager authenticationManager) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
