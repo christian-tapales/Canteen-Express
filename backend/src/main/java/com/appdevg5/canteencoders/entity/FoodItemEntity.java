@@ -6,6 +6,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * Represents a food item in a shop's menu.
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "tbl_food_items")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class FoodItemEntity {
 
     @Id

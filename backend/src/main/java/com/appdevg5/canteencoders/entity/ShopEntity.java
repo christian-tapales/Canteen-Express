@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 /**
  * Represents a shop (e.g., "Main Canteen," "Snack Express").
@@ -13,6 +15,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "tbl_shops")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ShopEntity {
 
     @Id
@@ -46,6 +49,7 @@ public class ShopEntity {
      * This lets the Shop object access the list of users (Vendors/Staff) assigned to it.
      * Mapped by the 'shop' field in UserEntity.
      */
+    @JsonManagedReference
     @OneToMany(mappedBy = "shop", fetch = FetchType.LAZY)
     private List<UserEntity> users = new ArrayList<>();
 

@@ -1,6 +1,8 @@
 package com.appdevg5.canteencoders.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.DecimalMin;
 import java.math.BigDecimal;
@@ -14,6 +16,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "tbl_orders")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class OrderEntity {
 
     @Id
@@ -43,6 +46,7 @@ public class OrderEntity {
      * One-to-Many link to Order Items.
      * Essential for accessing the specific food items when deducting inventory.
      */
+    @JsonManagedReference("order-items")
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItemEntity> orderItems = new ArrayList<>();
 
@@ -50,6 +54,7 @@ public class OrderEntity {
      * One-to-One link to Payment.
      * Useful for checking payment details directly from the order.
      */
+    @JsonManagedReference("order-payment")
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private PaymentEntity payment;
 
@@ -84,16 +89,13 @@ public class OrderEntity {
     private LocalDateTime updatedAt;
 
     // --- Enum Definition for OrderStatus ---
-
     public enum OrderStatus {
-        PENDING,            // Customer created order, waiting for payment
-        PAID_PENDING_VENDOR,// Customer paid (or Gcash confirmed), waiting for Vendor to accept
-        CONFIRMED,          // Vendor accepted, Inventory deducted
-        PREPARING,          // Vendor is cooking/packing
+        PENDING,            //Customer created order, Customer paid (or Gcash confirmed), waiting for Vendor to accept
+        PREPARING,          // Vendor accepted, Inventory deducted and the Vendor is cooking/packing
         READY,              // Ready for pickup
         COMPLETED,          // Customer picked up
-        CANCELLED,          // Order cancelled/refunded
-        REJECTED            // Vendor rejected the order
+        CANCELLED,          // Order cancelled by the student and refunded
+        REJECTED,           // Vendor rejected the order and refunded
     }
 
     // --- Life Cycle Methods (for timestamps) ---

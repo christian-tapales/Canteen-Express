@@ -1,5 +1,6 @@
 package com.appdevg5.canteencoders.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.DecimalMin;
@@ -26,6 +27,7 @@ public class PaymentEntity {
     @NotNull
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false, unique = true)
+    @JsonBackReference("order-payment")
     private OrderEntity order;
 
     @NotNull

@@ -17,6 +17,7 @@ import VendorOrders from './pages/VendorOrders.jsx';
 import VendorStore from './pages/VendorStore.jsx';
 import VendorMenu from './pages/VendorMenu.jsx';
 import VendorSales from './pages/VendorSales.jsx';
+import OrderHistoryPage from './pages/OrderHistoryPage.jsx';
 
 function App() {
   return (
@@ -65,6 +66,14 @@ function App() {
             <Navbar />
             <main className="container mx-auto p-4">
               <CartPage />
+            </main>
+          </>
+        } />
+        <Route path="/order-history" element={
+          <>
+            <Navbar />
+            <main className="container mx-auto p-4">
+              <OrderHistoryPage />
             </main>
           </>
         } />

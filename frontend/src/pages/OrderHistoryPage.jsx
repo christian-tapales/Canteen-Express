@@ -1,0 +1,167 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useAuth } from '../context/useAuth';
+
+const OrderHistoryPage = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (!user || !user.token) {
+        navigate('/login');
+        return;
+      }
+
+      try {
+        const response = await axios.get('http://localhost:8080/api/orders/user', {
+          headers: {
+            'Authorization': `Bearer ${user.token}`
+          }
+        });
+        setOrders(response.data);
+      } catch (err) {
+        setError('Failed to load order history');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [user, navigate]);
+
+  if (loading) return (
+    <div className="container mx-auto px-4 py-12 text-center text-lg" style={{ color: '#8C343A' }}>
+      Loading your orders...
+    </div>
+  );
+
+  if (error) return (
+    <div className="container mx-auto px-4 py-12 text-center text-lg" style={{ color: '#DC2626' }}>
+      {error}
+    </div>
+  );
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-8">
+        <button
+          onClick={() => navigate('/shops')}
+          className="text-2xl font-bold"
+          style={{ color: '#8C343A' }}
+        >
+          ← Back
+        </button>
+        <h1 className="text-3xl font-bold" style={{ color: '#8C343A' }}>
+          Order History
+        </h1>
+      </div>
+
+      {/* Orders List */}
+      {orders.length === 0 ? (
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold mb-4" style={{ color: '#8C343A' }}>
+            No orders yet
+          </h2>
+          <p className="text-lg mb-6" style={{ color: '#666666' }}>
+            Start ordering from your favorite shops!
+          </p>
+          <button
+            onClick={() => navigate('/shops')}
+            className="px-8 py-3 rounded-full font-semibold text-white transition-all duration-200 hover:opacity-90 shadow-md"
+            style={{ backgroundColor: '#8C343A' }}
+          >
+            Browse Shops
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {orders.map((order) => (
+            <div
+              key={order.orderId}
+              className="rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300"
+              style={{
+                backgroundColor: '#FFFFFF',
+                border: '2px solid #8C343A'
+              }}
+            >
+              {/* Order Header */}
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-xl font-bold mb-1" style={{ color: '#8C343A' }}>
+                    Order #{order.orderId}
+                  </h2>
+                  <p className="text-sm" style={{ color: '#666666' }}>
+                    {order.orderDate ? new Date(order.orderDate).toLocaleDateString() : 'Date not available'}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-bold" style={{ color: '#B78A00' }}>
+                    ₱{order.totalAmount ? order.totalAmount.toFixed(2) : '0.00'}
+                  </p>
+                  <span
+                    className="inline-block px-3 py-1 rounded-full text-sm font-semibold"
+                    style={{
+                      backgroundColor: order.status === 'COMPLETED' ? '#10B981' : order.status === 'PENDING' ? '#FBCA30' : '#DC2626',
+                      color: '#FFFFFF'
+                    }}
+                  >
+                    {order.status || 'Unknown'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Order Items */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold" style={{ color: '#8C343A' }}>
+                  Items:
+                </h3>
+                {order.orderItems && order.orderItems.length > 0 ? (
+                  order.orderItems.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between items-center py-2 px-3 rounded-lg"
+                      style={{ backgroundColor: '#FFF9E6' }}
+                    >
+                      <span className="font-medium" style={{ color: '#2D2D2D' }}>
+                        {item.foodItem ? item.foodItem.itemName : 'Unknown Item'}
+                      </span>
+                      <span className="text-sm" style={{ color: '#666666' }}>
+                        Qty: {item.quantity} × ₱{item.priceAtOrder ? item.priceAtOrder.toFixed(2) : '0.00'}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm" style={{ color: '#666666' }}>
+                    No items details available
+                  </p>
+                )}
+              </div>
+
+              {/* Order Details */}
+              {order.pickupTime && (
+                <div className="mt-4 pt-4 border-t" style={{ borderColor: '#E5E7EB' }}>
+                  <p className="text-sm" style={{ color: '#666666' }}>
+                    <strong>Pickup Time:</strong> {order.pickupTime}
+                  </p>
+                  {order.specialInstructions && (
+                    <p className="text-sm mt-1" style={{ color: '#666666' }}>
+                      <strong>Instructions:</strong> {order.specialInstructions}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default OrderHistoryPage;
