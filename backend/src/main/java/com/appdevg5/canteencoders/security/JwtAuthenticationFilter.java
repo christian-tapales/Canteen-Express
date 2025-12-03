@@ -21,6 +21,8 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+
     @Autowired
     private JwtService jwtService;
 
@@ -39,15 +41,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // If there is no Authorization header or it doesn't start with Bearer, continue.
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            logger.debug("No Authorization header found for request: {}", request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }
 
         jwt = authHeader.substring(7);
+        logger.debug("Processing JWT token for endpoint: {}", request.getRequestURI());
 
         try {
             // Extract username; JWT parsing can throw exceptions for malformed/expired tokens
             userEmail = jwtService.extractUsername(jwt);
+            logger.debug("Extracted email from JWT: {}", userEmail);
 
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userService.loadUserByUsername(userEmail);
@@ -60,14 +65,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                    logger.info("Successfully authenticated user: {} for endpoint: {}", userEmail, request.getRequestURI());
+                } else {
+                    logger.warn("JWT token validation failed for user: {}", userEmail);
                 }
             }
         } catch (Exception ex) {
             // If token parsing/validation fails (expired, malformed, etc.), do NOT block requests.
             // This allows endpoints that are permitted (e.g. /api/auth/register) to work even
             // when an invalid Authorization header is present.
-            // Optionally log the exception for debugging.
-            // e.g. logger.warn("Invalid JWT: {}", ex.getMessage());
+            logger.error("JWT token processing failed: {}", ex.getMessage(), ex);
         }
 
         filterChain.doFilter(request, response);

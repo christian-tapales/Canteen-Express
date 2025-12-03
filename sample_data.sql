@@ -4,10 +4,12 @@ SET SQL_SAFE_UPDATES = 0;
 USE canteen_express_db;
 
 -- Clear existing data (in correct order due to foreign key constraints)
+DELETE FROM tbl_inventory;
 DELETE FROM tbl_food_items;
 DELETE FROM tbl_shops;
 
 -- Reset auto-increment
+ALTER TABLE tbl_inventory AUTO_INCREMENT = 1;
 ALTER TABLE tbl_shops AUTO_INCREMENT = 1;
 ALTER TABLE tbl_food_items AUTO_INCREMENT = 1;
 
@@ -48,6 +50,11 @@ INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, im
 ('Hot Chocolate', 'Creamy chocolate drink with whipped cream', 4.00, 'Beverages', 1, 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=400', NOW()),
 ('Green Tea', 'Refreshing green tea with honey', 3.50, 'Beverages', 1, 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400', NOW()),
 ('Fruit Smoothie', 'Blended fresh fruits with yogurt', 5.50, 'Beverages', 1, 'https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=400', NOW());
+-- Seed inventory for shop 1 beverages
+INSERT INTO tbl_inventory (shop_id, food_item_id, quantity_available, created_at)
+SELECT fi.shop_id, fi.food_item_id, 100, NOW()
+FROM tbl_food_items fi
+WHERE fi.shop_id = 1 AND fi.category = 'Beverages';
 
 -- Pastries
 INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, image_url, created_at) VALUES
@@ -56,6 +63,11 @@ INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, im
 ('Chocolate Donut', 'Glazed donut with chocolate frosting', 2.50, 'Pastries', 1, 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400', NOW()),
 ('Cinnamon Roll', 'Sweet roll with cinnamon and icing', 4.00, 'Pastries', 1, 'https://images.unsplash.com/photo-1519869325930-281384150729?w=400', NOW()),
 ('Danish Pastry', 'Fruit-filled Danish pastry', 3.75, 'Pastries', 1, 'https://images.unsplash.com/photo-1509365465985-25d11c17e812?w=400', NOW());
+-- Seed inventory for shop 1 pastries
+INSERT INTO tbl_inventory (shop_id, food_item_id, quantity_available, created_at)
+SELECT fi.shop_id, fi.food_item_id, 100, NOW()
+FROM tbl_food_items fi
+WHERE fi.shop_id = 1 AND fi.category = 'Pastries';
 
 -- Breakfast
 INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, created_at) VALUES
@@ -64,6 +76,11 @@ INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, cr
 ('French Toast', 'Classic French toast with powdered sugar', 5.00, 'Breakfast', 1, NOW()),
 ('Breakfast Burrito', 'Scrambled eggs, cheese, and sausage wrapped in tortilla', 6.50, 'Breakfast', 1, NOW()),
 ('Oatmeal Bowl', 'Warm oatmeal with fresh berries and nuts', 4.50, 'Breakfast', 1, NOW());
+-- Seed inventory for shop 1 breakfast
+INSERT INTO tbl_inventory (shop_id, food_item_id, quantity_available, created_at)
+SELECT fi.shop_id, fi.food_item_id, 100, NOW()
+FROM tbl_food_items fi
+WHERE fi.shop_id = 1 AND fi.category = 'Breakfast';
 
 -- Sandwiches
 INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, created_at) VALUES
@@ -72,6 +89,11 @@ INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, cr
 ('Ham & Swiss', 'Honey ham with Swiss cheese and mustard', 6.00, 'Sandwiches', 1, NOW()),
 ('Tuna Melt', 'Tuna salad with melted cheese', 6.50, 'Sandwiches', 1, NOW()),
 ('Veggie Delight', 'Fresh vegetables with hummus spread', 5.50, 'Sandwiches', 1, NOW());
+-- Seed inventory for shop 1 sandwiches
+INSERT INTO tbl_inventory (shop_id, food_item_id, quantity_available, created_at)
+SELECT fi.shop_id, fi.food_item_id, 100, NOW()
+FROM tbl_food_items fi
+WHERE fi.shop_id = 1 AND fi.category = 'Sandwiches';
 
 -- Salads
 INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, created_at) VALUES
@@ -80,6 +102,11 @@ INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, cr
 ('Garden Salad', 'Fresh mixed vegetables with house dressing', 5.50, 'Salads', 1, NOW()),
 ('Chicken Caesar', 'Caesar salad topped with grilled chicken', 8.00, 'Salads', 1, NOW()),
 ('Cobb Salad', 'Mixed greens with bacon, egg, avocado, and cheese', 8.50, 'Salads', 1, NOW());
+-- Seed inventory for shop 1 salads
+INSERT INTO tbl_inventory (shop_id, food_item_id, quantity_available, created_at)
+SELECT fi.shop_id, fi.food_item_id, 100, NOW()
+FROM tbl_food_items fi
+WHERE fi.shop_id = 1 AND fi.category = 'Salads';
 
 -- ============================================
 -- Lunch Corner (shop_id = 2)
@@ -92,6 +119,11 @@ INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, im
 ('Pork Chop Meal', 'Breaded pork chop with mashed potatoes', 8.50, 'Main Course', 2, 'https://images.unsplash.com/photo-1432139555190-58524dae6a55?w=400', NOW()),
 ('Fish Fillet', 'Pan-fried fish with lemon butter sauce', 9.00, 'Main Course', 2, 'https://images.unsplash.com/photo-1580959296753-c5b571a3a6fd?w=400', NOW()),
 ('BBQ Ribs', 'Tender ribs with barbecue sauce and coleslaw', 10.50, 'Main Course', 2, 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400', NOW());
+-- Seed inventory for shop 2 main course
+INSERT INTO tbl_inventory (shop_id, food_item_id, quantity_available, created_at)
+SELECT fi.shop_id, fi.food_item_id, 100, NOW()
+FROM tbl_food_items fi
+WHERE fi.shop_id = 2 AND fi.category = 'Main Course';
 
 -- Rice Bowls
 INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, created_at) VALUES
@@ -100,6 +132,11 @@ INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, cr
 ('Tofu Veggie Bowl', 'Marinated tofu with stir-fried vegetables', 7.00, 'Rice Bowls', 2, NOW()),
 ('Spicy Pork Bowl', 'Spicy marinated pork with kimchi', 8.00, 'Rice Bowls', 2, NOW()),
 ('Salmon Teriyaki Bowl', 'Glazed salmon with teriyaki sauce', 9.50, 'Rice Bowls', 2, NOW());
+-- Seed inventory for shop 2 rice bowls
+INSERT INTO tbl_inventory (shop_id, food_item_id, quantity_available, created_at)
+SELECT fi.shop_id, fi.food_item_id, 100, NOW()
+FROM tbl_food_items fi
+WHERE fi.shop_id = 2 AND fi.category = 'Rice Bowls';
 
 -- Noodles
 INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, created_at) VALUES
@@ -108,6 +145,11 @@ INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, cr
 ('Beef Ramen', 'Japanese ramen with beef slices', 8.50, 'Noodles', 2, NOW()),
 ('Vegetable Lo Mein', 'Stir-fried noodles with mixed vegetables', 7.00, 'Noodles', 2, NOW()),
 ('Spicy Seafood Noodles', 'Noodles with shrimp and squid in spicy sauce', 9.00, 'Noodles', 2, NOW());
+-- Seed inventory for shop 2 noodles
+INSERT INTO tbl_inventory (shop_id, food_item_id, quantity_available, created_at)
+SELECT fi.shop_id, fi.food_item_id, 100, NOW()
+FROM tbl_food_items fi
+WHERE fi.shop_id = 2 AND fi.category = 'Noodles';
 
 -- Soups
 INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, created_at) VALUES
@@ -116,6 +158,11 @@ INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, cr
 ('Wonton Soup', 'Pork wontons in clear broth', 5.00, 'Soups', 2, NOW()),
 ('Chicken Corn Soup', 'Creamy soup with chicken and corn', 4.50, 'Soups', 2, NOW()),
 ('Beef Brisket Soup', 'Slow-cooked beef brisket in rich broth', 6.50, 'Soups', 2, NOW());
+-- Seed inventory for shop 2 soups
+INSERT INTO tbl_inventory (shop_id, food_item_id, quantity_available, created_at)
+SELECT fi.shop_id, fi.food_item_id, 100, NOW()
+FROM tbl_food_items fi
+WHERE fi.shop_id = 2 AND fi.category = 'Soups';
 
 -- Side Dishes
 INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, created_at) VALUES
@@ -124,6 +171,11 @@ INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, cr
 ('Edamame', 'Steamed soybeans with sea salt', 3.50, 'Side Dishes', 2, NOW()),
 ('French Fries', 'Crispy golden fries', 3.00, 'Side Dishes', 2, NOW()),
 ('Kimchi', 'Traditional Korean fermented vegetables', 3.00, 'Side Dishes', 2, NOW());
+-- Seed inventory for shop 2 side dishes
+INSERT INTO tbl_inventory (shop_id, food_item_id, quantity_available, created_at)
+SELECT fi.shop_id, fi.food_item_id, 100, NOW()
+FROM tbl_food_items fi
+WHERE fi.shop_id = 2 AND fi.category = 'Side Dishes';
 
 -- ============================================
 -- Snack Shack (shop_id = 3)
@@ -136,6 +188,11 @@ INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, im
 ('Pretzels', 'Soft pretzels with mustard', 3.50, 'Snacks', 3, 'https://images.unsplash.com/photo-1558326567-98ae2405596b?w=400', NOW()),
 ('Popcorn', 'Buttered popcorn (large)', 3.00, 'Snacks', 3, 'https://images.unsplash.com/photo-1578849278619-e73505e9610f?w=400', NOW()),
 ('Trail Mix', 'Healthy mix of nuts and dried fruits', 3.50, 'Snacks', 3, 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=400', NOW());
+-- Seed inventory for shop 3 snacks
+INSERT INTO tbl_inventory (shop_id, food_item_id, quantity_available, created_at)
+SELECT fi.shop_id, fi.food_item_id, 100, NOW()
+FROM tbl_food_items fi
+WHERE fi.shop_id = 3 AND fi.category = 'Snacks';
 
 -- Beverages
 INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, created_at) VALUES
@@ -144,6 +201,11 @@ INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, cr
 ('Energy Drink', 'Energizing beverage', 3.50, 'Beverages', 3, NOW()),
 ('Iced Tea', 'Refreshing iced tea', 2.50, 'Beverages', 3, NOW()),
 ('Juice Box', 'Fruit juice (various flavors)', 2.00, 'Beverages', 3, NOW());
+-- Seed inventory for shop 3 beverages
+INSERT INTO tbl_inventory (shop_id, food_item_id, quantity_available, created_at)
+SELECT fi.shop_id, fi.food_item_id, 100, NOW()
+FROM tbl_food_items fi
+WHERE fi.shop_id = 3 AND fi.category = 'Beverages';
 
 -- Desserts
 INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, created_at) VALUES
@@ -152,6 +214,11 @@ INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, cr
 ('Cookies', 'Chocolate chip cookies (3 pieces)', 2.50, 'Desserts', 3, NOW()),
 ('Cheesecake Slice', 'Creamy New York style cheesecake', 4.50, 'Desserts', 3, NOW()),
 ('Apple Pie', 'Warm apple pie with cinnamon', 4.00, 'Desserts', 3, NOW());
+-- Seed inventory for shop 3 desserts
+INSERT INTO tbl_inventory (shop_id, food_item_id, quantity_available, created_at)
+SELECT fi.shop_id, fi.food_item_id, 100, NOW()
+FROM tbl_food_items fi
+WHERE fi.shop_id = 3 AND fi.category = 'Desserts';
 
 -- Candy
 INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, created_at) VALUES
@@ -160,6 +227,11 @@ INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, cr
 ('Lollipop', 'Fruit-flavored lollipop', 1.00, 'Candy', 3, NOW()),
 ('Sour Candy', 'Sour fruit-flavored candies', 2.00, 'Candy', 3, NOW()),
 ('Mint Candy', 'Refreshing mint candies', 1.50, 'Candy', 3, NOW());
+-- Seed inventory for shop 3 candy
+INSERT INTO tbl_inventory (shop_id, food_item_id, quantity_available, created_at)
+SELECT fi.shop_id, fi.food_item_id, 100, NOW()
+FROM tbl_food_items fi
+WHERE fi.shop_id = 3 AND fi.category = 'Candy';
 
 -- Quick Bites
 INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, created_at) VALUES
@@ -168,6 +240,18 @@ INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, cr
 ('Chicken Nuggets', 'Crispy chicken nuggets (6 pieces)', 5.00, 'Quick Bites', 3, NOW()),
 ('Corn Dog', 'Deep-fried cornbread-coated hot dog', 4.50, 'Quick Bites', 3, NOW()),
 ('Pretzel Dog', 'Hot dog wrapped in pretzel dough', 5.00, 'Quick Bites', 3, NOW());
+-- Seed inventory for shop 3 quick bites
+INSERT INTO tbl_inventory (shop_id, food_item_id, quantity_available, created_at)
+SELECT fi.shop_id, fi.food_item_id, 100, NOW()
+FROM tbl_food_items fi
+WHERE fi.shop_id = 3 AND fi.category = 'Quick Bites';
+
+-- Generic backfill: ensure every food item has an inventory row (idempotent-safe insert for any missed category)
+INSERT INTO tbl_inventory (shop_id, food_item_id, quantity_available, created_at)
+SELECT fi.shop_id, fi.food_item_id, 100, NOW()
+FROM tbl_food_items fi
+LEFT JOIN tbl_inventory inv ON inv.food_item_id = fi.food_item_id
+WHERE inv.food_item_id IS NULL;
 
 SELECT 'Data inserted successfully!' AS Status;
 

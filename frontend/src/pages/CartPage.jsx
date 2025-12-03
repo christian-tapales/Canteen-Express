@@ -1,17 +1,21 @@
 import { useState } from 'react';
 import { useCart } from '../context/useCart';
+import { useAuth } from '../context/useAuth'; // Import useAuth to get user token/ID
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Import axios
 
 const CartPage = () => {
   const { cartItems, updateQuantity, removeFromCart, getCartTotal, clearCart } = useCart();
+  const { user } = useAuth(); // Get user from context
   const navigate = useNavigate();
 
   // Checkout form state
   const [pickupTime, setPickupTime] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [specialInstructions, setSpecialInstructions] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false); // Add loading state for submission
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!pickupTime) {
       alert('Please select an estimated pickup time');
       return;
@@ -21,20 +25,94 @@ const CartPage = () => {
       return;
     }
 
-    // TODO: Implement actual checkout/payment integration
-    alert(
-      `Order Confirmed!\n\n` +
-      `Total: ₱${getCartTotal().toFixed(2)}\n` +
-      `Pickup Time: ${pickupTime}\n` +
-      `Payment Method: ${paymentMethod}\n` +
-      `Special Instructions: ${specialInstructions || 'None'}\n\n` +
-      `Your order will be ready at the specified time!`
-    );
-    clearCart();
-    setPickupTime('');
-    setPaymentMethod('');
-    setSpecialInstructions('');
-    navigate('/shops');
+    // Safety check for logged-in user
+    if (!user || !user.userId || !user.token) {
+        alert('You must be logged in to place an order.');
+        navigate('/login');
+        return;
+    }
+
+    setIsSubmitting(true);
+
+    // Determine the shopId. Assuming all items in cart are from the same shop for this version.
+    // Ideally, the cart should enforce single-shop orders or group by shop.
+    // Fallback to the first item's shopId.
+    const shopId = cartItems[0]?.shopId;
+
+    if (!shopId) {
+        alert("Error: Missing shop information for items in cart. Please clear cart and try again.");
+        setIsSubmitting(false);
+        return;
+    }
+
+    // --- 1. PREPARE THE PAYLOAD ---
+    const totalAmount = getCartTotal();
+    
+    // Convert pickup time (HH:MM format) to ISO LocalDateTime format
+    // Get today's date and combine it with the selected time
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const pickupTimeISO = `${year}-${month}-${day}T${pickupTime}:00`;
+    
+    const orderPayload = {
+        userId: user.userId,
+        shopId: shopId,
+        orderItems: cartItems.map(item => ({
+            foodItemId: item.id,
+            quantity: item.quantity,
+        })),
+        totalAmount: totalAmount,
+        paymentMethod: paymentMethod,
+        pickupTime: pickupTimeISO,
+        specialInstructions: specialInstructions,
+    };
+
+    console.log("Sending Order Payload:", orderPayload);
+    console.log("Authorization Header:", `Bearer ${user.token}`);
+    console.log("User Object:", user);
+
+    // --- 2. SEND API REQUEST ---
+    try {
+        const API_BASE_URL = 'http://localhost:8080';
+        const response = await axios.post(
+            `${API_BASE_URL}/api/orders`,
+            orderPayload,
+            {
+                headers: {
+                    'Authorization': `Bearer ${user.token}`, // Include JWT token
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        // --- 3. HANDLE SUCCESS ---
+        if (response.status === 200) {
+            // response.data should contain the created order entity
+            const orderId = response.data.orderId || 'New'; 
+            
+            alert(
+              `Order #${orderId} Confirmed!\n\n` +
+              `Total: ₱${getCartTotal().toFixed(2)}\n` +
+              `Pickup Time: ${pickupTime}\n` +
+              `Payment Method: ${paymentMethod}\n` +
+              `Your order will be ready at the specified time!`
+            );
+            
+            clearCart();
+            setPickupTime('');
+            setPaymentMethod('');
+            setSpecialInstructions('');
+            navigate('/shops');
+        }
+    } catch (error) {
+        console.error('Checkout failed:', error);
+        const errorMessage = error.response?.data?.message || error.message || 'Server error. Please try again.';
+        alert(`Order placement failed: ${errorMessage}`);
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   if (cartItems.length === 0) {
@@ -99,7 +177,7 @@ const CartPage = () => {
                 >
                   {/* Image */}
                   {item.imageUrl && (
-                    <div className="w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden" style={{ backgroundColor: '#F3F4F6' }}>
+                    <div className="w-16 h-16 shrink-0 rounded-xl overflow-hidden" style={{ backgroundColor: '#F3F4F6' }}>
                       <img
                         src={item.imageUrl}
                         alt={item.name}
@@ -112,7 +190,7 @@ const CartPage = () => {
                   )}
 
                   {/* Details */}
-                  <div className="flex-grow">
+                  <div className="grow">
                     <h3 className="text-base font-bold mb-1" style={{ color: '#8C343A' }}>
                       {item.name}
                     </h3>
@@ -272,10 +350,11 @@ const CartPage = () => {
           {/* Checkout Button */}
           <button
             onClick={handleCheckout}
-            className="w-full py-4 rounded-full font-bold text-white transition-all duration-200 hover:opacity-90 shadow-lg"
+            disabled={isSubmitting}
+            className="w-full py-4 rounded-full font-bold text-white transition-all duration-200 hover:opacity-90 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ backgroundColor: '#8C343A', fontSize: '18px' }}
           >
-            Place Order
+            {isSubmitting ? 'Processing...' : 'Place Order'}
           </button>
         </div>
       </div>
