@@ -15,8 +15,9 @@ export const AuthProvider = ({ children }) => {
     const token = sessionStorage.getItem('token');
     const userId = sessionStorage.getItem('userId');
     const role = sessionStorage.getItem('role');
-    if (token && userId && role) {
-      setUser({ token, userId, role });
+    const firstName = sessionStorage.getItem('firstName');
+    if (token && userId && role && firstName) {
+      setUser({ token, userId, role, firstName });
     }
     setLoading(false);
   }, []);
@@ -24,16 +25,17 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await axios.post('http://localhost:8080/api/auth/login', { email, password });
-      const { token, userId, role } = response.data;
-      
+      const { token, userId, role, firstName } = response.data;
+
       sessionStorage.setItem('token', token);
       sessionStorage.setItem('userId', userId);
       sessionStorage.setItem('role', role);
-      
-      setUser({ token, userId, role });
-      
+      sessionStorage.setItem('firstName', firstName);
+
+      setUser({ token, userId, role, firstName });
+
       // CRITICAL CHANGE: We return the role here so LoginPage can use it
-      return { success: true, role: role }; 
+      return { success: true, role: role };
     } catch (error) {
       return { success: false, message: error.response?.data?.message || 'Login failed' };
     }
@@ -52,6 +54,7 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('userId');
     sessionStorage.removeItem('role');
+    sessionStorage.removeItem('firstName');
     setUser(null);
   };
 
