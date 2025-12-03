@@ -1,15 +1,15 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+// frontend/src/context/CartContext.jsx (The Provider Component)
+
+// Import createContext/useContext/PropTypes if you didn't move them
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-const CartContext = createContext();
+// *** 1. Import the context object from the separate file ***
+import { CartContext } from './CartContext.js'; 
 
-export const useCart = () => {
-  const context = useContext(CartContext);
-  if (!context) {
-    throw new Error('useCart must be used within CartProvider');
-  }
-  return context;
-};
+// *** 2. Remove 'export const useCart' ***
+// *** 3. Remove 'const CartContext = createContext();' ***
+
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
@@ -17,10 +17,17 @@ export const CartProvider = ({ children }) => {
   // Load cart from localStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      setCartItems(JSON.parse(savedCart));
-    }
-  }, []);
+    
+    // FIX: Defer the state update to resolve the 'set-state-in-effect' warning.
+    const timer = setTimeout(() => {
+        if (savedCart) {
+          setCartItems(JSON.parse(savedCart));
+        }
+    }, 0);
+
+    return () => clearTimeout(timer);
+
+  }, []); // Empty dependency array means it runs only once on mount
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {

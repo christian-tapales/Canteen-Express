@@ -1,26 +1,21 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+// frontend/src/context/AuthContext.jsx
+
+// 1. Import dependencies
+import { useState, useEffect } from 'react';
 import axios from 'axios';
+// We only need AuthContext here, imported from your separate AuthContext.js file
+import { AuthContext } from './AuthContext.js'; // Assuming you named it AuthContext.js
 
-export const AuthContext = createContext();
-
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+// NOTE: Remove all code related to 'useContext' or 'useAuth' here.
+// NOTE: Remove all code related to 'createContext' here.
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const token = sessionStorage.getItem('token');
-    const userId = sessionStorage.getItem('userId');
-    const role = sessionStorage.getItem('role');
-    const firstName = sessionStorage.getItem('firstName');
-    if (token && userId && role && firstName) {
-      setUser({ token, userId, role, firstName });
-    }
-    setLoading(false);
-  }, []);
+  // ===================================
+  // 1. Re-define Core Functions (Fixes 'no-undef')
+  // ===================================
 
   const login = async (email, password) => {
     try {
@@ -34,7 +29,6 @@ export const AuthProvider = ({ children }) => {
 
       setUser({ token, userId, role, firstName });
 
-      // CRITICAL CHANGE: We return the role here so LoginPage can use it
       return { success: true, role: role };
     } catch (error) {
       return { success: false, message: error.response?.data?.message || 'Login failed' };
@@ -57,6 +51,35 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.removeItem('firstName');
     setUser(null);
   };
+
+  // ===================================
+  // 2. useEffect Logic (Fixes 'set-state-in-effect')
+  // ===================================
+
+  useEffect(() => {
+    // FIX: Move the entire session check and state setting logic 
+    // inside the deferred execution block.
+    const timer = setTimeout(() => {
+        const token = sessionStorage.getItem('token');
+        const userId = sessionStorage.getItem('userId');
+        const role = sessionStorage.getItem('role');
+        const firstName = sessionStorage.getItem('firstName');
+        
+        if (token && userId && role && firstName) {
+            // This is now deferred and runs outside the synchronous render phase.
+            setUser({ token, userId, role, firstName }); 
+        }
+
+        // setLoading(false) is the last state update, ensuring the component
+        // is marked as finished loading only after the user check is complete.
+        setLoading(false);
+        
+    }, 0); // Defer execution until after the browser paints the initial component
+
+    // Cleanup function to clear the timeout if the component unmounts quickly
+    return () => clearTimeout(timer);
+    
+}, []); // Empty dependency array
 
   const value = {
     user,

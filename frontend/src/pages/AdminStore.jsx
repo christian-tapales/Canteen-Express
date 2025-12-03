@@ -15,7 +15,7 @@ const AdminStore = () => {
     { id: 5, name: 'Halang x 2', stock: 13 },
   ]);
 
-  const [openingTime, setOpeningTime] = useState('Save Hour');
+  const [openingTime] = useState('Save Hour');
   const [newAnnouncement, setNewAnnouncement] = useState('');
   const [publicAnnouncement, setPublicAnnouncement] = useState('');
 

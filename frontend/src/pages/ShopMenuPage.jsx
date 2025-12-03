@@ -66,7 +66,7 @@ const ShopMenuPage = () => {
       >
         {/* Canteen Image */}
         <div 
-          className="w-32 h-32 rounded-xl overflow-hidden flex-shrink-0"
+          className="w-32 h-32 rounded-xl overflow-hidden shrink-0"
           style={{ 
             backgroundColor: '#E5E7EB',
             backgroundImage: 'url(https://images.unsplash.com/photo-1567521464027-f127ff144326?w=400)',
@@ -76,7 +76,7 @@ const ShopMenuPage = () => {
         />
         
         {/* Canteen Info */}
-        <div className="flex-grow">
+        <div className="grow">
           <h1 className="text-3xl font-bold mb-2" style={{ color: '#8C343A' }}>
             Main Canteen
           </h1>

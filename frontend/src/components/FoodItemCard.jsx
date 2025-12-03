@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/useCart';
+import { useAuth } from '../context/useAuth';
 import AddToCartModal from './AddToCartModal';
 
 /**
