@@ -1,15 +1,15 @@
 package com.appdevg5.canteencoders.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.AssertTrue; // Import this!
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 /**
- * Represents a user (Customer, Vendor, or Admin) in the system.
- * The 'role' determines privileges, and 'shop' is nullable for staff assignment.
- * This is the final version based on the admin-controlled role elevation strategy.
+ * Represents a user (Customer, Vendor, or Admin).
+ * Updated with Cross-Field Validation to ensure Vendors always have a shop.
  */
 @Entity
 @Table(name = "tbl_users")
@@ -21,12 +21,11 @@ public class UserEntity {
     private Integer userId;
 
     /**
-     * FOREIGN KEY to the 'shop' table. Nullable because only Vendor and Admin accounts
-     * are manually assigned to a shop by the system administrator via SQL.
+     * Nullable in DB, but strictly required for VENDORS in Java logic.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shop_id", nullable = true)
-    private ShopEntity shop; // CORRECTED: Was 'Shop'
+    private ShopEntity shop;
 
     @NotNull
     @Size(max = 100)
@@ -52,10 +51,6 @@ public class UserEntity {
     @Column(name = "password_hash", length = 255, nullable = false)
     private String passwordHash;
 
-    /**
-     * Defines the user's role (Customer, Vendor, Admin).
-     * Defaults to CUSTOMER and is manually elevated by the administrator via SQL.
-     */
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "role", length = 20, nullable = false)
@@ -67,15 +62,12 @@ public class UserEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // --- Enum Definition for Role ---
-
+    // --- Enum Definition ---
     public enum Role {
-        CUSTOMER, // Default role (Student)
-        VENDOR,   // Canteen Staff role
-        ADMIN     // System Administrator role
+        CUSTOMER, VENDOR, ADMIN
     }
 
-    // --- Life Cycle Methods (for timestamps) ---
+    // --- Life Cycle Methods ---
 
     @PrePersist
     protected void onCreate() {
@@ -88,31 +80,41 @@ public class UserEntity {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // --- Constructors ---
-
-    public UserEntity() { // CORRECTED: Was 'User()'
-        // Default constructor required by JPA
+    /**
+     * ✅ NEW VALIDATION: Safety Check
+     * This ensures that a VENDOR cannot be saved without a SHOP.
+     */
+    @AssertTrue(message = "Vendors must be assigned to a Shop.")
+    private boolean isVendorShopValid() {
+        if (this.role == Role.VENDOR && this.shop == null) {
+            return false; // Invalid state: Vendor with no shop
+        }
+        if (this.role == Role.CUSTOMER && this.shop != null) {
+            return true; // Optional: Customers usually shouldn't have shops, but it's not fatal.
+        }
+        return true; // All other cases are fine
     }
 
-    /**
-     * Constructor used for the initial registration process.
-     */
-    public UserEntity(String firstName, String lastName, String email, String passwordHash, String phoneNumber) { // CORRECTED: Was 'User()'
+    // --- Constructors ---
+
+    public UserEntity() {
+    }
+
+    public UserEntity(String firstName, String lastName, String email, String passwordHash, String phoneNumber) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.passwordHash = passwordHash;
         this.phoneNumber = phoneNumber;
-        this.role = Role.CUSTOMER; // Always defaults to customer upon registration
+        this.role = Role.CUSTOMER;
     }
 
     // --- Getters and Setters ---
-
     public Integer getUserId() { return userId; }
     public void setUserId(Integer userId) { this.userId = userId; }
 
-    public ShopEntity getShop() { return shop; } // CORRECTED: Was 'Shop'
-    public void setShop(ShopEntity shop) { this.shop = shop; } // CORRECTED: Was 'Shop'
+    public ShopEntity getShop() { return shop; }
+    public void setShop(ShopEntity shop) { this.shop = shop; }
 
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }

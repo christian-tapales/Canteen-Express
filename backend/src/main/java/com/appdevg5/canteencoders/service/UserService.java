@@ -4,7 +4,6 @@ import com.appdevg5.canteencoders.entity.UserEntity;
 import com.appdevg5.canteencoders.repository.UserRepository;
 import com.appdevg5.canteencoders.security.JwtService;
 import com.appdevg5.canteencoders.dto.RegisterRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -27,7 +26,7 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    @Autowired
+
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;

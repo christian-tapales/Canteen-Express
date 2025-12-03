@@ -4,10 +4,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Represents a shop (e.g., "Main Canteen," "Snack Express") in the multi-shop system.
- * Each shop has its own menu and inventory managed by vendors.
+ * Represents a shop (e.g., "Main Canteen," "Snack Express").
+ * Updated to include a link back to the Vendor/Users managing it.
  */
 @Entity
 @Table(name = "tbl_shops")
@@ -39,13 +41,21 @@ public class ShopEntity {
     @Column(name = "is_open", nullable = false)
     private Boolean isOpen = true;
 
+    /**
+     * ✅ NEW: Bidirectional link to Users.
+     * This lets the Shop object access the list of users (Vendors/Staff) assigned to it.
+     * Mapped by the 'shop' field in UserEntity.
+     */
+    @OneToMany(mappedBy = "shop", fetch = FetchType.LAZY)
+    private List<UserEntity> users = new ArrayList<>();
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // --- Life Cycle Methods (for timestamps) ---
+    // --- Life Cycle Methods ---
 
     @PrePersist
     protected void onCreate() {
@@ -58,10 +68,24 @@ public class ShopEntity {
         this.updatedAt = LocalDateTime.now();
     }
 
+    /**
+     * ✅ NEW HELPER: Get the Vendor.
+     * Convenience method to find the specific VENDOR among the users assigned to this shop.
+     * Returns null if no vendor is assigned yet.
+     */
+    public UserEntity getVendor() {
+        if (users == null || users.isEmpty()) {
+            return null;
+        }
+        return users.stream()
+                .filter(u -> u.getRole() == UserEntity.Role.VENDOR)
+                .findFirst()
+                .orElse(null);
+    }
+
     // --- Constructors ---
 
     public ShopEntity() {
-        // Default constructor required by JPA
     }
 
     public ShopEntity(String shopName, String description) {
@@ -89,6 +113,8 @@ public class ShopEntity {
     public Boolean getIsOpen() { return isOpen; }
     public void setIsOpen(Boolean isOpen) { this.isOpen = isOpen; }
 
+    public List<UserEntity> getUsers() { return users; }
+    public void setUsers(List<UserEntity> users) { this.users = users; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
