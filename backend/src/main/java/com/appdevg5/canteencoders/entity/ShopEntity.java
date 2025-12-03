@@ -35,6 +35,10 @@ public class ShopEntity {
     @Column(name = "image_url", length = 255)
     private String imageUrl;
 
+    @NotNull
+    @Column(name = "is_open", nullable = false)
+    private Boolean isOpen = true;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -81,6 +85,12 @@ public class ShopEntity {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public Boolean getIsOpen() { return isOpen; }
+    public void setIsOpen(Boolean isOpen) { this.isOpen = isOpen; }
+
+    public Boolean getIsActive() { return isActive; }
+    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
