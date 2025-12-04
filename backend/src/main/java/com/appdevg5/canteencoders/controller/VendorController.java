@@ -110,8 +110,79 @@ public class VendorController {
      * @return List of orders.
      */
     @GetMapping("/orders")
-    public ResponseEntity<List<OrderEntity>> getVendorOrders() {
-        List<OrderEntity> orders = orderService.getOrdersByVendorShop();
-        return ResponseEntity.ok(orders);
+    public ResponseEntity<?> getVendorOrders() {
+        try {
+            List<OrderEntity> orders = orderService.getOrdersByVendorShop();
+            System.out.println("DEBUG: Found " + orders.size() + " orders for vendor");
+            return ResponseEntity.ok(orders);
+        } catch (IllegalStateException e) {
+            System.err.println("ERROR in getVendorOrders: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("UNEXPECTED ERROR in getVendorOrders: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Unexpected error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Accept a pending order (change status from PENDING to PREPARING).
+     * @param orderId Order ID to accept.
+     * @return Updated order.
+     */
+    @PutMapping("/orders/{orderId}/accept")
+    public ResponseEntity<OrderEntity> acceptOrder(@PathVariable Integer orderId) {
+        try {
+            OrderEntity order = orderService.updateOrderStatus(orderId, OrderEntity.OrderStatus.PREPARING);
+            return ResponseEntity.ok(order);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Reject a pending order (change status to REJECTED).
+     * @param orderId Order ID to reject.
+     * @return Updated order.
+     */
+    @PutMapping("/orders/{orderId}/reject")
+    public ResponseEntity<OrderEntity> rejectOrder(@PathVariable Integer orderId) {
+        try {
+            OrderEntity order = orderService.updateOrderStatus(orderId, OrderEntity.OrderStatus.REJECTED);
+            return ResponseEntity.ok(order);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Mark an order as ready for pickup (change status to READY).
+     * @param orderId Order ID.
+     * @return Updated order.
+     */
+    @PutMapping("/orders/{orderId}/ready")
+    public ResponseEntity<OrderEntity> markOrderReady(@PathVariable Integer orderId) {
+        try {
+            OrderEntity order = orderService.updateOrderStatus(orderId, OrderEntity.OrderStatus.READY);
+            return ResponseEntity.ok(order);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Complete an order (change status to COMPLETED).
+     * @param orderId Order ID.
+     * @return Updated order.
+     */
+    @PutMapping("/orders/{orderId}/complete")
+    public ResponseEntity<OrderEntity> completeOrder(@PathVariable Integer orderId) {
+        try {
+            OrderEntity order = orderService.updateOrderStatus(orderId, OrderEntity.OrderStatus.COMPLETED);
+            return ResponseEntity.ok(order);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

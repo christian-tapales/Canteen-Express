@@ -64,12 +64,45 @@ public class OrderService {
 
     /**
      * Retrieves all orders for the vendor's shop (for vendors).
-     * Assumes the vendor is authenticated and we can get their shop.
+     * Gets the authenticated vendor and returns orders for their shop.
      */
+    @Transactional
     public List<OrderEntity> getOrdersByVendorShop() {
-        // This would need to be implemented based on authentication context
-        // For now, return empty list
-        return new java.util.ArrayList<>();
+        // Get the authenticated user from Spring Security context
+        org.springframework.security.core.Authentication authentication = 
+            org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        
+        System.out.println("DEBUG: Authentication object: " + authentication);
+        
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalStateException("User not authenticated");
+        }
+        
+        String email = authentication.getName();
+        System.out.println("DEBUG: Authenticated user email: " + email);
+        
+        UserEntity vendor = userRepository.findByEmail(email)
+            .orElseThrow(() -> new IllegalStateException("Vendor not found with email: " + email));
+        
+        System.out.println("DEBUG: Found vendor - ID: " + vendor.getUserId() + ", Role: " + vendor.getRole());
+        
+        // Check if user is actually a vendor
+        if (vendor.getRole() != UserEntity.Role.VENDOR) {
+            throw new IllegalStateException("User is not a vendor. Role: " + vendor.getRole());
+        }
+        
+        // Get the vendor's shop
+        ShopEntity shop = vendor.getShop();
+        System.out.println("DEBUG: Vendor's shop: " + (shop != null ? "Shop ID: " + shop.getShopId() : "NULL"));
+        
+        if (shop == null) {
+            throw new IllegalStateException("Vendor has no assigned shop. Please ensure the vendor account has a shop_id in the database.");
+        }
+        
+        // Return all orders for this shop
+        List<OrderEntity> orders = orderRepository.findByShop(shop);
+        System.out.println("DEBUG: Found " + orders.size() + " orders for shop ID: " + shop.getShopId());
+        return orders;
     }
 
     /**

@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
+import axios from 'axios';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user, logout, loading } = useAuth();
+  const [statistics, setStatistics] = useState(null);
+  const [loadingStats, setLoadingStats] = useState(true);
 
   // Check authentication and redirect if needed
   useEffect(() => {
@@ -13,12 +16,35 @@ const AdminDashboard = () => {
     }
   }, [user, loading, navigate]);
 
+  // Fetch statistics from backend
+  useEffect(() => {
+    const fetchStatistics = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8080/api/admin/statistics', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        setStatistics(response.data);
+      } catch (error) {
+        console.error('Error fetching statistics:', error);
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+
+    if (user && user.role === 'ADMIN') {
+      fetchStatistics();
+    }
+  }, [user]);
+
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  if (loading) {
+  if (loading || loadingStats) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F5F5F5]">
         <div className="text-center">
@@ -87,33 +113,33 @@ const AdminDashboard = () => {
           {/* Summary Cards */}
           <div className="grid grid-cols-5 gap-4 mb-8">
             <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 shadow-md text-center">
-              <h3 className="text-4xl font-bold mb-2 text-[#8C343A]">120</h3>
+              <h3 className="text-4xl font-bold mb-2 text-[#8C343A]">{statistics?.totalUsers || 0}</h3>
               <p className="text-gray-600 font-semibold">Total Users</p>
               <p className="text-sm text-gray-500 mt-1">Students, staff & vendors</p>
             </div>
             
             <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 shadow-md text-center">
-              <h3 className="text-4xl font-bold mb-2 text-[#8C343A]">5</h3>
-              <p className="text-gray-600 font-semibold">Active Vendors</p>
-              <p className="text-sm text-gray-500 mt-1">Currently selling</p>
-            </div>
-            
-            <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 shadow-md text-center">
-              <h3 className="text-4xl font-bold mb-2 text-[#8C343A]">8</h3>
-              <p className="text-gray-600 font-semibold">Total Stalls</p>
+              <h3 className="text-4xl font-bold mb-2 text-[#8C343A]">{statistics?.totalShops || 0}</h3>
+              <p className="text-gray-600 font-semibold">Total Shops</p>
               <p className="text-sm text-gray-500 mt-1">Registered shops</p>
             </div>
             
             <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 shadow-md text-center">
-              <h3 className="text-4xl font-bold mb-2 text-[#8C343A]">6</h3>
-              <p className="text-gray-600 font-semibold">Open Right Now</p>
-              <p className="text-sm text-gray-500 mt-1">Visible to students</p>
+              <h3 className="text-4xl font-bold mb-2 text-[#8C343A]">{statistics?.totalFoodItems || 0}</h3>
+              <p className="text-gray-600 font-semibold">Food Items</p>
+              <p className="text-sm text-gray-500 mt-1">Available menu items</p>
             </div>
             
             <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 shadow-md text-center">
-              <h3 className="text-4xl font-bold mb-2 text-[#8C343A]">2</h3>
-              <p className="text-gray-600 font-semibold">Force Closed</p>
-              <p className="text-sm text-gray-500 mt-1">Admin disabled</p>
+              <h3 className="text-4xl font-bold mb-2 text-[#8C343A]">{statistics?.totalOrders || 0}</h3>
+              <p className="text-gray-600 font-semibold">Total Orders</p>
+              <p className="text-sm text-gray-500 mt-1">All time orders</p>
+            </div>
+            
+            <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 shadow-md text-center">
+              <h3 className="text-4xl font-bold mb-2 text-[#8C343A]">₱{statistics?.totalRevenue?.toLocaleString() || 0}</h3>
+              <p className="text-gray-600 font-semibold">Total Revenue</p>
+              <p className="text-sm text-gray-500 mt-1">All transactions</p>
             </div>
           </div>
 
@@ -123,16 +149,16 @@ const AdminDashboard = () => {
               <h3 className="text-lg font-bold mb-4 text-[#8C343A]">Revenue Overview</h3>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Today's Sales</span>
-                  <span className="text-2xl font-bold text-[#8C343A]">₱12,450</span>
+                  <span className="text-gray-600">Total Revenue</span>
+                  <span className="text-2xl font-bold text-[#8C343A]">₱{statistics?.totalRevenue?.toLocaleString() || 0}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Weekly Sales</span>
-                  <span className="text-2xl font-bold text-[#8C343A]">₱98,320</span>
+                  <span className="text-gray-600">Completed Revenue</span>
+                  <span className="text-2xl font-bold text-green-600">₱{statistics?.completedRevenue?.toLocaleString() || 0}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Monthly Sales</span>
-                  <span className="text-2xl font-bold text-[#8C343A]">₱385,640</span>
+                  <span className="text-gray-600">Pending Revenue</span>
+                  <span className="text-2xl font-bold text-orange-600">₱{statistics?.pendingRevenue?.toLocaleString() || 0}</span>
                 </div>
               </div>
             </div>
@@ -141,16 +167,16 @@ const AdminDashboard = () => {
               <h3 className="text-lg font-bold mb-4 text-[#8C343A]">Order Statistics</h3>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Active Orders</span>
-                  <span className="text-2xl font-bold text-[#8C343A]">48</span>
+                  <span className="text-gray-600">Pending Orders</span>
+                  <span className="text-2xl font-bold text-orange-600">{statistics?.pendingOrders || 0}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Completed Today</span>
-                  <span className="text-2xl font-bold text-[#8C343A]">124</span>
+                  <span className="text-gray-600">Preparing Orders</span>
+                  <span className="text-2xl font-bold text-blue-600">{statistics?.preparingOrders || 0}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Total This Week</span>
-                  <span className="text-2xl font-bold text-[#8C343A]">892</span>
+                  <span className="text-gray-600">Completed Orders</span>
+                  <span className="text-2xl font-bold text-green-600">{statistics?.completedOrders || 0}</span>
                 </div>
               </div>
             </div>
