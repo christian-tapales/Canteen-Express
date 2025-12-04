@@ -1,33 +1,61 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios'; // Import axios
 import { useAuth } from '../context/useAuth';
 
 const VendorDashboard = () => {
   const navigate = useNavigate();
-  const { user, logout, loading } = useAuth();
+  const { user, logout, loading: authLoading } = useAuth();
   const [dateFilter, setDateFilter] = useState('Today');
 
-  // Check authentication and redirect if needed
+  // 1. Define State for Dashboard Data
+  const [stats, setStats] = useState({
+    totalOrders: 0,
+    revenue: 0,
+    itemsSold: 0,
+    shopName: 'My Shop' // Default placeholder
+  });
+  const [loadingStats, setLoadingStats] = useState(true);
+
+  // 2. Check authentication and redirect if needed
   useEffect(() => {
-    if (!loading && (!user || user.role !== 'VENDOR')) {
+    if (!authLoading && (!user || user.role !== 'VENDOR')) {
       navigate('/login', { replace: true });
     }
-  }, [user, loading, navigate]);
+  }, [user, authLoading, navigate]);
 
-  // Static data for demonstration
-  const todaySummary = {
-    totalOrders: 125,
-    revenue: 8750.00,
-    itemsSold: 450,
-    avgOrderValue: 70.00
-  };
+  // 3. Fetch Real Data from Backend
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      // Only fetch if we have a valid logged-in vendor
+      if (!user || !user.token) return;
 
+      try {
+        const response = await axios.get('http://localhost:8080/api/vendor/dashboard/stats', {
+          headers: {
+            'Authorization': `Bearer ${user.token}`
+          }
+        });
+        // Update state with real numbers from Java backend
+        setStats(response.data);
+      } catch (error) {
+        console.error("Failed to load dashboard stats", error);
+        // Optional: Add toast notification here
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [user]);
+
+  // Static data for charts (You can replace this later with a charts endpoint)
   const salesMetrics = [
-    { label: 'Gross Revenue', value: '₱150,000.00', icon: '💰', change: '+12%' },
-    { label: 'Total Orders', value: '2,500', icon: '📦', change: '+8%' },
-    { label: 'Average Order Value', value: '₱60.00', icon: '💵', change: '+5%' },
-    { label: 'Items Sold', value: '5,240', icon: '🛒', change: '+15%' },
-    { label: 'Net Profit', value: '₱85,000', icon: '📊', change: '+10%' }
+    { label: 'Gross Revenue', value: `₱${stats.revenue.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`, icon: '💰', change: '+12%' },
+    { label: 'Total Orders', value: stats.totalOrders, icon: '📦', change: '+8%' },
+    { label: 'Average Order Value', value: '₱60.00', icon: '💵', change: '+5%' }, // You can calculate this: revenue / totalOrders
+    { label: 'Items Sold', value: stats.itemsSold, icon: '🛒', change: '+15%' },
+    { label: 'Net Profit', value: `₱${(stats.revenue * 0.8).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`, icon: '📊', change: '+10%' } // Example: 80% of revenue
   ];
 
   const topSellers = [
@@ -47,11 +75,12 @@ const VendorDashboard = () => {
   ];
 
   const handleExportCSV = () => {
+    // Updated CSV export to use real stats
     const csvContent = [
       ['Metric', 'Value'],
-      ['Total Orders', todaySummary.totalOrders],
-      ['Revenue', `₱${todaySummary.revenue.toFixed(2)}`],
-      ['Items Sold', todaySummary.itemsSold],
+      ['Total Orders', stats.totalOrders],
+      ['Revenue', `₱${stats.revenue.toFixed(2)}`],
+      ['Items Sold', stats.itemsSold],
       [''],
       ['Top Sellers'],
       ['Item', 'Quantity', 'Revenue'],
@@ -75,13 +104,13 @@ const VendorDashboard = () => {
     navigate('/login');
   };
 
-  // Show loading while checking authentication
-  if (loading) {
+  // Show loading while checking authentication OR fetching stats
+  if (authLoading || loadingStats) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FFF9E6]">
         <div className="text-center">
           <div className="text-4xl mb-4">🔄</div>
-          <p className="text-xl font-semibold text-[#8C343A]">Loading...</p>
+          <p className="text-xl font-semibold text-[#8C343A]">Loading Dashboard...</p>
         </div>
       </div>
     );
@@ -105,7 +134,8 @@ const VendorDashboard = () => {
               <span className="text-2xl">🍽️</span>
             </div>
             <span className="text-xl font-bold" style={{ color: '#8C343A' }}>
-              Canteen Express - Vendor
+              {/* Display the real shop name here if available, or fallback to default */}
+              {stats.shopName || 'Canteen Express - Vendor'}
             </span>
           </div>
           <button 
@@ -166,15 +196,18 @@ const VendorDashboard = () => {
           <div className="grid grid-cols-3 gap-6">
             <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 text-center">
               <h3 className="text-xl font-bold mb-2 text-[#8C343A]">Total Orders</h3>
-              <p className="text-5xl font-bold text-[#8C343A]">{todaySummary.totalOrders}</p>
+              {/* Display Real Total Orders */}
+              <p className="text-5xl font-bold text-[#8C343A]">{stats.totalOrders}</p>
             </div>
             <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 text-center">
               <h3 className="text-xl font-bold mb-2 text-[#8C343A]">Revenue</h3>
-              <p className="text-5xl font-bold text-[#8C343A]">₱{todaySummary.revenue.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</p>
+              {/* Display Real Revenue */}
+              <p className="text-5xl font-bold text-[#8C343A]">₱{stats.revenue.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</p>
             </div>
             <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 text-center">
               <h3 className="text-xl font-bold mb-2 text-[#8C343A]">Items Sold</h3>
-              <p className="text-5xl font-bold text-[#8C343A]">{todaySummary.itemsSold}</p>
+              {/* Display Real Items Sold */}
+              <p className="text-5xl font-bold text-[#8C343A]">{stats.itemsSold}</p>
             </div>
           </div>
         </div>
