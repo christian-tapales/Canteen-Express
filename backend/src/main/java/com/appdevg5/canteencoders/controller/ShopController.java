@@ -3,12 +3,16 @@ package com.appdevg5.canteencoders.controller;
 import com.appdevg5.canteencoders.dto.ShopDTO;
 import com.appdevg5.canteencoders.dto.FoodItemDTO;
 import com.appdevg5.canteencoders.entity.ShopEntity;
+import com.appdevg5.canteencoders.entity.UserEntity;
 import com.appdevg5.canteencoders.service.ShopService;
+import com.appdevg5.canteencoders.service.UserService;
 import com.appdevg5.canteencoders.service.FoodItemService;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +37,9 @@ public class ShopController {
     private ShopService shopService;
 
     @Autowired
+    private UserService userService;
+    
+    @Autowired
     private FoodItemService foodItemService;
 
     /**
@@ -55,6 +62,25 @@ public class ShopController {
     public ResponseEntity<List<ShopDTO>> getAllShops() {
         List<ShopDTO> shops = shopService.getAllShopsAsDTO();
         return ResponseEntity.ok(shops);
+    }
+
+    @GetMapping("/my-shop")
+    public ResponseEntity<ShopDTO> getMyShop() {
+        // 1. Get the email from the security context (Token)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        // 2. Find the user in the database
+        UserEntity user = userService.findByEmail(email);
+
+        // 3. Check if they have a shop assigned
+        if (user.getShop() == null) {
+            return ResponseEntity.badRequest().build(); // Or handle this error gracefully
+        }
+
+        // 4. Return their shop's details
+        ShopDTO shopDTO = shopService.convertToShopDTO(user.getShop());
+        return ResponseEntity.ok(shopDTO);
     }
 
     /**
