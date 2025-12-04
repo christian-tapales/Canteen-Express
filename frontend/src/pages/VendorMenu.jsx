@@ -27,166 +27,173 @@ const VendorMenu = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#FFF9E6]">
-      {/* Sidebar */}
-      <aside className="w-64 bg-[#F5DEB3] flex flex-col">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold text-[#8C343A]">Vendor Panel</h1>
-        </div>
-        
-        <nav className="flex-1 px-4">
-          <ul className="space-y-2">
-            <li>
-              <Link to="/vendor/dashboard" className="block py-2 px-4 rounded hover:bg-[#8C343A] hover:text-white transition-colors">
-                Dashboard
-              </Link>
-            </li>
-            <li>
-              <Link to="/vendor/orders" className="block py-2 px-4 rounded hover:bg-[#8C343A] hover:text-white transition-colors">
-                Orders
-              </Link>
-            </li>
-            <li>
-              <Link to="/vendor/store" className="block py-2 px-4 rounded hover:bg-[#8C343A] hover:text-white transition-colors">
-                Store
-              </Link>
-            </li>
-            <li>
-              <Link to="/vendor/menu" className="bg-[#8C343A] text-white block py-2 px-4 rounded">
-                Food Menu
-              </Link>
-            </li>
-            <li>
-              <Link to="/vendor/sales" className="block py-2 px-4 rounded hover:bg-[#8C343A] hover:text-white transition-colors">
-                Sales Report
-              </Link>
-            </li>
-          </ul>
-        </nav>
-
-        <div className="p-4">
-          <button
+    <div className="min-h-screen bg-[#F5F5F5]">
+      {/* Header */}
+      <nav className="shadow-md" style={{ backgroundColor: '#FBCA30', padding: '1rem 0' }}>
+        <div className="container mx-auto px-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div 
+              className="w-10 h-10 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: '#8C343A' }}
+            >
+              <span className="text-2xl">🍽️</span>
+            </div>
+            <span className="text-xl font-bold" style={{ color: '#8C343A' }}>
+              Canteen Express - Vendor
+            </span>
+          </div>
+          <button 
             onClick={handleLogout}
-            className="w-full py-2 px-4 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+            className="px-5 py-2 rounded-lg font-semibold transition-all hover:opacity-90 shadow-sm"
+            style={{ 
+              backgroundColor: '#8C343A',
+              color: '#FFFFFF'
+            }}
           >
             Logout
           </button>
         </div>
-      </aside>
+      </nav>
 
-      {/* Main Content */}
-      <main className="flex-1 p-8">
-        <div className="mb-6 flex justify-between items-center">
-          <h2 className="text-3xl font-bold text-[#8C343A]">Food Menu</h2>
-        </div>
+      <div className="flex">
+        {/* Sidebar */}
+        <aside className="w-64 bg-white shadow-lg min-h-[calc(100vh-73px)]">
+          <div className="p-4">
+            <nav className="space-y-2">
+              <Link to="/vendor/dashboard" className="block py-2 px-4 rounded-lg font-semibold text-[#8C343A] hover:bg-[#FFF9E6] transition-colors">
+                Dashboard
+              </Link>
+              <Link to="/vendor/orders" className="block py-2 px-4 rounded-lg font-semibold text-[#8C343A] hover:bg-[#FFF9E6] transition-colors">
+                Orders
+              </Link>
+              <Link to="/vendor/store" className="block py-2 px-4 rounded-lg font-semibold text-[#8C343A] hover:bg-[#FFF9E6] transition-colors">
+                Store
+              </Link>
+              <Link to="/vendor/menu" className="block py-2 px-4 rounded-lg font-semibold bg-[#8C343A] text-white">
+                Food Menu
+              </Link>
+              <Link to="/vendor/sales" className="block py-2 px-4 rounded-lg font-semibold text-[#8C343A] hover:bg-[#FFF9E6] transition-colors">
+                Sales Report
+              </Link>
+            </nav>
+          </div>
+        </aside>
 
-        {/* Search and Actions */}
-        <div className="mb-6 flex gap-4">
-          <input
-            type="text"
-            placeholder="Search categories"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 px-4 py-2 rounded-lg bg-white border-2 border-gray-300 focus:outline-none focus:border-[#8C343A]"
-          />
-          <button className="px-6 py-2 rounded-lg font-semibold bg-white border-2 border-[#8C343A] text-[#8C343A] hover:bg-[#8C343A] hover:text-white transition-colors">
-            Import CSV
-          </button>
-          <button className="px-6 py-2 rounded-lg font-semibold bg-[#FBCA30] border-2 border-[#8C343A] text-[#8C343A] hover:bg-[#B78A00] hover:text-white transition-colors">
-            + Add new category
-          </button>
-        </div>
+        {/* Main Content */}
+        <main className="flex-1 p-8">
+          <div className="mb-6 flex justify-between items-center">
+            <h2 className="text-3xl font-bold text-[#8C343A]">Food Menu</h2>
+          </div>
 
-        {/* Categories */}
-        <div className="space-y-4">
-          {/* Soup Category */}
-          <div className="bg-[#F5DEB3] border-2 border-[#8C343A] rounded-lg overflow-hidden">
-            <button
-              onClick={() => toggleCategory('soup')}
-              className="w-full px-6 py-4 flex justify-between items-center font-bold text-[#8C343A] hover:bg-[#E5D3A3] transition-colors"
-            >
-              <span className="text-xl">Soup</span>
-              <div className="flex gap-2">
-                <button className="w-8 h-8 rounded bg-[#FBCA30] hover:bg-[#B78A00] flex items-center justify-center">+</button>
-                <button className="w-8 h-8 rounded bg-[#FBCA30] hover:bg-[#B78A00] flex items-center justify-center">✎</button>
-                <button className="w-8 h-8 rounded bg-[#FBCA30] hover:bg-[#B78A00] flex items-center justify-center">🗑</button>
-                <button className="w-8 h-8 rounded bg-[#FBCA30] hover:bg-[#B78A00] flex items-center justify-center">
-                  {expandedCategory === 'soup' ? '↑' : '↓'}
-                </button>
-              </div>
+          {/* Search and Actions */}
+          <div className="mb-6 flex gap-4">
+            <input
+              type="text"
+              placeholder="Search categories"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1 px-4 py-2 rounded-lg bg-white border-2 border-gray-300 focus:outline-none focus:border-[#8C343A]"
+            />
+            <button className="px-6 py-2 rounded-lg font-semibold bg-white border-2 border-[#8C343A] text-[#8C343A] hover:bg-[#FFF9E6] transition-colors shadow-sm">
+              Import CSV
+            </button>
+            <button className="px-6 py-2 rounded-full font-semibold transition-all hover:opacity-90 shadow-sm" style={{ backgroundColor: '#10B981', color: '#FFFFFF' }}>
+              + Add new category
             </button>
           </div>
 
-          {/* Main Dishes Category */}
-          <div className="bg-[#F5DEB3] border-2 border-[#8C343A] rounded-lg overflow-hidden">
-            <button
-              onClick={() => toggleCategory('mainDishes')}
-              className="w-full px-6 py-4 flex justify-between items-center font-bold text-[#8C343A] hover:bg-[#E5D3A3] transition-colors"
-            >
-              <span className="text-xl">Main Dishes</span>
-              <div className="flex gap-2">
-                <button className="w-8 h-8 rounded bg-[#FBCA30] hover:bg-[#B78A00] flex items-center justify-center">+</button>
-                <button className="w-8 h-8 rounded bg-[#FBCA30] hover:bg-[#B78A00] flex items-center justify-center">✎</button>
-                <button className="w-8 h-8 rounded bg-[#FBCA30] hover:bg-[#B78A00] flex items-center justify-center">🗑</button>
-                <button className="w-8 h-8 rounded bg-[#FBCA30] hover:bg-[#B78A00] flex items-center justify-center">
-                  {expandedCategory === 'mainDishes' ? '↑' : '↓'}
-                </button>
-              </div>
-            </button>
-          </div>
+          {/* Categories */}
+          <div className="space-y-4">
+            {/* Soup Category */}
+            <div className="bg-white border-2 border-[#8C343A] rounded-2xl overflow-hidden shadow-md">
+              <button
+                onClick={() => toggleCategory('soup')}
+                className="w-full px-6 py-4 flex justify-between items-center font-bold text-[#8C343A] hover:bg-[#FFF9E6] transition-colors"
+              >
+                <span className="text-xl">Soup</span>
+                <div className="flex gap-2">
+                  <button className="w-8 h-8 rounded bg-white border-2 border-[#8C343A] hover:bg-[#FFF9E6] flex items-center justify-center text-[#8C343A]">+</button>
+                  <button className="w-8 h-8 rounded bg-white border-2 border-[#8C343A] hover:bg-[#FFF9E6] flex items-center justify-center text-[#8C343A]">✎</button>
+                  <button className="w-8 h-8 rounded bg-white border-2 border-[#8C343A] hover:bg-[#FFF9E6] flex items-center justify-center text-[#8C343A]">🗑</button>
+                  <button className="w-8 h-8 rounded bg-white border-2 border-[#8C343A] hover:bg-[#FFF9E6] flex items-center justify-center text-[#8C343A]">
+                    {expandedCategory === 'soup' ? '↑' : '↓'}
+                  </button>
+                </div>
+              </button>
+            </div>
 
-          {/* Desserts Category */}
-          <div className="bg-[#F5DEB3] border-2 border-[#8C343A] rounded-lg overflow-hidden">
-            <button
-              onClick={() => toggleCategory('desserts')}
-              className="w-full px-6 py-4 flex justify-between items-center font-bold text-[#8C343A] hover:bg-[#E5D3A3] transition-colors"
-            >
-              <span className="text-xl">Desserts</span>
-              <div className="flex gap-2">
-                <button className="w-8 h-8 rounded bg-[#FBCA30] hover:bg-[#B78A00] flex items-center justify-center">+</button>
-                <button className="w-8 h-8 rounded bg-[#FBCA30] hover:bg-[#B78A00] flex items-center justify-center">✎</button>
-                <button className="w-8 h-8 rounded bg-[#FBCA30] hover:bg-[#B78A00] flex items-center justify-center">🗑</button>
-                <button className="w-8 h-8 rounded bg-[#FBCA30] hover:bg-[#B78A00] flex items-center justify-center">
-                  {expandedCategory === 'desserts' ? '↑' : '↓'}
-                </button>
-              </div>
-            </button>
+            {/* Main Dishes Category */}
+            <div className="bg-white border-2 border-[#8C343A] rounded-2xl overflow-hidden shadow-md">
+              <button
+                onClick={() => toggleCategory('mainDishes')}
+                className="w-full px-6 py-4 flex justify-between items-center font-bold text-[#8C343A] hover:bg-[#FFF9E6] transition-colors"
+              >
+                <span className="text-xl">Main Dishes</span>
+                <div className="flex gap-2">
+                  <button className="w-8 h-8 rounded bg-white border-2 border-[#8C343A] hover:bg-[#FFF9E6] flex items-center justify-center text-[#8C343A]">+</button>
+                  <button className="w-8 h-8 rounded bg-white border-2 border-[#8C343A] hover:bg-[#FFF9E6] flex items-center justify-center text-[#8C343A]">✎</button>
+                  <button className="w-8 h-8 rounded bg-white border-2 border-[#8C343A] hover:bg-[#FFF9E6] flex items-center justify-center text-[#8C343A]">🗑</button>
+                  <button className="w-8 h-8 rounded bg-white border-2 border-[#8C343A] hover:bg-[#FFF9E6] flex items-center justify-center text-[#8C343A]">
+                    {expandedCategory === 'mainDishes' ? '↑' : '↓'}
+                  </button>
+                </div>
+              </button>
+            </div>
 
-            {expandedCategory === 'desserts' && (
-              <div className="p-6 bg-[#FFF9E6]">
-                <div className="grid grid-cols-4 gap-6">
-                  {menuItems.desserts.map((item) => (
-                    <div key={item.id} className="bg-white border-2 border-[#8C343A] rounded-lg overflow-hidden">
-                      <div className="aspect-square relative">
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+            {/* Desserts Category */}
+            <div className="bg-white border-2 border-[#8C343A] rounded-2xl overflow-hidden shadow-md">
+              <button
+                onClick={() => toggleCategory('desserts')}
+                className="w-full px-6 py-4 flex justify-between items-center font-bold text-[#8C343A] hover:bg-[#FFF9E6] transition-colors"
+              >
+                <span className="text-xl">Desserts</span>
+                <div className="flex gap-2">
+                  <button className="w-8 h-8 rounded bg-white border-2 border-[#8C343A] hover:bg-[#FFF9E6] flex items-center justify-center text-[#8C343A]">+</button>
+                  <button className="w-8 h-8 rounded bg-white border-2 border-[#8C343A] hover:bg-[#FFF9E6] flex items-center justify-center text-[#8C343A]">✎</button>
+                  <button className="w-8 h-8 rounded bg-white border-2 border-[#8C343A] hover:bg-[#FFF9E6] flex items-center justify-center text-[#8C343A]">🗑</button>
+                  <button className="w-8 h-8 rounded bg-white border-2 border-[#8C343A] hover:bg-[#FFF9E6] flex items-center justify-center text-[#8C343A]">
+                    {expandedCategory === 'desserts' ? '↑' : '↓'}
+                  </button>
+                </div>
+              </button>
+
+              {expandedCategory === 'desserts' && (
+                <div className="p-6 bg-[#F5F5F5]">
+                  <div className="grid grid-cols-4 gap-6">
+                    {menuItems.desserts.map((item) => (
+                      <div key={item.id} className="bg-white border-2 border-[#8C343A] rounded-2xl overflow-hidden shadow-md">
+                        <div className="aspect-square relative">
+                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="p-4">
+                          <h3 className="font-bold mb-2 text-[#8C343A]">{item.name}</h3>
+                          <p className="font-bold mb-3 text-[#8C343A]">₱{item.price.toFixed(2)}</p>
+                          <button
+                            className={`w-full px-4 py-2 rounded-full font-semibold text-white transition-all hover:opacity-90 shadow-sm ${
+                              item.available ? '' : 'opacity-60'
+                            }`}
+                            style={{ backgroundColor: item.available ? '#10B981' : '#EF4444' }}
+                          >
+                            {item.available ? 'Available' : 'Unavailable'}
+                          </button>
+                        </div>
                       </div>
-                      <div className="p-4">
-                        <h3 className="font-bold mb-2 text-[#8C343A]">{item.name}</h3>
-                        <p className="font-bold mb-3 text-[#B78A00]">₱{item.price.toFixed(2)}</p>
-                        <button
-                          className={`w-full px-4 py-2 rounded-lg font-semibold text-white transition-colors ${
-                            item.available ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
-                          }`}
-                        >
-                          {item.available ? 'Available' : 'Unavailable'}
-                        </button>
+                    ))}
+                    
+                    {/* Add Item Card */}
+                    <div className="bg-white border-2 border-[#8C343A] rounded-2xl flex flex-col items-center justify-center p-6 cursor-pointer hover:bg-[#FFF9E6] transition-colors min-h-[250px]">
+                      <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-all hover:opacity-90" style={{ backgroundColor: '#10B981' }}>
+                        <span className="text-4xl font-bold text-white">+</span>
                       </div>
+                      <p className="font-bold text-[#8C343A]">Add Item</p>
                     </div>
-                  ))}
-                  
-                  {/* Add Item Card */}
-                  <div className="bg-[#FFF9E6] border-2 border-[#8C343A] rounded-lg flex flex-col items-center justify-center p-6 cursor-pointer hover:bg-[#F5DEB3] transition-colors min-h-[250px]">
-                    <div className="w-16 h-16 rounded-full bg-[#FBCA30] flex items-center justify-center mb-4">
-                      <span className="text-4xl font-bold text-[#8C343A]">+</span>
-                    </div>
-                    <p className="font-bold text-[#8C343A]">Add Item</p>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };

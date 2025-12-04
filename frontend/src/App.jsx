@@ -8,15 +8,11 @@ import ShopListPage from './pages/ShopListPage.jsx';
 import ShopMenuPage from './pages/ShopMenuPage.jsx';
 import CartPage from './pages/CartPage.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
-import AdminOrders from './pages/AdminOrders.jsx';
-import AdminStore from './pages/AdminStore.jsx';
-import AdminMenu from './pages/AdminMenu.jsx';
-import AdminSales from './pages/AdminSales.jsx';
+import AdminManagement from './pages/AdminManagement.jsx';
+import AdminLedger from './pages/AdminLedger.jsx';
 import VendorDashboard from './pages/VendorDashboard.jsx';
 import VendorOrders from './pages/VendorOrders.jsx';
-import VendorStore from './pages/VendorStore.jsx';
-import VendorMenu from './pages/VendorMenu.jsx';
-import VendorSales from './pages/VendorSales.jsx';
+import ShopManagement from './pages/ShopManagement.jsx';
 
 function App() {
   return (
@@ -29,19 +25,15 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         
-        {/* Admin Routes - No Navbar */}
+        {/* Admin Routes - No Navbar (Consolidated 3-page structure) */}
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/orders" element={<AdminOrders />} />
-        <Route path="/admin/store" element={<AdminStore />} />
-        <Route path="/admin/menu" element={<AdminMenu />} />
-        <Route path="/admin/sales" element={<AdminSales />} />
+        <Route path="/admin/management" element={<AdminManagement />} />
+        <Route path="/admin/ledger" element={<AdminLedger />} />
         
-        {/* Vendor Routes - No Navbar */}
+        {/* Vendor Routes - No Navbar (Consolidated 3-page structure) */}
         <Route path="/vendor/dashboard" element={<VendorDashboard />} />
         <Route path="/vendor/orders" element={<VendorOrders />} />
-        <Route path="/vendor/store" element={<VendorStore />} />
-        <Route path="/vendor/menu" element={<VendorMenu />} />
-        <Route path="/vendor/sales" element={<VendorSales />} />
+        <Route path="/vendor/shop-management" element={<ShopManagement />} />
         
         {/* Regular Routes with Navbar */}
         <Route path="/shops" element={
