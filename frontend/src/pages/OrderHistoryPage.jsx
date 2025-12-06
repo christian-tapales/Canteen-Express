@@ -4,19 +4,26 @@ import axios from 'axios';
 import { useAuth } from '../context/useAuth';
 
 const OrderHistoryPage = () => {
-  const { user } = useAuth();
+  // 1. Get 'loading' from AuthContext (rename to authLoading to avoid conflict)
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  
+  // Rename local loading state to avoid confusion
+  const [dataLoading, setDataLoading] = useState(true); 
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      if (!user || !user.token) {
-        navigate('/login');
-        return;
-      }
+    // 2. CRITICAL FIX: If Auth is still loading, STOP here. Do not redirect yet.
+    if (authLoading) return;
 
+    // 3. Now that loading is done, if user is STILL missing, then redirect.
+    if (!user || !user.token) {
+      navigate('/login');
+      return;
+    }
+
+    const fetchOrders = async () => {
       try {
         const response = await axios.get('http://localhost:8080/api/orders/user', {
           headers: {
@@ -27,14 +34,15 @@ const OrderHistoryPage = () => {
       } catch (err) {
         setError('Failed to load order history');
       } finally {
-        setLoading(false);
+        setDataLoading(false);
       }
     };
 
     fetchOrders();
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]); // 4. Add authLoading to dependencies
 
-  if (loading) return (
+  // 5. Show loading screen if Auth is initializing OR if data is fetching
+  if (authLoading || dataLoading) return (
     <div className="container mx-auto px-4 py-12 text-center text-lg" style={{ color: '#8C343A' }}>
       Loading your orders...
     </div>
