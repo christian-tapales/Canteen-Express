@@ -257,4 +257,68 @@ public class AdminController {
         paymentService.deletePayment(id);
         return ResponseEntity.noContent().build();
     }
+
+    // --- Dashboard Statistics ---
+
+    /**
+     * Get dashboard statistics for admin panel.
+     * @return Statistics DTO with aggregated data.
+     */
+    @GetMapping("/statistics")
+    public ResponseEntity<com.appdevg5.canteencoders.dto.AdminStatisticsDTO> getStatistics() {
+        com.appdevg5.canteencoders.dto.AdminStatisticsDTO stats = new com.appdevg5.canteencoders.dto.AdminStatisticsDTO();
+        
+        // Get total counts
+        List<OrderEntity> allOrders = orderService.getAllOrders();
+        stats.setTotalOrders((long) allOrders.size());
+        stats.setTotalUsers((long) userService.getAllUsers().size());
+        stats.setTotalShops((long) shopService.getAllShops().size());
+        stats.setTotalFoodItems((long) foodItemService.getAllFoodItems().size());
+        
+        // Calculate revenue and order counts by status
+        java.math.BigDecimal totalRevenue = java.math.BigDecimal.ZERO;
+        java.math.BigDecimal completedRevenue = java.math.BigDecimal.ZERO;
+        java.math.BigDecimal pendingRevenue = java.math.BigDecimal.ZERO;
+        
+        long pending = 0, preparing = 0, ready = 0, completed = 0, cancelled = 0, rejected = 0;
+        
+        for (OrderEntity order : allOrders) {
+            totalRevenue = totalRevenue.add(order.getTotalAmount());
+            
+            switch (order.getStatus()) {
+                case PENDING:
+                    pending++;
+                    pendingRevenue = pendingRevenue.add(order.getTotalAmount());
+                    break;
+                case PREPARING:
+                    preparing++;
+                    break;
+                case READY:
+                    ready++;
+                    break;
+                case COMPLETED:
+                    completed++;
+                    completedRevenue = completedRevenue.add(order.getTotalAmount());
+                    break;
+                case CANCELLED:
+                    cancelled++;
+                    break;
+                case REJECTED:
+                    rejected++;
+                    break;
+            }
+        }
+        
+        stats.setTotalRevenue(totalRevenue);
+        stats.setCompletedRevenue(completedRevenue);
+        stats.setPendingRevenue(pendingRevenue);
+        stats.setPendingOrders(pending);
+        stats.setPreparingOrders(preparing);
+        stats.setReadyOrders(ready);
+        stats.setCompletedOrders(completed);
+        stats.setCancelledOrders(cancelled);
+        stats.setRejectedOrders(rejected);
+        
+        return ResponseEntity.ok(stats);
+    }
 }
