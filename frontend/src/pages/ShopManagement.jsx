@@ -16,6 +16,7 @@ const [shopName, setShopName] = useState('');
 const [shopDescription, setShopDescription] = useState('');
 const [shopImage, setShopImage] = useState('');
 const [savingProfile, setSavingProfile] = useState(false);
+const [paymentNumber, setPaymentNumber] = useState('');
 
   // --- NEW: FETCH REAL STATUS ON LOAD ---
   // Update your existing useEffect
@@ -32,6 +33,7 @@ const [savingProfile, setSavingProfile] = useState(false);
         setShopName(response.data.name);               // <--- ADD THIS
         setShopDescription(response.data.description); // <--- ADD THIS
         setShopImage(response.data.imageUrl || '');
+        setPaymentNumber(response.data.paymentNumber || '');
         
       } catch (error) {
         console.error("Failed to load shop details", error);
@@ -108,7 +110,8 @@ const [savingProfile, setSavingProfile] = useState(false);
         {
           name: shopName,
           description: shopDescription,
-          imageUrl: shopImage // <--- ADD THIS
+          imageUrl: shopImage,
+          paymentNumber: paymentNumber
         }, 
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
@@ -298,6 +301,23 @@ const [savingProfile, setSavingProfile] = useState(false);
                       onChange={(e) => setShopDescription(e.target.value)}
                       className="w-full px-4 py-2 rounded-lg bg-white border-2 border-gray-300 focus:outline-none focus:border-[#8C343A]"
                     />
+                  </div>
+
+                  {/* ✅ NEW: Payment Number Input */}
+                  <div>
+                    <label className="block text-sm font-bold text-[#8C343A] mb-2">
+                      Digital Wallet Number (GCash/Maya)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g., 0917-123-4567"
+                      value={paymentNumber}
+                      onChange={(e) => setPaymentNumber(e.target.value)}
+                      className="w-full px-4 py-2 rounded-lg bg-[#FFF9E6] border-2 border-gray-300 focus:outline-none focus:border-[#8C343A] font-mono text-lg"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Customers will send payments to this number.
+                    </p>
                   </div>
                   
                   <button 

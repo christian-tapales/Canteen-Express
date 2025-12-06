@@ -58,7 +58,7 @@ public class ShopService {
         // Including the image_url field
         dto.setImageUrl(shop.getImageUrl());
         dto.setIsOpen(shop.getIsOpen());
-        
+        dto.setPaymentNumber(shop.getPaymentNumber());
         // **EXCLUDED:** shop.getPaymentNumber() is sensitive and not included in the public ShopDTO
         
         return dto;
@@ -157,6 +157,11 @@ public class ShopService {
         // ✅ ADD THIS: Update Image URL
         if (updates.getImageUrl() != null && !updates.getImageUrl().isBlank()) {
             shop.setImageUrl(updates.getImageUrl());
+        }
+
+        // ✅ ADD THIS: Update Payment Number
+        if (updates.getPaymentNumber() != null) {
+            shop.setPaymentNumber(updates.getPaymentNumber());
         }
         
         ShopEntity savedShop = shopRepository.save(shop);

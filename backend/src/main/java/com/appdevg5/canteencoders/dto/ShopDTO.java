@@ -9,7 +9,7 @@ public class ShopDTO {
     private String name;
     private String description;
     private String imageUrl;
-
+    private String paymentNumber;
     private Boolean isOpen;
 
     // Explicit getters and setters for compatibility
@@ -42,6 +42,8 @@ public class ShopDTO {
     public void setImageUrl(String imageUrl) { 
         this.imageUrl = imageUrl; 
     }
+    public String getPaymentNumber() { return paymentNumber; }
+    public void setPaymentNumber(String paymentNumber) { this.paymentNumber = paymentNumber; }
 
     public Boolean getIsOpen() { return isOpen; }
     public void setIsOpen(Boolean isOpen) { this.isOpen = isOpen; }
