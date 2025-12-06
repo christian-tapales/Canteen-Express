@@ -5,7 +5,6 @@ import com.appdevg5.canteencoders.dto.FoodItemDTO; // Assuming this DTO exists a
 import com.appdevg5.canteencoders.entity.ShopEntity;
 import com.appdevg5.canteencoders.entity.FoodItemEntity; // Assuming this Entity exists and is needed
 import com.appdevg5.canteencoders.repository.ShopRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;

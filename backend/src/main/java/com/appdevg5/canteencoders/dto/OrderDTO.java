@@ -17,6 +17,8 @@ public class OrderDTO {
     @NotNull
     private Integer shopId;
 
+    private String status;
+
     @NotNull
     private List<OrderItemDTO> orderItems;
 
@@ -66,4 +68,12 @@ public class OrderDTO {
 
     public String getPaymentMethod() { return paymentMethod; }
     public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

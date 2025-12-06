@@ -99,7 +99,7 @@ SET @hashed_password = '$2a$10$Fz1XgTT3CFH3YR8v1fiJVOCI8hxjblZ3jGyxTe5Zr06AnjNte
 
 INSERT INTO tbl_users (email, first_name, last_name, password_hash, phone_number, role, shop_id, created_at) VALUES
 -- 1. CUSTOMER Account
-('customer@gmail.com', 'Cathy', 'Consumer', @hashed_password, '09123456789', 'CUSTOMER', NULL, NOW()), 
+('customer@gmail.com', 'Chris', 'Consumer', @hashed_password, '09123456789', 'CUSTOMER', NULL, NOW()), 
 -- 2. VENDOR Account (Shop 1: Campus Cafe)
 ('vendor1@gmail.com', 'Vicente', 'Vendor', @hashed_password, '09234567890', 'VENDOR', 1, NOW()),
 -- 3. VENDOR Account (Shop 2: Lunch Corner)

@@ -12,6 +12,7 @@ import com.appdevg5.canteencoders.repository.UserRepository;
 import com.appdevg5.canteencoders.repository.ShopRepository;
 import com.appdevg5.canteencoders.repository.FoodItemRepository;
 import com.appdevg5.canteencoders.repository.InventoryRepository;
+import com.appdevg5.canteencoders.dto.OrderDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -228,5 +229,64 @@ public class OrderService {
         order.setStatus(orderDetails.getStatus());
         order.setTotalAmount(orderDetails.getTotalAmount());
         return orderRepository.save(order);
+    }
+
+    /**
+     * Saves an order entity directly to the database.
+     */
+    public OrderEntity save(OrderEntity order) {
+        return orderRepository.save(order);
+    }
+
+    /**
+     * Converts an OrderEntity (Database format) to OrderDTO (API format).
+     */
+    public OrderDTO convertToDTO(OrderEntity entity) {
+        OrderDTO dto = new OrderDTO();
+        
+        // Map data from Entity to DTO
+        if (entity.getUser() != null) {
+            dto.setUserId(entity.getUser().getUserId());
+        }
+        
+        if (entity.getShop() != null) {
+            // Check your ShopEntity to see if it's getId() or getShopId()
+            // Based on your code, it seems to be getShopId()
+            dto.setShopId(entity.getShop().getShopId()); 
+        }
+
+        dto.setTotalAmount(entity.getTotalAmount());
+        dto.setSpecialInstructions(entity.getSpecialInstructions());
+        dto.setPickupTime(entity.getPickupTime());
+        
+        // Convert the Status Enum to String safely
+        if (entity.getStatus() != null) {
+            dto.setStatus(entity.getStatus().name());
+        }
+        
+        // Return the converted object
+        return dto;
+    }
+
+
+    @Transactional 
+    public OrderDTO updateSpecialInstructions(Integer orderId, String newInstructions) {
+        // 1. Fetch the order
+        OrderEntity order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // 2. Validate Status
+        if (order.getStatus() != OrderEntity.OrderStatus.PENDING) {
+            throw new IllegalStateException("Only PENDING orders can be updated.");
+        }
+
+        // 3. Update the data
+        if (newInstructions != null) {
+            order.setSpecialInstructions(newInstructions);
+        }
+
+        // 4. Save and Convert (Transaction is still open here!)
+        OrderEntity savedOrder = orderRepository.save(order);
+        return convertToDTO(savedOrder);
     }
 }

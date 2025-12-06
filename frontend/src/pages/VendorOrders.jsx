@@ -242,6 +242,15 @@ const VendorOrders = () => {
                     ))}
                   </div>
                   <p className="text-lg font-bold text-[#B78A00] mb-2">Total: ₱{order.totalAmount?.toFixed(2)}</p>
+                  {order.specialInstructions && (
+                    <div 
+                      className="mt-3 p-3 rounded-lg text-sm"
+                      style={{ backgroundColor: '#FFF9E6', border: '1px border #FBCA30', color: '#8C343A' }}
+                    >
+                      <span className="font-bold">📝 Note: </span> 
+                      {order.specialInstructions}
+                    </div>
+                  )}
                   <p className="text-sm text-gray-500 mb-4">
                     Status: <span className={`font-semibold ${
                       order.status === 'PENDING' ? 'text-orange-600' :

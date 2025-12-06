@@ -32,6 +32,7 @@ const OrderHistoryPage = () => {
         });
         setOrders(response.data);
       } catch (err) {
+        console.error(err);
         setError('Failed to load order history');
       } finally {
         setDataLoading(false);
@@ -40,6 +41,7 @@ const OrderHistoryPage = () => {
 
     fetchOrders();
   }, [user, authLoading, navigate]); // 4. Add authLoading to dependencies
+  
 
   // 5. Show loading screen if Auth is initializing OR if data is fetching
   if (authLoading || dataLoading) return (
@@ -53,6 +55,48 @@ const OrderHistoryPage = () => {
       {error}
     </div>
   );
+
+  // Handle Delete (Cancel)
+  const handleCancelOrder = async (orderId, status) => {
+    if (status !== 'PENDING') {
+      alert("You cannot cancel an order that is already being prepared!");
+      return;
+    }
+
+    if (!window.confirm("Are you sure you want to cancel this order?")) return;
+
+    try {
+      await axios.delete(`http://localhost:8080/api/orders/${orderId}`);
+      
+      // Update UI immediately without refreshing
+      setOrders(orders.filter(order => order.orderId !== orderId));
+      alert("Order cancelled successfully.");
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      alert("Failed to cancel order.");
+    }
+  };
+
+  // Handle Update (Example: Editing the Note)
+  const handleUpdateNote = async (orderId, currentNote) => {
+    const newNote = prompt("Update your special instructions:", currentNote);
+    if (newNote === null) return; // User pressed cancel
+
+    try {
+      // Send the update to backend
+      await axios.put(`http://localhost:8080/api/orders/${orderId}`, {
+        specialInstructions: newNote
+      });
+
+      // Update UI immediately
+      setOrders(orders.map(order => 
+        order.orderId === orderId ? { ...order, specialInstructions: newNote } : order
+      ));
+    } catch (error) {
+      console.error("Error updating order:", error);
+      alert("Failed to update order.");
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -90,6 +134,7 @@ const OrderHistoryPage = () => {
       ) : (
         <div className="space-y-6">
           {orders.map((order) => (
+            
             <div
               key={order.orderId}
               className="rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300"
@@ -122,8 +167,26 @@ const OrderHistoryPage = () => {
                     {order.status || 'Unknown'}
                   </span>
                 </div>
+            
               </div>
-
+                {/* ACTION BUTTONS - Only show if PENDING */}
+                  {order.status === 'PENDING' && (
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => handleUpdateNote(order.orderId, order.specialInstructions)}
+                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                      >
+                        Edit Note
+                      </button>
+                      
+                      <button 
+                        onClick={() => handleCancelOrder(order.orderId, order.status)}
+                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                      >
+                        Cancel Order
+                      </button>
+                    </div>
+                  )}
               {/* Order Items */}
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold" style={{ color: '#8C343A' }}>

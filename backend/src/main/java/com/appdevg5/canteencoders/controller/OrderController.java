@@ -15,8 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -84,5 +87,40 @@ public class OrderController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
         }
+    }
+
+// 1. UPDATE ORDER
+@PutMapping("/{orderId}")
+    public ResponseEntity<?> updateOrder(@PathVariable Integer orderId, @RequestBody java.util.Map<String, String> updates) {
+        try {
+            // Get the note from the request map
+            String newInstructions = updates.get("specialInstructions");
+
+            // Call the new service method
+            OrderDTO updatedOrder = orderService.updateSpecialInstructions(orderId, newInstructions);
+            
+            return ResponseEntity.ok(updatedOrder);
+
+        } catch (IllegalStateException e) {
+            // Handles the "Not PENDING" error
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (RuntimeException e) {
+            // Handles "Order not found" or other errors
+            return ResponseEntity.badRequest().body("Error updating order");
+        }
+    }
+    // 2. DELETE ORDER
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<Void> cancelOrder(@PathVariable Integer orderId) {
+        OrderEntity order = orderService.getOrderById(orderId)
+            .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // FIX IS HERE: Compare with the Enum constant, not a String
+        if (order.getStatus() != OrderEntity.OrderStatus.PENDING) {
+             return ResponseEntity.badRequest().build(); 
+        }
+
+        orderService.deleteOrder(orderId);
+        return ResponseEntity.noContent().build();
     }
 }
