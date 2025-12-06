@@ -6,7 +6,6 @@ import com.appdevg5.canteencoders.entity.FoodItemEntity;
 import com.appdevg5.canteencoders.entity.OrderEntity;
 import com.appdevg5.canteencoders.entity.OrderItemEntity;
 import com.appdevg5.canteencoders.entity.UserEntity;
-import com.appdevg5.canteencoders.service.FoodItemService;
 import com.appdevg5.canteencoders.service.OrderService;
 import com.appdevg5.canteencoders.service.UserService;
 
@@ -38,8 +37,6 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    @Autowired
-    private FoodItemService foodItemService;
 
     @Autowired
     private UserService userService;

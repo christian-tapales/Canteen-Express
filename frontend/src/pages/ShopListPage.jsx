@@ -71,7 +71,7 @@ const ShopListPage = () => {
         {shops.map((shop) => (
           <div 
             key={shop.id} 
-            className="rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
+            className={`rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 ${!shop.isOpen ? 'opacity-75 grayscale' : ''}`}
             style={{ 
               backgroundColor: '#FFFFFF',
               border: '2px solid #8C343A'
@@ -90,29 +90,47 @@ const ShopListPage = () => {
             
             {/* Shop Info */}
             <div className="p-5">
-              <h2 className="text-xl font-bold mb-2" style={{ color: '#8C343A' }}>
-                {shop.name}
-              </h2>
+              <div className="flex justify-between items-start mb-2">
+                <h2 className="text-xl font-bold" style={{ color: '#8C343A' }}>
+                  {shop.name}
+                </h2>
+                {/* Status Badge */}
+                {!shop.isOpen && (
+                  <span className="bg-red-100 text-red-600 text-xs font-bold px-2 py-1 rounded">
+                    CLOSED
+                  </span>
+                )}
+              </div>
+              
               <p className="text-sm mb-4" style={{ color: '#666666' }}>
                 {shop.description}
               </p>
               
-              {/* Action Button */}
-              <Link
-                to={`/shop/${shop.id}/menu`}
-                className="inline-block w-full text-center px-6 py-2 rounded-full font-semibold transition-all hover:opacity-90 shadow-sm"
-                style={{ 
-                  backgroundColor: '#10B981',
-                  color: '#FFFFFF'
-                }}
-              >
-                Now Open
-              </Link>
+              {/* Action Button - Disabled if Closed */}
+              {shop.isOpen ? (
+                <Link
+                  to={`/shop/${shop.id}/menu`}
+                  className="inline-block w-full text-center px-6 py-2 rounded-full font-semibold transition-all hover:opacity-90 shadow-sm"
+                  style={{ 
+                    backgroundColor: '#10B981',
+                    color: '#FFFFFF'
+                  }}
+                >
+                  Order Now
+                </Link>
+              ) : (
+                <button
+                  disabled
+                  className="w-full text-center px-6 py-2 rounded-full font-semibold cursor-not-allowed bg-gray-300 text-gray-500"
+                >
+                  Currently Closed
+                </button>
+              )}
             </div>
           </div>
         ))}
       </div>
-    </div>
+      </div>
   );
 };
 

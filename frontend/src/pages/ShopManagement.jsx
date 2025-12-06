@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
+import axios from 'axios'; // <--- Make sure this is imported
 
 const ShopManagement = () => {
   const navigate = useNavigate();
@@ -8,12 +9,48 @@ const ShopManagement = () => {
   const [activeTab, setActiveTab] = useState('store');
   const [expandedCategory, setExpandedCategory] = useState(null);
 
-  // Check authentication
+  // 1. Change State to boolean (initially null until loaded)
+const [isOpen, setIsOpen] = useState(true); 
+const [loadingShop, setLoadingShop] = useState(true);
+
+  // --- NEW: FETCH REAL STATUS ON LOAD ---
   useEffect(() => {
-    if (!loading && (!user || user.role !== 'VENDOR')) {
-      navigate('/login', { replace: true });
+    const fetchShopDetails = async () => {
+      try {
+        const token = sessionStorage.getItem('token');
+        // Fetch the vendor's own shop details
+        const response = await axios.get('http://localhost:8080/api/vendor/shop', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        setIsOpen(response.data.isOpen);
+      } catch (error) {
+        console.error("Failed to load shop details", error);
+      } finally {
+        setLoadingShop(false);
+      }
+    };
+    
+    if (user?.role === 'VENDOR') {
+      fetchShopDetails();
     }
-  }, [user, loading, navigate]);
+  }, [user]);
+
+  // --- NEW: TOGGLE FUNCTION CONNECTED TO API ---
+  const toggleStoreStatus = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      // Call the endpoint we just created
+      const response = await axios.put('http://localhost:8080/api/vendor/shop/status', {}, {
+           headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      setIsOpen(response.data.isOpen); // Update UI with real status
+      alert(`Store is now ${response.data.isOpen ? 'OPEN' : 'CLOSED'}`);
+    } catch (error) {
+      console.error("Failed to update status", error);
+      alert("Failed to update status");
+    }
+  };
 
   // Store data
   const [storeStatus, setStoreStatus] = useState('Open');
@@ -58,10 +95,6 @@ const ShopManagement = () => {
   const handleLogout = () => {
     logout();
     navigate('/login');
-  };
-
-  const toggleStoreStatus = () => {
-    setStoreStatus(storeStatus === 'Open' ? 'Closed' : 'Open');
   };
 
   if (loading) {
@@ -164,19 +197,24 @@ const ShopManagement = () => {
                   <div>
                     <p className="text-lg mb-2">
                       Your store is currently: 
-                      <span className={`ml-2 font-bold ${storeStatus === 'Open' ? 'text-green-600' : 'text-red-600'}`}>
-                        {storeStatus}
+                      <span className={`ml-2 font-bold ${isOpen ? 'text-green-600' : 'text-red-600'}`}>
+                        {isOpen ? 'OPEN' : 'CLOSED'}
                       </span>
                     </p>
-                    <p className="text-sm text-gray-600">Toggle your store status to start or stop accepting orders</p>
+                    <p className="text-sm text-gray-600">
+                      {isOpen 
+                        ? "Customers can currently place orders." 
+                        : "Your shop is hidden from the main list or marked as closed."}
+                    </p>
                   </div>
                   <button
                     onClick={toggleStoreStatus}
+                    disabled={loadingShop}
                     className={`px-6 py-3 rounded-full font-semibold transition-all hover:opacity-90 shadow-md text-white ${
-                      storeStatus === 'Open' ? 'bg-red-600' : 'bg-green-600'
+                      isOpen ? 'bg-red-600' : 'bg-green-600'
                     }`}
                   >
-                    {storeStatus === 'Open' ? 'Close Store' : 'Open Store'}
+                    {isOpen ? 'Close Store' : 'Open Store'}
                   </button>
                 </div>
               </div>

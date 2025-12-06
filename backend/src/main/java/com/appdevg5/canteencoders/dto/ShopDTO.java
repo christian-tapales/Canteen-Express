@@ -10,6 +10,8 @@ public class ShopDTO {
     private String description;
     private String imageUrl;
 
+    private Boolean isOpen;
+
     // Explicit getters and setters for compatibility
     public Integer getId() {
         return id;
@@ -40,4 +42,7 @@ public class ShopDTO {
     public void setImageUrl(String imageUrl) { 
         this.imageUrl = imageUrl; 
     }
+
+    public Boolean getIsOpen() { return isOpen; }
+    public void setIsOpen(Boolean isOpen) { this.isOpen = isOpen; }
 }

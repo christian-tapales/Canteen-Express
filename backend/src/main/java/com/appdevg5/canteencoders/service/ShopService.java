@@ -1,9 +1,10 @@
 package com.appdevg5.canteencoders.service;
 
+import com.appdevg5.canteencoders.repository.UserRepository; // Import this
+import org.springframework.beans.factory.annotation.Autowired; // Import this
 import com.appdevg5.canteencoders.dto.ShopDTO;
-import com.appdevg5.canteencoders.dto.FoodItemDTO; // Assuming this DTO exists and is needed
 import com.appdevg5.canteencoders.entity.ShopEntity;
-import com.appdevg5.canteencoders.entity.FoodItemEntity; // Assuming this Entity exists and is needed
+import com.appdevg5.canteencoders.entity.UserEntity;
 import com.appdevg5.canteencoders.repository.ShopRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,10 @@ import java.util.stream.Collectors;
 public class ShopService {
 
     private final ShopRepository shopRepository;
+
+
+    @Autowired 
+    private UserRepository userRepository;
 
     // Use constructor injection for modern Spring practice
     public ShopService(ShopRepository shopRepository) {
@@ -46,30 +51,16 @@ public class ShopService {
      */
     public ShopDTO convertToShopDTO(ShopEntity shop) {
         ShopDTO dto = new ShopDTO();
-        
         // Applying the snake_case DTO setters
         dto.setId(shop.getShopId());           // Was: dto.setShop_id(...)
         dto.setName(shop.getShopName());       // Was: dto.setShop_name(...)
         dto.setDescription(shop.getDescription());
-        
         // Including the image_url field
         dto.setImageUrl(shop.getImageUrl());
+        dto.setIsOpen(shop.getIsOpen());
         
         // **EXCLUDED:** shop.getPaymentNumber() is sensitive and not included in the public ShopDTO
         
-        return dto;
-    }
-
-    /**
-     * Converts FoodItemEntity to FoodItemDTO. 
-     * NOTE: This method is unusual in a ShopService but kept as it was in your original code.
-     */
-    private FoodItemDTO convertToFoodItemDTO(FoodItemEntity item) {
-        FoodItemDTO dto = new FoodItemDTO();
-        dto.setId(item.getFoodItemId());
-        dto.setName(item.getItemName());
-        dto.setDescription(item.getDescription());
-        dto.setPrice(item.getPrice());
         return dto;
     }
 
@@ -115,4 +106,35 @@ public class ShopService {
         }
         shopRepository.deleteById(shopId);
     }
+
+    // ✅ NEW METHOD: Get the logged-in vendor's shop
+    public ShopDTO getVendorShop(String vendorEmail) {
+        UserEntity vendor = userRepository.findByEmail(vendorEmail)
+             .orElseThrow(() -> new RuntimeException("Vendor not found"));
+        
+        if (vendor.getShop() == null) {
+            throw new RuntimeException("No shop assigned to this vendor");
+        }
+        return convertToShopDTO(vendor.getShop());
+    }
+
+    // ✅ NEW METHOD: Toggle Open/Closed status
+    @Transactional
+    public ShopDTO toggleShopStatus(String vendorEmail) {
+        UserEntity vendor = userRepository.findByEmail(vendorEmail)
+            .orElseThrow(() -> new RuntimeException("Vendor not found"));
+        
+        ShopEntity shop = vendor.getShop();
+        if (shop == null) throw new RuntimeException("No shop assigned");
+
+        // Flip the status (Handle null by defaulting to true)
+        boolean currentStatus = (shop.getIsOpen() == null) ? true : shop.getIsOpen();
+        shop.setIsOpen(!currentStatus);
+        
+        ShopEntity savedShop = shopRepository.save(shop);
+        return convertToShopDTO(savedShop);
+    }
+
+
+
 }

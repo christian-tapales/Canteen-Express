@@ -31,6 +31,9 @@ import java.util.Optional;
 public class VendorController {
 
     @Autowired
+    private com.appdevg5.canteencoders.service.ShopService shopService;
+
+    @Autowired
     private FoodItemService foodItemService;
 
     @Autowired
@@ -185,4 +188,25 @@ public class VendorController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    /**
+     * ✅ NEW: Get the vendor's own shop details (including isOpen status)
+     */
+    @GetMapping("/shop")
+    public ResponseEntity<com.appdevg5.canteencoders.dto.ShopDTO> getMyShop() {
+        org.springframework.security.core.Authentication auth = 
+            org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(shopService.getVendorShop(auth.getName()));
+    }
+
+    /**
+     * ✅ NEW: Toggle the shop Open/Closed status
+     */
+    @PutMapping("/shop/status")
+    public ResponseEntity<com.appdevg5.canteencoders.dto.ShopDTO> toggleStatus() {
+        org.springframework.security.core.Authentication auth = 
+            org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(shopService.toggleShopStatus(auth.getName()));
+    }
+
 }

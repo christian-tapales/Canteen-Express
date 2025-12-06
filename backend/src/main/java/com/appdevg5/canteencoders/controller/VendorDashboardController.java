@@ -16,8 +16,6 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors; // <--- Missing this likely
-import java.util.ArrayList;         // Good to have just in case
 
 @RestController
 @RequestMapping("/api/vendor/dashboard")
