@@ -52,21 +52,21 @@ INSERT INTO tbl_shops (shop_name, description, is_open, image_url, created_at) V
  'Campus Cafe', 
  'Fresh coffee, pastries, and breakfast items', 
  1, 
- 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400', 
+ 'https://images.unsplash.com/photo-1665492095698-8ea8406cdf2a?w=400', 
  NOW()
 ),
 (
- 'Lunch Corner', 
+ 'Lunch Corner', ""
  'Daily meal specials, rice bowls, and main courses', 
  1, 
- 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400', 
+ 'https://images.unsplash.com/photo-1520209268518-aec60b8bb5ca?w=400', 
  NOW()
 ),
 (
  'Snack Shack', 
  'Quick snacks, drinks, and desserts', 
  1, 
- 'https://images.unsplash.com/photo-1599658880436-c61792e70672?w=400', 
+ 'https://images.unsplash.com/photo-1729281470325-479846c67681?w=400', 
  NOW()
 );
 

@@ -81,8 +81,8 @@ const ShopMenuPage = () => {
           className="w-32 h-32 rounded-xl overflow-hidden shrink-0"
           style={{ 
             backgroundColor: '#E5E7EB',
-            // Uses shop.image_url if available, otherwise falls back to the default
-            backgroundImage: `url(${shop?.image_url || 'https://images.unsplash.com/photo-1567521464027-f127ff144326?w=400'})`,
+            // Uses shop.imageUrl if available, otherwise falls back to the default
+            backgroundImage: `url(${shop?.imageUrl || 'https://images.unsplash.com/photo-1567521464027-f127ff144326?w=400'})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}

@@ -82,7 +82,7 @@ const ShopListPage = () => {
               className="h-48 w-full"
               style={{ 
                 backgroundColor: '#E5E7EB',
-                backgroundImage: 'url(https://images.unsplash.com/photo-1567521464027-f127ff144326?w=600)',
+                backgroundImage: `url(${shop.imageUrl || 'https://images.unsplash.com/photo-1567521464027-f127ff144326?w=600'})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center'
               }}
