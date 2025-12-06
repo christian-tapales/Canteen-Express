@@ -209,4 +209,19 @@ public class VendorController {
         return ResponseEntity.ok(shopService.toggleShopStatus(auth.getName()));
     }
 
+    /**
+     * ✅ NEW: Update the vendor's shop profile (Name & Description)
+     */
+    @PutMapping("/shop")
+    public ResponseEntity<com.appdevg5.canteencoders.dto.ShopDTO> updateMyShopProfile(@RequestBody com.appdevg5.canteencoders.dto.ShopDTO updates) {
+        org.springframework.security.core.Authentication auth = 
+            org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        
+        try {
+            return ResponseEntity.ok(shopService.updateVendorShopDetails(auth.getName(), updates));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }

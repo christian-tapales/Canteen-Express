@@ -12,17 +12,25 @@ const ShopManagement = () => {
   // 1. Change State to boolean (initially null until loaded)
 const [isOpen, setIsOpen] = useState(true); 
 const [loadingShop, setLoadingShop] = useState(true);
+const [shopName, setShopName] = useState('');
+  const [shopDescription, setShopDescription] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
 
   // --- NEW: FETCH REAL STATUS ON LOAD ---
+  // Update your existing useEffect
   useEffect(() => {
     const fetchShopDetails = async () => {
       try {
         const token = sessionStorage.getItem('token');
-        // Fetch the vendor's own shop details
         const response = await axios.get('http://localhost:8080/api/vendor/shop', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
+        
+        // Set the state with data from backend
         setIsOpen(response.data.isOpen);
+        setShopName(response.data.name);               // <--- ADD THIS
+        setShopDescription(response.data.description); // <--- ADD THIS
+        
       } catch (error) {
         console.error("Failed to load shop details", error);
       } finally {
@@ -53,7 +61,6 @@ const [loadingShop, setLoadingShop] = useState(true);
   };
 
   // Store data
-  const [storeStatus, setStoreStatus] = useState('Open');
   const [announcement, setAnnouncement] = useState('Welcome to our shop!');
   const inventory = [
     { id: 1, item: 'Lumpiang Shanghai', stock: 50, status: 'In Stock' },
@@ -91,6 +98,27 @@ const [loadingShop, setLoadingShop] = useState(true);
       ]
     }
   ];
+
+  const handleUpdateProfile = async () => {
+    setSavingProfile(true);
+    try {
+      const token = sessionStorage.getItem('token');
+      await axios.put('http://localhost:8080/api/vendor/shop', 
+        {
+          name: shopName,
+          description: shopDescription
+        }, 
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      
+      alert("Shop profile updated successfully!");
+    } catch (error) {
+      console.error("Failed to update profile", error);
+      alert("Failed to update profile. Shop name might already be taken.");
+    } finally {
+      setSavingProfile(false);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -227,7 +255,8 @@ const [loadingShop, setLoadingShop] = useState(true);
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Shop Name</label>
                     <input
                       type="text"
-                      defaultValue="Campus Cafe"
+                      value={shopName} // <--- Connected to State
+                      onChange={(e) => setShopName(e.target.value)} // <--- Updates State
                       className="w-full px-4 py-2 rounded-lg bg-white border-2 border-gray-300 focus:outline-none focus:border-[#8C343A]"
                     />
                   </div>
@@ -235,31 +264,23 @@ const [loadingShop, setLoadingShop] = useState(true);
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
                     <textarea
                       rows="3"
-                      defaultValue="Fresh coffee, pastries, and breakfast items"
+                      value={shopDescription} // <--- Connected to State
+                      onChange={(e) => setShopDescription(e.target.value)} // <--- Updates State
                       className="w-full px-4 py-2 rounded-lg bg-white border-2 border-gray-300 focus:outline-none focus:border-[#8C343A]"
                     />
                   </div>
-                  <button className="px-6 py-2 rounded-full font-semibold transition-all hover:opacity-90 shadow-sm" style={{ backgroundColor: '#10B981', color: '#FFFFFF' }}>
-                    Save Changes
+                  <button 
+                    onClick={handleUpdateProfile} // <--- Connected to Function
+                    disabled={savingProfile}
+                    className="px-6 py-2 rounded-full font-semibold transition-all hover:opacity-90 shadow-sm disabled:opacity-50" 
+                    style={{ backgroundColor: '#10B981', color: '#FFFFFF' }}
+                  >
+                    {savingProfile ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>
               </div>
 
-              {/* Announcement Card */}
-              <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 mb-6 shadow-md">
-                <h2 className="text-2xl font-bold mb-4 text-[#8C343A]">Announcement</h2>
-                <textarea
-                  rows="4"
-                  value={announcement}
-                  onChange={(e) => setAnnouncement(e.target.value)}
-                  placeholder="Post an announcement for your customers..."
-                  className="w-full px-4 py-2 rounded-lg bg-white border-2 border-gray-300 focus:outline-none focus:border-[#8C343A] mb-4"
-                />
-                <button className="px-6 py-2 rounded-full font-semibold transition-all hover:opacity-90 shadow-sm" style={{ backgroundColor: '#10B981', color: '#FFFFFF' }}>
-                  Update Announcement
-                </button>
-              </div>
-
+              
               {/* Inventory Overview Card */}
               <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 shadow-md">
                 <div className="flex items-center justify-between mb-4">

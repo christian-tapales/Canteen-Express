@@ -136,5 +136,25 @@ public class ShopService {
     }
 
 
+    // ✅ NEW METHOD: Update Vendor's Shop Details (Name & Description)
+    @Transactional
+    public ShopDTO updateVendorShopDetails(String vendorEmail, ShopDTO updates) {
+        UserEntity vendor = userRepository.findByEmail(vendorEmail)
+            .orElseThrow(() -> new RuntimeException("Vendor not found"));
+        
+        ShopEntity shop = vendor.getShop();
+        if (shop == null) throw new RuntimeException("No shop assigned");
 
+        // Update fields if they are provided
+        if (updates.getName() != null && !updates.getName().isBlank()) {
+            shop.setShopName(updates.getName());
+        }
+        if (updates.getDescription() != null) {
+            shop.setDescription(updates.getDescription());
+        }
+        
+        // Save and return
+        ShopEntity savedShop = shopRepository.save(shop);
+        return convertToShopDTO(savedShop);
+    }
 }
