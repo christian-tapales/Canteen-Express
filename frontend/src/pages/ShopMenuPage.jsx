@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom'; // Added useNavigate
 import axios from 'axios';
 import CategoryFilter from '../components/CategoryFilter';
 import FoodItemCard from '../components/FoodItemCard';
 
 const ShopMenuPage = () => {
   const { shopId } = useParams();
+  const navigate = useNavigate(); // Hook for navigation
+  const [shop, setShop] = useState(null); // NEW: State to store shop details
   const [menu, setMenu] = useState([]);
   const [filteredMenu, setFilteredMenu] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -14,25 +16,33 @@ const ShopMenuPage = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchMenu = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/shops/${shopId}/menu`);
-        const menuData = response.data;
-        // Ensure each item carries shopId for cart/checkout
+        setLoading(true);
+        
+        // 1. Fetch Shop Details (Name, Image, etc.)
+        // Ensure your backend has an endpoint like GET /api/shops/:id
+        const shopResponse = await axios.get(`http://localhost:8080/api/shops/${shopId}`);
+        setShop(shopResponse.data);
+
+        // 2. Fetch Menu
+        const menuResponse = await axios.get(`http://localhost:8080/api/shops/${shopId}/menu`);
+        const menuData = menuResponse.data;
+        
         const enrichedMenu = (menuData || []).map((it) => ({ ...it, shopId: Number(shopId) }));
         setMenu(enrichedMenu);
         setFilteredMenu(enrichedMenu);
         
-        // Extract unique categories
         const uniqueCategories = [...new Set(enrichedMenu.map(item => item.category).filter(Boolean))];
         setCategories(['All', ...uniqueCategories]);
-      } catch {
-        setError('Failed to load menu');
+      } catch (err) {
+        console.error(err);
+        setError('Failed to load shop data');
       } finally {
         setLoading(false);
       }
     };
-    fetchMenu();
+    fetchData();
   }, [shopId]);
 
   const handleCategoryFilter = (category) => {
@@ -46,7 +56,7 @@ const ShopMenuPage = () => {
 
   if (loading) return (
     <div className="container mx-auto px-4 py-12 text-center text-lg" style={{ color: '#8C343A' }}>
-      Loading menu...
+      Loading...
     </div>
   );
   
@@ -66,12 +76,13 @@ const ShopMenuPage = () => {
           border: '2px solid #8C343A'
         }}
       >
-        {/* Canteen Image */}
+        {/* Canteen Image - NOW DYNAMIC */}
         <div 
           className="w-32 h-32 rounded-xl overflow-hidden shrink-0"
           style={{ 
             backgroundColor: '#E5E7EB',
-            backgroundImage: 'url(https://images.unsplash.com/photo-1567521464027-f127ff144326?w=400)',
+            // Uses shop.image_url if available, otherwise falls back to the default
+            backgroundImage: `url(${shop?.image_url || 'https://images.unsplash.com/photo-1567521464027-f127ff144326?w=400'})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}
@@ -79,11 +90,14 @@ const ShopMenuPage = () => {
         
         {/* Canteen Info */}
         <div className="grow">
+          {/* Shop Name - NOW DYNAMIC */}
           <h1 className="text-3xl font-bold mb-2" style={{ color: '#8C343A' }}>
-            Main Canteen
+            {shop?.name || 'Loading Name...'}
           </h1>
+          <p className="text-gray-600 mb-3">{shop?.description}</p>
+
           <button 
-            onClick={() => window.history.back()}
+            onClick={() => navigate(-1)} // Better way to go back
             className="flex items-center gap-2 px-5 py-2 rounded-full font-semibold transition-all hover:opacity-90 shadow-sm"
             style={{ 
               backgroundColor: '#8C343A',
@@ -95,14 +109,14 @@ const ShopMenuPage = () => {
         </div>
       </div>
       
-      {/* Category Filter Component */}
+      {/* ... The rest of your code (CategoryFilter, Grid, etc.) stays the same ... */}
+      
       <CategoryFilter 
         categories={categories}
         selectedCategory={selectedCategory}
         onCategoryChange={handleCategoryFilter}
       />
 
-      {/* Menu Items Grid */}
       {filteredMenu.length === 0 ? (
         <div className="text-center text-lg py-12" style={{ color: '#666666' }}>
           No items found in this category
