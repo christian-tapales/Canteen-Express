@@ -1,11 +1,15 @@
 -- ============================================
--- CREATE DATABASE AND TABLES
+-- 1. DATABASE SETUP
 -- ============================================
 
 -- Drop database if it exists and create fresh
 DROP DATABASE IF EXISTS canteen_express_db;
 CREATE DATABASE canteen_express_db;
 USE canteen_express_db;
+
+-- ============================================
+-- 2. TABLE CREATION
+-- ============================================
 
 -- Create shops table
 CREATE TABLE tbl_shops (
@@ -44,36 +48,73 @@ CREATE TABLE tbl_inventory (
     FOREIGN KEY (food_item_id) REFERENCES tbl_food_items(food_item_id) ON DELETE CASCADE
 );
 
--- ============================================
--- ADD SAMPLE SHOPS (Updated with Image URLs)
--- ============================================
-INSERT INTO tbl_shops (shop_name, description, is_open, image_url, created_at) VALUES
-(
- 'Campus Cafe', 
- 'Fresh coffee, pastries, and breakfast items', 
- 1, 
- 'https://images.unsplash.com/photo-1665492095698-8ea8406cdf2a?w=400', 
- NOW()
-),
-(
- 'Lunch Corner', ""
- 'Daily meal specials, rice bowls, and main courses', 
- 1, 
- 'https://images.unsplash.com/photo-1520209268518-aec60b8bb5ca?w=400', 
- NOW()
-),
-(
- 'Snack Shack', 
- 'Quick snacks, drinks, and desserts', 
- 1, 
- 'https://images.unsplash.com/photo-1729281470325-479846c67681?w=400', 
- NOW()
+-- Create users table (Matching the columns from your database structure)
+CREATE TABLE tbl_users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(100) UNIQUE NOT NULL, -- Used as the unique identifier/username
+    first_name VARCHAR(50) NULL,
+    last_name VARCHAR(50) NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(20) NULL,
+    role VARCHAR(20) NOT NULL, -- e.g., 'CUSTOMER', 'VENDOR', 'ADMIN'
+    shop_id INT NULL, -- NULL for CUSTOMER/ADMIN, links to shop for VENDOR
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (shop_id) REFERENCES tbl_shops(shop_id) ON DELETE SET NULL
 );
 
 -- ============================================
--- Campus Cafe (shop_id = 1)
+-- 3. ADD SAMPLE SHOPS
+-- ============================================
+INSERT INTO tbl_shops (shop_name, description, is_open, image_url, created_at) VALUES
+(
+    'Campus Cafe', 
+    'Fresh coffee, pastries, and breakfast items', 
+    1, 
+    'https://images.unsplash.com/photo-1665492095698-8ea8406cdf2a?w=400', 
+    NOW()
+),
+(
+    'Lunch Corner', 
+    'Daily meal specials, rice bowls, and main courses', 
+    1, 
+    'https://images.unsplash.com/photo-1520209268518-aec60b8bb5ca?w=400', 
+    NOW()
+),
+(
+    'Snack Shack', 
+    'Quick snacks, drinks, and desserts', 
+    1, 
+    'https://images.unsplash.com/photo-1729281470325-479846c67681?w=400', 
+    NOW()
+);
+
+-- ============================================
+-- 4. ADD SAMPLE USERS (5 Accounts - Simplified @gmail.com)
+-- NOTE: Plain-Text Password for ALL accounts is: 'password'
+-- Hashed Password (Bcrypt): $2a$10$Fz1XgTT3CFH3YR8v1fiJVOCI8hxjblZ3jGyxTe5Zr06AnjNteq/lS
 -- ============================================
 
+SET @hashed_password = '$2a$10$Fz1XgTT3CFH3YR8v1fiJVOCI8hxjblZ3jGyxTe5Zr06AnjNteq/lS';
+
+INSERT INTO tbl_users (email, first_name, last_name, password_hash, phone_number, role, shop_id, created_at) VALUES
+-- 1. CUSTOMER Account
+('customer@gmail.com', 'Cathy', 'Consumer', @hashed_password, '09123456789', 'CUSTOMER', NULL, NOW()), 
+-- 2. VENDOR Account (Shop 1: Campus Cafe)
+('vendor1@gmail.com', 'Vicente', 'Vendor', @hashed_password, '09234567890', 'VENDOR', 1, NOW()),
+-- 3. VENDOR Account (Shop 2: Lunch Corner)
+('vendor2@gmail.com', 'Lana', 'Lunch', @hashed_password, '09345678901', 'VENDOR', 2, NOW()),
+-- 4. VENDOR Account (Shop 3: Snack Shack)
+('vendor3@gmail.com', 'Sam', 'Snacks', @hashed_password, '09456789012', 'VENDOR', 3, NOW()),
+-- 5. ADMIN Account
+('admin@gmail.com', 'Alex', 'Admin', @hashed_password, '09567890123', 'ADMIN', NULL, NOW());
+
+-- ============================================
+-- 5. ADD SAMPLE FOOD ITEMS & INVENTORY
+-- (Existing data follows...)
+-- ============================================
+
+-- Campus Cafe (shop_id = 1)
 -- Beverages
 INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, image_url, created_at) VALUES
 ('Cappuccino', 'Rich espresso with steamed milk and foam', 4.50, 'Beverages', 1, 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400', NOW()),
@@ -139,10 +180,7 @@ SELECT fi.shop_id, fi.food_item_id, 100, NOW()
 FROM tbl_food_items fi
 WHERE fi.shop_id = 1 AND fi.category = 'Salads';
 
--- ============================================
 -- Lunch Corner (shop_id = 2)
--- ============================================
-
 -- Main Course
 INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, image_url, created_at) VALUES
 ('Chicken Rice', 'Grilled chicken breast with garlic rice', 7.50, 'Main Course', 2, 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400', NOW()),
@@ -208,10 +246,7 @@ SELECT fi.shop_id, fi.food_item_id, 100, NOW()
 FROM tbl_food_items fi
 WHERE fi.shop_id = 2 AND fi.category = 'Side Dishes';
 
--- ============================================
 -- Snack Shack (shop_id = 3)
--- ============================================
-
 -- Snacks
 INSERT INTO tbl_food_items (item_name, description, price, category, shop_id, image_url, created_at) VALUES
 ('Potato Chips', 'Crispy salted potato chips', 2.00, 'Snacks', 3, 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400', NOW()),
