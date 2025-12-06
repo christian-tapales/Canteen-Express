@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '../context/useCart';
 import { useAuth } from '../context/useAuth'; // Import useAuth to get user token/ID
 import { useNavigate } from 'react-router-dom';
+
 import axios from 'axios'; // Import axios
 
 const CartPage = () => {
   const { cartItems, updateQuantity, removeFromCart, getCartTotal, clearCart } = useCart();
   const { user } = useAuth(); // Get user from context
   const navigate = useNavigate();
+  // Add this near your other state variables
+  const [shopPaymentNumber, setShopPaymentNumber] = useState('');
 
   // Checkout form state
   const [transactionCode, setTransactionCode] = useState('');
@@ -15,6 +18,22 @@ const CartPage = () => {
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false); // Add loading state for submission
 
+  // Fetch Shop Payment Number
+  useEffect(() => {
+    const fetchShopDetails = async () => {
+      if (cartItems.length > 0) {
+        const shopId = cartItems[0].shopId;
+        try {
+          // We can reuse the public shop endpoint since paymentNumber is now in the DTO
+          const response = await axios.get(`http://localhost:8080/api/shops/${shopId}`);
+          setShopPaymentNumber(response.data.paymentNumber);
+        } catch (error) {
+          console.error("Failed to load shop payment info");
+        }
+      }
+    };
+    fetchShopDetails();
+  }, [cartItems]);
   const handleCheckout = async () => {
     if (!transactionCode) {
       alert('Please enter the transaction code');
@@ -92,7 +111,7 @@ const CartPage = () => {
               `Total: ₱${getCartTotal().toFixed(2)}\n` +
               `Transaction Code: ${transactionCode}\n` +
               `Payment Method: ${paymentMethod}\n` +
-              `Your order will be ready at the specified time!`
+              `You'll be notified when your order will be ready for pickup!`
             );
             
             clearCart();
@@ -250,7 +269,7 @@ const CartPage = () => {
             <select
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl focus:outline-none font-semibold"
+              className="w-full px-4 py-4 rounded-xl focus:outline-none font-semibold mb-2"
               style={{ 
                 backgroundColor: '#FFF9E6',
                 border: '2px solid #E5E7EB',
@@ -265,6 +284,21 @@ const CartPage = () => {
               <option value="Coins.ph">Coins.ph</option>
               <option value="GrabPay">GrabPay</option>
             </select>
+
+            {/* ✅ NEW: Display Shop's Payment Number */}
+            {shopPaymentNumber && (
+              <div className="mb-4 p-3 rounded-lg bg-blue-50 border border-blue-200">
+                <p className="text-xs font-bold text-green-600 uppercase mb-1 ">
+                  Send Payment To:
+                </p>
+                <p className="text-lg font-mono font-bold text-gray-800 tracking-wider">
+                  {shopPaymentNumber}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Please send the exact total amount to this number (any of the payment methods uses the same number).
+                </p>
+              </div>
+            )}
             <textarea
               value={transactionCode}
               onChange={(e) => setTransactionCode(e.target.value)}

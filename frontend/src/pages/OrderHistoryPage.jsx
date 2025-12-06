@@ -124,9 +124,12 @@ const OrderHistoryPage = () => {
         >
           ← Back
         </button>
-        <h1 className="text-3xl font-bold" style={{ color: '#8C343A' }}>
-          Order History
-        </h1>
+        {/* Center: The Heading (flex-grow makes it take up remaining space) */}
+          <div className="grow text-center">
+              <h1 className="text-3xl font-bold" style={{ color: '#8C343A' }}>
+                  Order History
+              </h1>
+          </div>
       </div>
 
       {/* Orders List */}
