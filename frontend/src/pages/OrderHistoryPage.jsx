@@ -228,20 +228,33 @@ const OrderHistoryPage = () => {
                   </p>
                 )}
               </div>
-
-              {/* Order Details */}
-              {order.pickupTime && (
-                <div className="mt-4 pt-4 border-t" style={{ borderColor: '#E5E7EB' }}>
-                  <p className="text-sm" style={{ color: '#666666' }}>
-                    <strong>Pickup Time:</strong> {order.pickupTime}
-                  </p>
-                  {order.specialInstructions && (
-                    <p className="text-sm mt-1" style={{ color: '#666666' }}>
-                      <strong>Instructions:</strong> {order.specialInstructions}
-                    </p>
+                {/* Order Details Footer */}
+              <div className="mt-4 pt-4 border-t" style={{ borderColor: '#E5E7EB' }}>
+                
+                {/* 1. Payment Method & Ref No */}
+                <div className="flex justify-between items-center text-sm mb-2">
+                  <span style={{ color: '#666666' }}>
+                    <strong>Paid via:</strong> {order.payment?.paymentMethod || 'Unknown'}
+                  </span>
+                  {order.payment?.transactionReference && (
+                    <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
+                      Ref: {order.payment.transactionReference}
+                    </span>
                   )}
                 </div>
-              )}
+                
+                {/* 2. Special Instructions */}
+                {order.specialInstructions && (
+                  <div 
+                    className="p-3 rounded-lg text-sm"
+                    style={{ backgroundColor: '#FFF9E6', border: '1px solid #FBCA30', color: '#8C343A' }}
+                  >
+                    <span className="font-bold">📝 Special Instruction: </span> 
+                    {order.specialInstructions}
+                  </div>
+                )}
+              </div>
+              
             </div>
           ))}
         </div>

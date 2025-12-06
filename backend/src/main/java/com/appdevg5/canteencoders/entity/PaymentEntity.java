@@ -44,9 +44,8 @@ public class PaymentEntity {
     private String transactionReference;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "payment_method", length = 20, nullable = false)
-    private PaymentMethod paymentMethod;
+    @Column(name = "payment_method", length = 50, nullable = false)
+    private String paymentMethod;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -87,13 +86,13 @@ public class PaymentEntity {
     public PaymentEntity() {
     }
 
-    public PaymentEntity(OrderEntity order, BigDecimal amount, PaymentMethod paymentMethod) {
+    public PaymentEntity(OrderEntity order, BigDecimal amount, String paymentMethod) {
         this.order = order;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
     }
 
-    public PaymentEntity(OrderEntity order, BigDecimal amount, PaymentMethod paymentMethod, String transactionReference) {
+    public PaymentEntity(OrderEntity order, BigDecimal amount, String paymentMethod, String transactionReference) {
         this.order = order;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
@@ -114,8 +113,8 @@ public class PaymentEntity {
     public String getTransactionReference() { return transactionReference; }
     public void setTransactionReference(String transactionReference) { this.transactionReference = transactionReference; }
 
-    public PaymentMethod getPaymentMethod() { return paymentMethod; }
-    public void setPaymentMethod(PaymentMethod paymentMethod) { this.paymentMethod = paymentMethod; }
+    public String getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
 
     public PaymentStatus getStatus() { return status; }
     public void setStatus(PaymentStatus status) { this.status = status; }

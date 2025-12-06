@@ -190,7 +190,7 @@ public class AdminController {
 
     @DeleteMapping("/orders/{id}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Integer id) {
-        orderService.deleteOrder(id);
+        orderService.cancelOrder(id);
         return ResponseEntity.noContent().build();
     }
 

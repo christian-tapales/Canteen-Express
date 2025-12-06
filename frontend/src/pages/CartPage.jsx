@@ -10,14 +10,14 @@ const CartPage = () => {
   const navigate = useNavigate();
 
   // Checkout form state
-  const [pickupTime, setPickupTime] = useState('');
+  const [transactionCode, setTransactionCode] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false); // Add loading state for submission
 
   const handleCheckout = async () => {
-    if (!pickupTime) {
-      alert('Please select an estimated pickup time');
+    if (!transactionCode) {
+      alert('Please enter the transaction code');
       return;
     }
     if (!paymentMethod) {
@@ -50,11 +50,6 @@ const CartPage = () => {
     
     // Convert pickup time (HH:MM format) to ISO LocalDateTime format
     // Get today's date and combine it with the selected time
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    const pickupTimeISO = `${year}-${month}-${day}T${pickupTime}:00`;
     
     const orderPayload = {
         userId: user.userId,
@@ -65,7 +60,7 @@ const CartPage = () => {
         })),
         totalAmount: totalAmount,
         paymentMethod: paymentMethod,
-        pickupTime: pickupTimeISO,
+        transactionCode: transactionCode,
         specialInstructions: specialInstructions,
     };
 
@@ -95,13 +90,13 @@ const CartPage = () => {
             alert(
               `Order #${orderId} Confirmed!\n\n` +
               `Total: ₱${getCartTotal().toFixed(2)}\n` +
-              `Pickup Time: ${pickupTime}\n` +
+              `Transaction Code: ${transactionCode}\n` +
               `Payment Method: ${paymentMethod}\n` +
               `Your order will be ready at the specified time!`
             );
             
             clearCart();
-            setPickupTime('');
+            setTransactionCode('');
             setPaymentMethod('');
             setSpecialInstructions('');
             navigate('/shops');
@@ -240,31 +235,7 @@ const CartPage = () => {
 
         {/* Checkout Sidebar */}
         <div className="lg:col-span-1 space-y-6">
-          {/* Estimated Time Box */}
-          <div
-            className="rounded-2xl p-6 shadow-lg"
-            style={{ 
-              backgroundColor: '#FFFFFF',
-              border: '2px solid #8C343A'
-            }}
-          >
-            <h3 className="text-base font-bold mb-4" style={{ color: '#8C343A' }}>
-              Estimated Time
-            </h3>
-            <input
-              type="time"
-              value={pickupTime}
-              onChange={(e) => setPickupTime(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl focus:outline-none text-center font-semibold"
-              style={{ 
-                backgroundColor: '#FFF9E6',
-                border: '2px solid #E5E7EB',
-                color: '#8C343A'
-              }}
-              required
-            />
-          </div>
-
+          
           {/* Payment Method Box */}
           <div
             className="rounded-2xl p-6 shadow-lg"
@@ -288,22 +259,24 @@ const CartPage = () => {
               required
             >
               <option value="">Selected Method of Payment</option>
-              <option value="Cash">Cash</option>
               <option value="GCash">GCash</option>
               <option value="Maya">Maya</option>
-              <option value="Credit Card">Credit Card</option>
-              <option value="Debit Card">Debit Card</option>
+              <option value="ShopeePay">ShopeePay</option>
+              <option value="Coins.ph">Coins.ph</option>
+              <option value="GrabPay">GrabPay</option>
             </select>
-            <button 
-              className="w-full mt-3 py-3 rounded-xl font-semibold transition-all hover:opacity-90"
+            <textarea
+              value={transactionCode}
+              onChange={(e) => setTransactionCode(e.target.value)}
+              placeholder="Transaction Code"
+              className="w-full px-4 py-3 rounded-xl focus:outline-none resize-none"
               style={{ 
                 backgroundColor: '#FFF9E6',
                 border: '2px solid #E5E7EB',
-                color: '#666666'
+                color: '#2D2D2D'
               }}
-            >
-              Add New Payment Method
-            </button>
+              rows="1"
+            />
           </div>
 
           {/* Special Instructions Box */}

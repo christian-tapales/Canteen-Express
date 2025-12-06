@@ -42,15 +42,21 @@ public class PaymentService {
      * Processes payment for an order.
      */
     @Transactional
-    public PaymentEntity processPayment(Integer orderId, PaymentEntity.PaymentMethod paymentMethod) {
+    public PaymentEntity processPayment(Integer orderId, String paymentMethod, String transactionCode) {
         OrderEntity order = orderRepository.findById(orderId)
             .orElseThrow(() -> new IllegalStateException("Order not found"));
         if (paymentRepository.findByOrder(order).isPresent()) {
             throw new IllegalStateException("Payment already exists for this order");
         }
 
-        PaymentEntity payment = new PaymentEntity(order, order.getTotalAmount(), paymentMethod);
-        payment.setStatus(PaymentEntity.PaymentStatus.COMPLETED); // Assuming immediate completion for simplicity
+        PaymentEntity payment = new PaymentEntity();
+        payment.setOrder(order);
+        payment.setAmount(order.getTotalAmount());
+        payment.setPaymentMethod(paymentMethod); // Pass "CASH" as a String string
+        // FIX 3: Save the transaction code
+        payment.setTransactionReference(transactionCode);
+        // FIX 4: Keep it PENDING. Do not set to COMPLETED yet.
+        payment.setStatus(PaymentEntity.PaymentStatus.PENDING);
         return paymentRepository.save(payment);
     }
 

@@ -3,7 +3,6 @@ package com.appdevg5.canteencoders.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.DecimalMin;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -18,6 +17,7 @@ public class OrderDTO {
     private Integer shopId;
 
     private String status;
+    private String transactionCode;
 
     @NotNull
     private List<OrderItemDTO> orderItems;
@@ -25,8 +25,6 @@ public class OrderDTO {
     @NotNull
     @DecimalMin(value = "0.0", inclusive = false)
     private BigDecimal totalAmount;
-
-    private LocalDateTime pickupTime;
 
     private String specialInstructions;
 
@@ -36,13 +34,11 @@ public class OrderDTO {
     // Constructors
     public OrderDTO() {}
 
-    public OrderDTO(Integer userId, Integer shopId, List<OrderItemDTO> orderItems, BigDecimal totalAmount,
-                     LocalDateTime pickupTime, String specialInstructions, String paymentMethod) {
+    public OrderDTO(Integer userId, Integer shopId, List<OrderItemDTO> orderItems, BigDecimal totalAmount, String specialInstructions, String paymentMethod) {
         this.userId = userId;
         this.shopId = shopId;
         this.orderItems = orderItems;
         this.totalAmount = totalAmount;
-        this.pickupTime = pickupTime;
         this.specialInstructions = specialInstructions;
         this.paymentMethod = paymentMethod;
     }
@@ -60,14 +56,14 @@ public class OrderDTO {
     public BigDecimal getTotalAmount() { return totalAmount; }
     public void setTotalAmount(BigDecimal totalAmount) { this.totalAmount = totalAmount; }
 
-    public LocalDateTime getPickupTime() { return pickupTime; }
-    public void setPickupTime(LocalDateTime pickupTime) { this.pickupTime = pickupTime; }
-
     public String getSpecialInstructions() { return specialInstructions; }
     public void setSpecialInstructions(String specialInstructions) { this.specialInstructions = specialInstructions; }
 
     public String getPaymentMethod() { return paymentMethod; }
     public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+
+    public String getTransactionCode() { return transactionCode; }
+    public void setTransactionCode(String transactionCode) { this.transactionCode = transactionCode; }
 
     public String getStatus() {
         return status;

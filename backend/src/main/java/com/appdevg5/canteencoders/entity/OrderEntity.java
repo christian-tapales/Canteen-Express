@@ -72,9 +72,6 @@ public class OrderEntity {
     @Column(name = "status", length = 30, nullable = false)
     private OrderStatus status = OrderStatus.PENDING;
 
-    @Column(name = "pickup_time")
-    private LocalDateTime pickupTime;
-
     @Column(name = "special_instructions", columnDefinition = "TEXT")
     private String specialInstructions;
 
@@ -151,9 +148,6 @@ public class OrderEntity {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-
-    public LocalDateTime getPickupTime() { return pickupTime; }
-    public void setPickupTime(LocalDateTime pickupTime) { this.pickupTime = pickupTime; }
 
     public String getSpecialInstructions() { return specialInstructions; }
     public void setSpecialInstructions(String specialInstructions) { this.specialInstructions = specialInstructions; }

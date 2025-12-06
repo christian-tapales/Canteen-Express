@@ -2,11 +2,13 @@ package com.appdevg5.canteencoders.service;
 
 import com.appdevg5.canteencoders.entity.OrderEntity;
 import com.appdevg5.canteencoders.entity.OrderItemEntity;
+import com.appdevg5.canteencoders.entity.PaymentEntity;
 import com.appdevg5.canteencoders.entity.UserEntity;
 import com.appdevg5.canteencoders.entity.ShopEntity;
 import com.appdevg5.canteencoders.entity.FoodItemEntity;
 import com.appdevg5.canteencoders.entity.InventoryEntity;
 import com.appdevg5.canteencoders.repository.OrderRepository;
+import com.appdevg5.canteencoders.repository.PaymentRepository;
 import com.appdevg5.canteencoders.repository.OrderItemRepository;
 import com.appdevg5.canteencoders.repository.UserRepository;
 import com.appdevg5.canteencoders.repository.ShopRepository;
@@ -29,6 +31,10 @@ public class OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+    
+    @Autowired 
+    private PaymentRepository paymentRepository;
+
 
     @Autowired
     private OrderItemRepository orderItemRepository;
@@ -147,7 +153,7 @@ public class OrderService {
      * This is a complex operation involving inventory checks and updates.
      */
     @Transactional
-    public OrderEntity createOrder(Integer userId, Integer shopId, List<OrderItemEntity> orderItems) {
+    public OrderEntity createOrder(Integer userId, Integer shopId, List<OrderItemEntity> orderItems, OrderDTO dto) {
         UserEntity user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalStateException("User not found"));
         ShopEntity shop = shopRepository.findById(shopId)
@@ -155,61 +161,106 @@ public class OrderService {
 
         BigDecimal totalAmount = BigDecimal.ZERO;
 
-        // Validate and calculate total, check inventory
+        // 1. Validate Inventory & Calculate Total
         for (OrderItemEntity item : orderItems) {
             FoodItemEntity foodItem = foodItemRepository.findById(item.getFoodItem().getFoodItemId())
                 .orElseThrow(() -> new IllegalStateException("Food item not found"));
-            if (!foodItem.getShop().getShopId().equals(shopId)) {
-                throw new IllegalStateException("Food item does not belong to the selected shop");
-            }
-
+            
+            // Check Inventory
             InventoryEntity inventory = inventoryRepository.findByFoodItem(foodItem)
-                .orElseThrow(() -> new IllegalStateException("Inventory not found for food item"));
+                .orElseThrow(() -> new IllegalStateException("Inventory not found"));
+            
             if (inventory.getQuantityAvailable() < item.getQuantity()) {
                 throw new IllegalStateException("Insufficient stock for " + foodItem.getItemName());
             }
 
-            item.setPriceAtOrder(foodItem.getPrice());
-            totalAmount = totalAmount.add(foodItem.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
-
-            // Update inventory
+            // Deduct Inventory
             inventory.setQuantityAvailable(inventory.getQuantityAvailable() - item.getQuantity());
             inventoryRepository.save(inventory);
+
+            // Set Price
+            item.setPriceAtOrder(foodItem.getPrice());
+            totalAmount = totalAmount.add(foodItem.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
         }
 
-        // Create order
+        // 2. Save the Order (WITHOUT Pickup Time)
         OrderEntity order = new OrderEntity(user, shop, totalAmount);
-        order = orderRepository.save(order);
+        
+        // Map Special Instructions
+        if (dto.getSpecialInstructions() != null) {
+            order.setSpecialInstructions(dto.getSpecialInstructions());
+        }
+        
+        OrderEntity savedOrder = orderRepository.save(order);
 
-        // Save order items
+        // 3. Save Order Items
         for (OrderItemEntity item : orderItems) {
-            item.setOrder(order);
+            item.setOrder(savedOrder);
             orderItemRepository.save(item);
         }
 
-        return order;
+        // 4. ✅ CREATE & SAVE PAYMENT RECORD IMMEDIATELY
+        PaymentEntity payment = new PaymentEntity();
+        payment.setOrder(savedOrder);
+        payment.setAmount(totalAmount);
+        
+        payment.setPaymentMethod(dto.getPaymentMethod());
+
+        payment.setStatus(PaymentEntity.PaymentStatus.PENDING);
+        payment.setTransactionReference(dto.getTransactionCode()); // <--- SAVE THE CODE HERE
+        
+        paymentRepository.save(payment);
+
+        return savedOrder;
     }
 
     /**
-     * Updates the status of an order.
+     * ✅ UPDATED: Syncs Order Status with Payment Status
+     * Used by Vendor to Accept, Reject, or Complete orders.
      */
     @Transactional
-    public OrderEntity updateOrderStatus(Integer orderId, OrderEntity.OrderStatus status) {
+    public OrderEntity updateOrderStatus(Integer orderId, OrderEntity.OrderStatus newStatus) {
         OrderEntity order = orderRepository.findById(orderId)
             .orElseThrow(() -> new IllegalStateException("Order not found"));
-        order.setStatus(status);
+        
+        // 1. Update the Order Status
+        order.setStatus(newStatus);
+        
+        // 2. Sync the Payment Status automatically
+        com.appdevg5.canteencoders.entity.PaymentEntity payment = order.getPayment();
+        
+        if (payment != null) {
+            if (newStatus == OrderEntity.OrderStatus.COMPLETED) {
+                // If Order is Completed -> Money is officially taken
+                payment.setStatus(com.appdevg5.canteencoders.entity.PaymentEntity.PaymentStatus.COMPLETED);
+            } 
+            else if (newStatus == OrderEntity.OrderStatus.REJECTED) {
+                // If Vendor Rejects -> Money must be refunded
+                payment.setStatus(com.appdevg5.canteencoders.entity.PaymentEntity.PaymentStatus.REFUNDED);
+            }
+        }
+        
         return orderRepository.save(order);
     }
 
     /**
-     * Deletes an order by ID.
+     * ✅ UPDATED: Cancels order instead of deleting it.
+     * Used by Customer to cancel their own order.
      */
     @Transactional
-    public void deleteOrder(Integer orderId) {
-        if (!orderRepository.existsById(orderId)) {
-            throw new IllegalStateException("Order not found");
+    public void cancelOrder(Integer orderId) { // Renamed from deleteOrder
+        OrderEntity order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new IllegalStateException("Order not found"));
+
+        // 1. Instead of deleting, we set status to CANCELLED
+        order.setStatus(OrderEntity.OrderStatus.CANCELLED);
+        
+        // 2. Sync Payment Status to REFUNDED
+        if (order.getPayment() != null) {
+            order.getPayment().setStatus(com.appdevg5.canteencoders.entity.PaymentEntity.PaymentStatus.REFUNDED);
         }
-        orderRepository.deleteById(orderId);
+        
+        orderRepository.save(order);
     }
 
     /**
@@ -241,30 +292,24 @@ public class OrderService {
     /**
      * Converts an OrderEntity (Database format) to OrderDTO (API format).
      */
+    // ✅ UPDATED: convertToDTO (Removed pickupTime)
     public OrderDTO convertToDTO(OrderEntity entity) {
         OrderDTO dto = new OrderDTO();
         
-        // Map data from Entity to DTO
-        if (entity.getUser() != null) {
-            dto.setUserId(entity.getUser().getUserId());
-        }
-        
-        if (entity.getShop() != null) {
-            // Check your ShopEntity to see if it's getId() or getShopId()
-            // Based on your code, it seems to be getShopId()
-            dto.setShopId(entity.getShop().getShopId()); 
-        }
+        if (entity.getUser() != null) dto.setUserId(entity.getUser().getUserId());
+        if (entity.getShop() != null) dto.setShopId(entity.getShop().getShopId());
 
         dto.setTotalAmount(entity.getTotalAmount());
         dto.setSpecialInstructions(entity.getSpecialInstructions());
-        dto.setPickupTime(entity.getPickupTime());
         
-        // Convert the Status Enum to String safely
-        if (entity.getStatus() != null) {
-            dto.setStatus(entity.getStatus().name());
+        if (entity.getStatus() != null) dto.setStatus(entity.getStatus().name());
+        
+        // Include Transaction Code if available (via Payment link)
+        if (entity.getPayment() != null) {
+            dto.setTransactionCode(entity.getPayment().getTransactionReference());
+            dto.setPaymentMethod(entity.getPayment().getPaymentMethod());
         }
         
-        // Return the converted object
         return dto;
     }
 

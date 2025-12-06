@@ -145,15 +145,20 @@ public class ShopService {
         ShopEntity shop = vendor.getShop();
         if (shop == null) throw new RuntimeException("No shop assigned");
 
-        // Update fields if they are provided
+        // Update Name
         if (updates.getName() != null && !updates.getName().isBlank()) {
             shop.setShopName(updates.getName());
         }
+        // Update Description
         if (updates.getDescription() != null) {
             shop.setDescription(updates.getDescription());
         }
+
+        // ✅ ADD THIS: Update Image URL
+        if (updates.getImageUrl() != null && !updates.getImageUrl().isBlank()) {
+            shop.setImageUrl(updates.getImageUrl());
+        }
         
-        // Save and return
         ShopEntity savedShop = shopRepository.save(shop);
         return convertToShopDTO(savedShop);
     }

@@ -261,13 +261,34 @@ const VendorOrders = () => {
                       </div>
                     ))}
                   </div>
+
+                  {/* Row 1: Payment Method (The App) */}
+                    <div className="flex justify-between items-center mb-2 pb-2 border-b border-gray-200">
+                      <span className="text-xs font-bold text-gray-500 uppercase">Paid via:</span>
+                      <span className="text-sm font-extrabold" style={{ color: '#8C343A' }}>
+                        {/* Display GCash, Maya, etc. here */}
+                        {order.payment?.paymentMethod || 'Unknown'}
+                      </span>
+                    </div>
+                    
+                  {/* Transaction Code Display */}
+                  {order.payment?.transactionReference ? (
+                  <div>
+                        <p className="text-xs text-gray-500">Ref No:</p>
+                        <p className="text-sm font-mono font-bold text-gray-800 select-all">
+                          {order.payment.transactionReference}
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-red-500 italic">No Reference Code provided</p>
+                    )}
                   <p className="text-lg font-bold text-[#B78A00] mb-2">Total: ₱{order.totalAmount?.toFixed(2)}</p>
                   {order.specialInstructions && (
                     <div 
                       className="mt-3 p-3 rounded-lg text-sm"
                       style={{ backgroundColor: '#FFF9E6', border: '1px border #FBCA30', color: '#8C343A' }}
                     >
-                      <span className="font-bold">📝 Note: </span> 
+                      <span className="font-bold">📝 Special Instruction: </span> 
                       {order.specialInstructions}
                     </div>
                   )}

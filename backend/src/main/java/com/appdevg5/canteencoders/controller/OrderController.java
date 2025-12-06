@@ -47,7 +47,7 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<OrderEntity> createOrder(@Valid @RequestBody OrderDTO dto) {
         try {
-            // Map DTO order items to entities with just foodItem id and quantity
+            // Map DTO order items to entities
             List<OrderItemEntity> items = new ArrayList<>();
             for (OrderItemDTO oi : dto.getOrderItems()) {
                 FoodItemEntity fi = new FoodItemEntity();
@@ -58,11 +58,8 @@ public class OrderController {
                 items.add(entity);
             }
 
-            OrderEntity created = orderService.createOrder(dto.getUserId(), dto.getShopId(), items);
-            // Optionally set pickup time, instructions, payment on created order if you store them
-            if (dto.getPickupTime() != null) created.setPickupTime(dto.getPickupTime());
-            if (dto.getSpecialInstructions() != null) created.setSpecialInstructions(dto.getSpecialInstructions());
-            // Status/payment can be updated elsewhere in flow
+            // ✅ PASS 'dto' TO THE SERVICE
+            OrderEntity created = orderService.createOrder(dto.getUserId(), dto.getShopId(), items, dto);
 
             return ResponseEntity.ok(created);
         } catch (IllegalStateException e) {
@@ -107,17 +104,21 @@ public class OrderController {
         }
     }
     // 2. DELETE ORDER
+    // 2. CANCEL ORDER (Updated)
+    // We keep @DeleteMapping so you don't have to change your Frontend code
     @DeleteMapping("/{orderId}")
     public ResponseEntity<Void> cancelOrder(@PathVariable Integer orderId) {
         OrderEntity order = orderService.getOrderById(orderId)
             .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        // FIX IS HERE: Compare with the Enum constant, not a String
+        // Only allow cancelling if PENDING
         if (order.getStatus() != OrderEntity.OrderStatus.PENDING) {
              return ResponseEntity.badRequest().build(); 
         }
 
-        orderService.deleteOrder(orderId);
+        // ✅ CALL THE NEW METHOD (Updates status instead of deleting row)
+        orderService.cancelOrder(orderId);
+        
         return ResponseEntity.noContent().build();
     }
 }

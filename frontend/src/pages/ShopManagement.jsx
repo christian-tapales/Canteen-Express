@@ -4,17 +4,18 @@ import { useAuth } from '../context/useAuth';
 import axios from 'axios'; // <--- Make sure this is imported
 
 const ShopManagement = () => {
-  const navigate = useNavigate();
-  const { user, logout, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState('store');
-  const [expandedCategory, setExpandedCategory] = useState(null);
+const navigate = useNavigate();
+const { user, logout, loading } = useAuth();
+const [activeTab, setActiveTab] = useState('store');
+const [expandedCategory, setExpandedCategory] = useState(null);
 
   // 1. Change State to boolean (initially null until loaded)
 const [isOpen, setIsOpen] = useState(true); 
 const [loadingShop, setLoadingShop] = useState(true);
 const [shopName, setShopName] = useState('');
-  const [shopDescription, setShopDescription] = useState('');
-  const [savingProfile, setSavingProfile] = useState(false);
+const [shopDescription, setShopDescription] = useState('');
+const [shopImage, setShopImage] = useState('');
+const [savingProfile, setSavingProfile] = useState(false);
 
   // --- NEW: FETCH REAL STATUS ON LOAD ---
   // Update your existing useEffect
@@ -30,6 +31,7 @@ const [shopName, setShopName] = useState('');
         setIsOpen(response.data.isOpen);
         setShopName(response.data.name);               // <--- ADD THIS
         setShopDescription(response.data.description); // <--- ADD THIS
+        setShopImage(response.data.imageUrl || '');
         
       } catch (error) {
         console.error("Failed to load shop details", error);
@@ -61,7 +63,6 @@ const [shopName, setShopName] = useState('');
   };
 
   // Store data
-  const [announcement, setAnnouncement] = useState('Welcome to our shop!');
   const inventory = [
     { id: 1, item: 'Lumpiang Shanghai', stock: 50, status: 'In Stock' },
     { id: 2, item: 'Chicken Curry', stock: 30, status: 'In Stock' },
@@ -106,19 +107,21 @@ const [shopName, setShopName] = useState('');
       await axios.put('http://localhost:8080/api/vendor/shop', 
         {
           name: shopName,
-          description: shopDescription
+          description: shopDescription,
+          imageUrl: shopImage // <--- ADD THIS
         }, 
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
-      
       alert("Shop profile updated successfully!");
     } catch (error) {
       console.error("Failed to update profile", error);
-      alert("Failed to update profile. Shop name might already be taken.");
     } finally {
       setSavingProfile(false);
     }
   };
+
+  
+      
 
   const handleLogout = () => {
     logout();
@@ -251,26 +254,54 @@ const [shopName, setShopName] = useState('');
               <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 mb-6 shadow-md">
                 <h2 className="text-2xl font-bold mb-4 text-[#8C343A]">Shop Profile</h2>
                 <div className="space-y-4">
+                  
+                  {/* Image Preview Section */}
+                  <div className="flex gap-4 items-start">
+                    <div 
+                      className="w-24 h-24 rounded-lg bg-gray-200 shrink-0 border-2 border-gray-300 overflow-hidden"
+                      style={{
+                        backgroundImage: `url(${shopImage || 'https://via.placeholder.com/150'})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                      }}
+                    />
+                    <div className="grow">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Shop Image URL</label>
+                      <input
+                        type="text"
+                        placeholder="Paste an image link here (e.g., https://...)"
+                        value={shopImage}
+                        onChange={(e) => setShopImage(e.target.value)}
+                        className="w-full px-4 py-2 rounded-lg bg-white border-2 border-gray-300 focus:outline-none focus:border-[#8C343A] text-sm"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Paste a link from Google Images, Unsplash, or Imgur.
+                      </p>
+                    </div>
+                  </div>
+
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Shop Name</label>
                     <input
                       type="text"
-                      value={shopName} // <--- Connected to State
-                      onChange={(e) => setShopName(e.target.value)} // <--- Updates State
+                      value={shopName}
+                      onChange={(e) => setShopName(e.target.value)}
                       className="w-full px-4 py-2 rounded-lg bg-white border-2 border-gray-300 focus:outline-none focus:border-[#8C343A]"
                     />
                   </div>
+                  
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
                     <textarea
                       rows="3"
-                      value={shopDescription} // <--- Connected to State
-                      onChange={(e) => setShopDescription(e.target.value)} // <--- Updates State
+                      value={shopDescription}
+                      onChange={(e) => setShopDescription(e.target.value)}
                       className="w-full px-4 py-2 rounded-lg bg-white border-2 border-gray-300 focus:outline-none focus:border-[#8C343A]"
                     />
                   </div>
+                  
                   <button 
-                    onClick={handleUpdateProfile} // <--- Connected to Function
+                    onClick={handleUpdateProfile}
                     disabled={savingProfile}
                     className="px-6 py-2 rounded-full font-semibold transition-all hover:opacity-90 shadow-sm disabled:opacity-50" 
                     style={{ backgroundColor: '#10B981', color: '#FFFFFF' }}
