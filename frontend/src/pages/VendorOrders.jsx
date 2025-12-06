@@ -174,48 +174,68 @@ const VendorOrders = () => {
         </div>
 
         {/* Filter Buttons */}
-        <div className="mb-6 flex gap-3 flex-wrap">
-          <button
-            onClick={() => setOrderFilter('ALL')}
-            className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
-              orderFilter === 'ALL' ? 'bg-[#FBCA30] text-[#8C343A]' : 'bg-white text-gray-700 border-2 border-gray-300'
-            }`}
-          >
-            All Orders
-          </button>
-          <button
-            onClick={() => setOrderFilter('PENDING')}
-            className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
-              orderFilter === 'PENDING' ? 'bg-[#FBCA30] text-[#8C343A]' : 'bg-white text-gray-700 border-2 border-gray-300'
-            }`}
-          >
-            Pending
-          </button>
-          <button
-            onClick={() => setOrderFilter('PREPARING')}
-            className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
-              orderFilter === 'PREPARING' ? 'bg-[#FBCA30] text-[#8C343A]' : 'bg-white text-gray-700 border-2 border-gray-300'
-            }`}
-          >
-            Preparing
-          </button>
-          <button
-            onClick={() => setOrderFilter('READY')}
-            className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
-              orderFilter === 'READY' ? 'bg-[#FBCA30] text-[#8C343A]' : 'bg-white text-gray-700 border-2 border-gray-300'
-            }`}
-          >
-            Ready
-          </button>
-          <button
-            onClick={() => setOrderFilter('COMPLETED')}
-            className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
-              orderFilter === 'COMPLETED' ? 'bg-[#FBCA30] text-[#8C343A]' : 'bg-white text-gray-700 border-2 border-gray-300'
-            }`}
-          >
-            Completed
-          </button>
-        </div>
+<div className="mb-6 flex gap-3 flex-wrap">
+
+            {/* All Orders */}
+            <button
+              onClick={() => setOrderFilter('ALL')}
+              className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                orderFilter === 'ALL'
+                  ? 'bg-gray-500 text-white' // Active: Gray Background, White Text
+                  : 'bg-white text-gray-700 border-2 border-gray-300' // Inactive: Consistent Neutral Style
+              }`}
+            >
+              All Orders
+            </button>
+
+            {/* PENDING */}
+            <button
+              onClick={() => setOrderFilter('PENDING')}
+              className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                orderFilter === 'PENDING'
+                  ? 'bg-red-500 text-white' // Active: Red Background, White Text
+                  : 'bg-white text-gray-700 border-2 border-gray-300'
+              }`}
+            >
+              Pending
+            </button>
+
+            {/* PREPARING */}
+            <button
+              onClick={() => setOrderFilter('PREPARING')}
+              className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                orderFilter === 'PREPARING'
+                  ? 'bg-blue-500 text-white' // Active: Blue Background, White Text
+                  : 'bg-white text-gray-700 border-2 border-gray-300'
+              }`}
+            >
+              Preparing
+            </button>
+
+            {/* READY */}
+            <button
+              onClick={() => setOrderFilter('READY')}
+              className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                orderFilter === 'READY'
+                  ? 'bg-orange-600 text-white' // Active: Orange Background, White Text
+                  : 'bg-white text-gray-700 border-2 border-gray-300'
+              }`}
+            >
+              Ready
+            </button>
+
+            {/* COMPLETED */}
+            <button
+              onClick={() => setOrderFilter('COMPLETED')}
+              className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                orderFilter === 'COMPLETED'
+                  ? 'bg-emerald-500 text-white' // Active: Green Background, White Text
+                  : 'bg-white text-gray-700 border-2 border-gray-300'
+              }`}
+            >
+              Completed
+            </button>
+          </div>
 
           {/* Orders Grid */}
           {loadingOrders ? (

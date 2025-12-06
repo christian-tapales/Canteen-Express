@@ -13,6 +13,21 @@ const OrderHistoryPage = () => {
   const [dataLoading, setDataLoading] = useState(true); 
   const [error, setError] = useState('');
 
+  const getStatusColor = (status) => {
+  switch (status) {
+      case 'COMPLETED':
+        return '#10B981'; // Green (Success)
+      case 'READY':
+        return '#F97316';  // Orange (Imminent Action)
+      case 'PREPARING':
+        return '#3B82F6'; // Blue (In Progress)
+      case 'PENDING':
+        return '#EF4444';  // Red (Awaiting action/Can be cancelled)
+      default:
+        return '#6B7280'; // Gray (Unknown)
+      }
+  };
+
   useEffect(() => {
     // 2. CRITICAL FIX: If Auth is still loading, STOP here. Do not redirect yet.
     if (authLoading) return;
@@ -160,7 +175,7 @@ const OrderHistoryPage = () => {
                   <span
                     className="inline-block px-3 py-1 rounded-full text-sm font-semibold"
                     style={{
-                      backgroundColor: order.status === 'COMPLETED' ? '#10B981' : order.status === 'PENDING' ? '#FBCA30' : '#DC2626',
+                      backgroundColor: getStatusColor(order.status),
                       color: '#FFFFFF'
                     }}
                   >
