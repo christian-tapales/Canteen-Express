@@ -69,7 +69,7 @@ public class VendorController {
      * @return Created food item.
      */
     @PostMapping("/items")
-    public ResponseEntity<FoodItemEntity> createFoodItem(@Valid @RequestBody FoodItemEntity foodItemDTO) {
+    public ResponseEntity<FoodItemEntity> createFoodItem(@RequestBody FoodItemEntity foodItemDTO) {
         FoodItemEntity createdItem = foodItemService.createFoodItem(foodItemDTO);
         return ResponseEntity.ok(createdItem);
     }

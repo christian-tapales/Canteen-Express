@@ -55,7 +55,7 @@ public class FoodItemEntity {
      * FOREIGN KEY to the 'shops' table.
      * Each food item belongs to a specific shop.
      */
-    @NotNull
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shop_id", nullable = false)
     private ShopEntity shop;
@@ -140,7 +140,7 @@ public class FoodItemEntity {
         this.isDeleted = isDeleted;
     }
 
-    
+
     public Boolean getIsAvailable() {
         return isAvailable;
     }

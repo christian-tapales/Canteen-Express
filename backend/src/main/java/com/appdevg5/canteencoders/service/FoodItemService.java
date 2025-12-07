@@ -110,6 +110,7 @@ public class FoodItemService {
         inventory.setFoodItem(savedItem);
         inventory.setQuantityAvailable(50); // Default stock (e.g., 50)
         
+        inventory.setShop(shop);
         inventoryRepository.save(inventory);
 
         return savedItem;
@@ -125,6 +126,8 @@ public class FoodItemService {
         foodItem.setDescription(foodItemDetails.getDescription());
         foodItem.setPrice(foodItemDetails.getPrice());
         foodItem.setCategory(foodItemDetails.getCategory());
+        foodItem.setImageUrl(foodItemDetails.getImageUrl());
+        
         return foodItemRepository.save(foodItem);
     }
 

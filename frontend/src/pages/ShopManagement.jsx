@@ -61,8 +61,13 @@ const [paymentNumber, setPaymentNumber] = useState('');
   // 2. Handle Form Submit (Create or Update)
   const handleSaveItem = async (e) => {
     e.preventDefault();
+    console.log('handleSaveItem called');
     try {
       const token = sessionStorage.getItem('token');
+      if (!token) {
+        alert("No authentication token found. Please log in again.");
+        return;
+      }
       const payload = {
         itemName: itemName,
         description: itemDesc,
@@ -71,6 +76,7 @@ const [paymentNumber, setPaymentNumber] = useState('');
         imageUrl: itemImage,
         isAvailable: true
       };
+      console.log('payload', payload);
 
       if (isEditing) {
         await axios.put(`http://localhost:8080/api/vendor/items/${editItemId}`, payload, {
@@ -83,12 +89,19 @@ const [paymentNumber, setPaymentNumber] = useState('');
         });
         alert("Item added!");
       }
-      
+
       setShowForm(false);
       resetForm();
       fetchMenu();
     } catch (error) {
-      alert("Failed to save item.",error);
+      console.log('error', error);
+      console.log('error.response', error.response);
+      console.log('error.response.data', error.response?.data);
+      const errorMessage = error.response?.data?.message ||
+                          error.response?.data ||
+                          error.message ||
+                          'Unknown error';
+      alert("Failed to save item: " + JSON.stringify(errorMessage));
     }
   };
 
