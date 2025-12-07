@@ -28,7 +28,7 @@ const CartPage = () => {
           const response = await axios.get(`http://localhost:8080/api/shops/${shopId}`);
           setShopPaymentNumber(response.data.paymentNumber);
         } catch (error) {
-          console.error("Failed to load shop payment info");
+          console.error("Failed to load shop payment info ", error);
         }
       }
     };
