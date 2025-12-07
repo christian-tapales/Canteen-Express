@@ -24,12 +24,13 @@ const [paymentNumber, setPaymentNumber] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editItemId, setEditItemId] = useState(null);
   const [filterCategory, setFilterCategory] = useState('All'); // <--- ADD THIS
+  const [availableCategories, setAvailableCategories] = useState([]);
 
   // Form Inputs
   const [itemName, setItemName] = useState('');
   const [itemDesc, setItemDesc] = useState('');
   const [itemPrice, setItemPrice] = useState('');
-  const [itemCategory, setItemCategory] = useState('Main Dishes');
+  const [itemCategory, setItemCategory] = useState('');
   const [itemImage, setItemImage] = useState('');
 
   // 1. Fetch Menu from Backend
@@ -46,6 +47,11 @@ const [paymentNumber, setPaymentNumber] = useState('');
       // Then get the menu
       const menuResponse = await axios.get(`http://localhost:8080/api/shops/${shopId}/menu`);
       setMenuItems(menuResponse.data);
+
+      //Extract unique categories from the fetched items
+      const uniqueCats = [...new Set(menuResponse.data.map(item => item.category).filter(Boolean))];
+      setAvailableCategories(uniqueCats);
+
     } catch (error) {
       console.error("Failed to load menu", error);
     } finally {
@@ -132,9 +138,13 @@ const [paymentNumber, setPaymentNumber] = useState('');
   };
 
   const resetForm = () => {
-    setItemName(''); setItemDesc(''); setItemPrice('');
-    setItemCategory('Main Dishes'); setItemImage('');
-    setIsEditing(false); setEditItemId(null);
+    setItemName(''); 
+    setItemDesc(''); 
+    setItemPrice('');
+    setItemCategory(''); // 4️⃣ UPDATE: Clear category instead of hardcoding
+    setItemImage('');
+    setIsEditing(false); 
+    setEditItemId(null);
   };
 
   // --- NEW: FETCH REAL STATUS ON LOAD ---
@@ -471,10 +481,10 @@ const [paymentNumber, setPaymentNumber] = useState('');
                       className="px-4 py-2 border-2 border-gray-300 rounded-lg text-sm font-semibold text-gray-700 focus:outline-none focus:border-[#8C343A]"
                     >
                       <option value="All">All Categories</option>
-                      <option value="Main Dishes">Main Dishes</option>
-                      <option value="Beverages">Beverages</option>
-                      <option value="Snacks">Snacks</option>
-                      <option value="Desserts">Desserts</option>
+                      {/* 5️⃣ UPDATE: Use dynamic categories for the FILTER too */}
+                      {availableCategories.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
                     </select>
                   )}
                 <button 
@@ -510,13 +520,20 @@ const [paymentNumber, setPaymentNumber] = useState('');
                       </div>
                       <div>
                         <label className="block text-sm font-bold text-gray-700">Category</label>
-                        <select value={itemCategory} onChange={e => setItemCategory(e.target.value)} 
-                          className="w-full px-4 py-2 border rounded-lg">
-                          <option>Main Dishes</option>
-                          <option>Beverages</option>
-                          <option>Snacks</option>
-                          <option>Desserts</option>
-                        </select>
+                        <input 
+                          type="text" 
+                          list="category-options" 
+                          value={itemCategory} 
+                          onChange={e => setItemCategory(e.target.value)} 
+                          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-[#8C343A]"
+                          placeholder="Select or type..."
+                          required
+                        />
+                        <datalist id="category-options">
+                          {availableCategories.map((cat, index) => (
+                            <option key={index} value={cat} />
+                          ))}
+                        </datalist>
                       </div>
                     </div>
                     <div>
