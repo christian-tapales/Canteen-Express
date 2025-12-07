@@ -7,7 +7,6 @@ const ShopManagement = () => {
 const navigate = useNavigate();
 const { user, logout, loading } = useAuth();
 const [activeTab, setActiveTab] = useState('store');
-const [expandedCategory, setExpandedCategory] = useState(null);
 
   // 1. Change State to boolean (initially null until loaded)
 const [isOpen, setIsOpen] = useState(true); 
@@ -17,6 +16,113 @@ const [shopDescription, setShopDescription] = useState('');
 const [shopImage, setShopImage] = useState('');
 const [savingProfile, setSavingProfile] = useState(false);
 const [paymentNumber, setPaymentNumber] = useState('');
+
+// --- MENU MANAGEMENT STATE ---
+  const [menuItems, setMenuItems] = useState([]);
+  const [loadingMenu, setLoadingMenu] = useState(false);
+  const [showForm, setShowForm] = useState(false); // Toggle between List and Add/Edit Form
+  const [isEditing, setIsEditing] = useState(false);
+  const [editItemId, setEditItemId] = useState(null);
+  const [filterCategory, setFilterCategory] = useState('All'); // <--- ADD THIS
+
+  // Form Inputs
+  const [itemName, setItemName] = useState('');
+  const [itemDesc, setItemDesc] = useState('');
+  const [itemPrice, setItemPrice] = useState('');
+  const [itemCategory, setItemCategory] = useState('Main Dishes');
+  const [itemImage, setItemImage] = useState('');
+
+  // 1. Fetch Menu from Backend
+  const fetchMenu = async () => {
+    setLoadingMenu(true);
+    try {
+      const token = sessionStorage.getItem('token');
+      // First get shop ID
+      const shopResponse = await axios.get('http://localhost:8080/api/vendor/shop', {
+         headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const shopId = shopResponse.data.id;
+
+      // Then get the menu
+      const menuResponse = await axios.get(`http://localhost:8080/api/shops/${shopId}/menu`);
+      setMenuItems(menuResponse.data);
+    } catch (error) {
+      console.error("Failed to load menu", error);
+    } finally {
+      setLoadingMenu(false);
+    }
+  };
+
+  // Trigger fetch when tab is 'menu'
+  useEffect(() => {
+    if (activeTab === 'menu') fetchMenu();
+  }, [activeTab]);
+
+  // 2. Handle Form Submit (Create or Update)
+  const handleSaveItem = async (e) => {
+    e.preventDefault();
+    try {
+      const token = sessionStorage.getItem('token');
+      const payload = {
+        itemName: itemName,
+        description: itemDesc,
+        price: parseFloat(itemPrice),
+        category: itemCategory,
+        imageUrl: itemImage,
+        isAvailable: true
+      };
+
+      if (isEditing) {
+        await axios.put(`http://localhost:8080/api/vendor/items/${editItemId}`, payload, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        alert("Item updated!");
+      } else {
+        await axios.post('http://localhost:8080/api/vendor/items', payload, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        alert("Item added!");
+      }
+      
+      setShowForm(false);
+      resetForm();
+      fetchMenu();
+    } catch (error) {
+      alert("Failed to save item.",error);
+    }
+  };
+
+  // 3. Handle Delete
+  const handleDeleteItem = async (itemId) => {
+    if (!confirm("Delete this item?")) return;
+    try {
+      const token = sessionStorage.getItem('token');
+      await axios.delete(`http://localhost:8080/api/vendor/items/${itemId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      fetchMenu();
+    } catch (error) {
+      alert("Failed to delete.",error);
+    }
+  };
+
+  // Helper to prep form for editing
+  const startEdit = (item) => {
+    setItemName(item.name || item.itemName);
+    setItemDesc(item.description);
+    setItemPrice(item.price);
+    setItemCategory(item.category);
+    setItemImage(item.imageUrl);
+    setEditItemId(item.id);
+    setIsEditing(true);
+    setShowForm(true);
+  };
+
+  const resetForm = () => {
+    setItemName(''); setItemDesc(''); setItemPrice('');
+    setItemCategory('Main Dishes'); setItemImage('');
+    setIsEditing(false); setEditItemId(null);
+  };
 
   // --- NEW: FETCH REAL STATUS ON LOAD ---
   // Update your existing useEffect
@@ -72,35 +178,6 @@ const [paymentNumber, setPaymentNumber] = useState('');
     { id: 4, item: 'Graham Bars', stock: 0, status: 'Out of Stock' }
   ];
 
-  // Menu data
-  const categories = [
-    {
-      id: 1,
-      name: 'Main Dishes',
-      items: [
-        { id: 1, name: 'Lumpiang Shanghai (10 pcs)', price: '₱60.00', category: 'Main Dishes', available: true, image: '🥟' },
-        { id: 2, name: 'Chicken Curry', price: '₱90.00', category: 'Main Dishes', available: true, image: '🍛' },
-        { id: 3, name: 'Beef Caldereta', price: '₱100.00', category: 'Main Dishes', available: true, image: '🍲' }
-      ]
-    },
-    {
-      id: 2,
-      name: 'Drinks',
-      items: [
-        { id: 4, name: 'Bottled Water', price: '₱10.00', category: 'Drinks', available: true, image: '💧' },
-        { id: 5, name: 'Coke 330ml', price: '₱25.00', category: 'Drinks', available: false, image: '🥤' },
-        { id: 6, name: 'Fresh Lemonade', price: '₱35.00', category: 'Drinks', available: true, image: '🍋' }
-      ]
-    },
-    {
-      id: 3,
-      name: 'Snacks & Desserts',
-      items: [
-        { id: 7, name: 'Graham Bars', price: '₱30.00', category: 'Snacks & Desserts', available: true, image: '🍪' },
-        { id: 8, name: 'Banana Cake Slice', price: '₱45.00', category: 'Snacks & Desserts', available: true, image: '🍰' }
-      ]
-    }
-  ];
 
   const handleUpdateProfile = async () => {
     setSavingProfile(true);
@@ -145,6 +222,11 @@ const [paymentNumber, setPaymentNumber] = useState('');
   if (!user || user.role !== 'VENDOR') {
     return null;
   }
+
+  // Filter logic
+  const displayedItems = filterCategory === 'All' 
+    ? menuItems 
+    : menuItems.filter(item => item.category === filterCategory);
 
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
@@ -356,112 +438,128 @@ const [paymentNumber, setPaymentNumber] = useState('');
                   ))}
                 </div>
               </div>
-
-              {/* Store Hours Card */}
-              <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 mt-6 shadow-md">
-                <h2 className="text-2xl font-bold mb-4 text-[#8C343A]">Store Hours</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Opening Time</label>
-                    <input
-                      type="time"
-                      defaultValue="07:00"
-                      className="w-full px-4 py-2 rounded-lg bg-white border-2 border-gray-300 focus:outline-none focus:border-[#8C343A]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Closing Time</label>
-                    <input
-                      type="time"
-                      defaultValue="18:00"
-                      className="w-full px-4 py-2 rounded-lg bg-white border-2 border-gray-300 focus:outline-none focus:border-[#8C343A]"
-                    />
-                  </div>
-                </div>
-                <button className="mt-4 px-6 py-2 rounded-full font-semibold transition-all hover:opacity-90 shadow-sm" style={{ backgroundColor: '#10B981', color: '#FFFFFF' }}>
-                  Update Hours
-                </button>
-              </div>
             </div>
           )}
 
           {/* Menu Management Tab */}
           {activeTab === 'menu' && (
             <div>
+              {/* Header */}
               <div className="flex items-center justify-between mb-6">
-                <p className="text-gray-600">Manage your food menu items, pricing, and availability</p>
-                <button className="px-6 py-2 rounded-full font-semibold transition-all hover:opacity-90 shadow-sm" style={{ backgroundColor: '#10B981', color: '#FFFFFF' }}>
-                  Add New Item
+                <h2 className="text-2xl font-bold text-[#8C343A]">
+                  {showForm ? (isEditing ? 'Edit Item' : 'Add New Item') : 'Your Menu'}
+                </h2>
+
+                {/* ✅ NEW: Category Filter Dropdown (Only show when list is visible) */}
+                  {!showForm && (
+                    <select 
+                      value={filterCategory}
+                      onChange={(e) => setFilterCategory(e.target.value)}
+                      className="px-4 py-2 border-2 border-gray-300 rounded-lg text-sm font-semibold text-gray-700 focus:outline-none focus:border-[#8C343A]"
+                    >
+                      <option value="All">All Categories</option>
+                      <option value="Main Dishes">Main Dishes</option>
+                      <option value="Beverages">Beverages</option>
+                      <option value="Snacks">Snacks</option>
+                      <option value="Desserts">Desserts</option>
+                    </select>
+                  )}
+                <button 
+                  onClick={() => {
+                    if(showForm) { setShowForm(false); resetForm(); }
+                    else { setShowForm(true); resetForm(); }
+                  }}
+                  className={`px-6 py-2 rounded-full font-semibold transition-all shadow-sm text-white ${showForm ? 'bg-gray-500' : 'bg-[#10B981]'}`}
+                >
+                  {showForm ? 'Cancel' : '+ Add New Item'}
                 </button>
               </div>
 
-              {/* Menu Categories */}
-              <div className="space-y-4">
-                {categories.map((category) => (
-                  <div key={category.id} className="bg-white border-2 border-[#8C343A] rounded-2xl overflow-hidden shadow-md">
-                    {/* Category Header */}
-                    <button
-                      onClick={() => setExpandedCategory(expandedCategory === category.id ? null : category.id)}
-                      className="w-full p-4 flex items-center justify-between hover:bg-[#FFF9E6] transition-colors"
-                      style={{ backgroundColor: expandedCategory === category.id ? '#FFF9E6' : 'white' }}
-                    >
-                      <h3 className="text-xl font-bold text-[#8C343A]">{category.name}</h3>
-                      <span className="text-2xl text-[#8C343A]">
-                        {expandedCategory === category.id ? '▼' : '▶'}
-                      </span>
+              {/* --- VIEW 1: THE FORM --- */}
+              {showForm ? (
+                <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 shadow-md max-w-2xl mx-auto">
+                  <form onSubmit={handleSaveItem} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700">Item Name</label>
+                      <input required type="text" value={itemName} onChange={e => setItemName(e.target.value)} 
+                        className="w-full px-4 py-2 border rounded-lg" placeholder="e.g. Burger" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700">Description</label>
+                      <textarea value={itemDesc} onChange={e => setItemDesc(e.target.value)} 
+                        className="w-full px-4 py-2 border rounded-lg" placeholder="Ingredients, taste..." rows="2" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700">Price (₱)</label>
+                        <input required type="number" step="0.01" value={itemPrice} onChange={e => setItemPrice(e.target.value)} 
+                          className="w-full px-4 py-2 border rounded-lg" placeholder="0.00" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700">Category</label>
+                        <select value={itemCategory} onChange={e => setItemCategory(e.target.value)} 
+                          className="w-full px-4 py-2 border rounded-lg">
+                          <option>Main Dishes</option>
+                          <option>Beverages</option>
+                          <option>Snacks</option>
+                          <option>Desserts</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700">Image URL</label>
+                      <input type="text" value={itemImage} onChange={e => setItemImage(e.target.value)} 
+                        className="w-full px-4 py-2 border rounded-lg" placeholder="https://..." />
+                    </div>
+                    <button type="submit" className="w-full py-3 bg-[#8C343A] text-white font-bold rounded-lg hover:opacity-90">
+                      {isEditing ? 'Update Item' : 'Create Item'}
                     </button>
-
-                    {/* Category Items */}
-                    {expandedCategory === category.id && (
-                      <div className="p-4 border-t-2 border-[#8C343A]">
-                        <div className="grid grid-cols-2 gap-4">
-                          {category.items.map((item) => (
-                            <div key={item.id} className="bg-white border-2 border-[#8C343A] rounded-2xl p-4">
-                              <div className="flex items-start gap-4">
-                                <div className="text-5xl">{item.image}</div>
-                                <div className="flex-1">
-                                  <h4 className="font-bold text-lg text-[#8C343A] mb-1">{item.name}</h4>
-                                  <p className="text-xl font-bold text-gray-700 mb-2">{item.price}</p>
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <span className="text-sm font-semibold text-gray-600">Available:</span>
-                                    <button
-                                      className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
-                                        item.available 
-                                          ? 'bg-green-100 text-green-700 hover:bg-green-200' 
-                                          : 'bg-red-100 text-red-700 hover:bg-red-200'
-                                      }`}
-                                    >
-                                      {item.available ? 'Yes' : 'No'}
-                                    </button>
-                                  </div>
-                                  <div className="flex gap-2">
-                                    <button className="flex-1 px-3 py-1 rounded-lg font-semibold text-white transition-all hover:opacity-90 shadow-sm text-sm" style={{ backgroundColor: '#8C343A' }}>
-                                      Edit
-                                    </button>
-                                    <button className="flex-1 px-3 py-1 rounded-lg font-semibold bg-white text-red-600 border-2 border-red-600 hover:bg-red-50 transition-all shadow-sm text-sm">
-                                      Delete
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-
-                          {/* Add Item Card */}
-                          <div className="bg-white border-2 border-dashed border-[#8C343A] rounded-2xl p-4 flex items-center justify-center hover:bg-[#FFF9E6] transition-colors cursor-pointer">
-                            <div className="text-center">
-                              <div className="w-16 h-16 mx-auto mb-2 rounded-full flex items-center justify-center" style={{ backgroundColor: '#10B981' }}>
-                                <span className="text-3xl text-white">+</span>
-                              </div>
-                              <p className="font-semibold text-[#8C343A]">Add Item</p>
-                            </div>
-                          </div>
+                  </form>
+                </div>
+              ) : (
+                /* --- VIEW 2: THE LIST --- */
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {loadingMenu ? <p>Loading menu...</p> : displayedItems.length === 0 ? <p>No items yet. Add one!</p> : 
+                    displayedItems.map((item) => (
+                    <div key={item.id} className="bg-white border border-gray-300 rounded-xl p-4 flex gap-4 shadow-sm hover:shadow-md transition-all">
+                      {/* Image */}
+                      <div className="w-24 h-24 bg-gray-200 rounded-lg shrink-0 overflow-hidden"
+                           style={{
+                             backgroundImage: `url(${item.imageUrl || 'https://via.placeholder.com/150'})`,
+                             backgroundSize: 'cover',
+                             backgroundPosition: 'center'
+                           }}
+                      />
+                      
+                      {/* Info */}
+                      <div className="grow">
+                        <div className="flex justify-between items-start">
+                          <h3 className="font-bold text-lg text-[#8C343A]">{item.name || item.itemName}</h3>
+                          <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">{item.category}</span>
+                        </div>
+                        <p className="text-sm text-gray-500 line-clamp-1">{item.description}</p>
+                        <p className="font-bold text-[#B78A00] mt-1">₱{item.price?.toFixed(2)}</p>
+                        
+                        {/* Actions */}
+                        <div className="flex gap-2 mt-3">
+                          <button 
+                            onClick={() => startEdit(item)}
+                            className="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded hover:bg-blue-100 font-semibold"
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteItem(item.id)}
+                            className="px-3 py-1 text-sm bg-red-50 text-red-600 rounded hover:bg-red-100 font-semibold"
+                          >
+                            Delete
+                          </button>
                         </div>
                       </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </main>
