@@ -18,6 +18,7 @@ CREATE TABLE tbl_shops (
     description TEXT,
     is_open BOOLEAN DEFAULT 1,
     image_url VARCHAR(500),
+    payment_number VARCHAR(50) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -31,6 +32,7 @@ CREATE TABLE tbl_food_items (
     category VARCHAR(50),
     shop_id INT NOT NULL,
     image_url VARCHAR(500),
+    is_deleted BOOLEAN DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (shop_id) REFERENCES tbl_shops(shop_id) ON DELETE CASCADE

@@ -30,4 +30,5 @@ public interface FoodItemRepository extends JpaRepository<FoodItemEntity, Intege
      * @return A list of food items matching the criteria.
      */
     List<FoodItemEntity> findByShopAndCategory(ShopEntity shop, String category);
+    List<FoodItemEntity> findByShopAndIsDeletedFalse(ShopEntity shop);
 }
