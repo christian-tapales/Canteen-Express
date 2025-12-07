@@ -10,6 +10,9 @@ const VendorOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
 
+  
+
+
   // Check authentication
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'VENDOR')) {
@@ -133,7 +136,7 @@ const VendorOrders = () => {
               <span className="text-2xl">🍽️</span>
             </div>
             <span className="text-xl font-bold" style={{ color: '#8C343A' }}>
-              Canteen Express - Vendor
+              Canteen Express : Vendor
             </span>
           </div>
           <button 

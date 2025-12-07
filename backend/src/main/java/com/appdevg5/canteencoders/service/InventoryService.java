@@ -1,8 +1,10 @@
 package com.appdevg5.canteencoders.service;
 
 import com.appdevg5.canteencoders.entity.InventoryEntity;
+import com.appdevg5.canteencoders.entity.ShopEntity;
 import com.appdevg5.canteencoders.entity.FoodItemEntity;
 import com.appdevg5.canteencoders.repository.InventoryRepository;
+import com.appdevg5.canteencoders.repository.ShopRepository;
 import com.appdevg5.canteencoders.repository.FoodItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,9 @@ public class InventoryService {
     private InventoryRepository inventoryRepository;
 
     @Autowired
+    private ShopRepository shopRepository;
+
+    @Autowired
     private FoodItemRepository foodItemRepository;
 
     /**
@@ -29,6 +34,11 @@ public class InventoryService {
         FoodItemEntity foodItem = foodItemRepository.findById(foodItemId)
             .orElseThrow(() -> new IllegalStateException("Food item not found"));
         return inventoryRepository.findByFoodItem(foodItem);
+    }
+    public List<InventoryEntity> getInventoryByShop(Integer shopId) {
+        ShopEntity shop = shopRepository.findById(shopId)
+            .orElseThrow(() -> new IllegalStateException("Shop not found"));
+        return inventoryRepository.findByShop(shop);
     }
 
     /**

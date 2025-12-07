@@ -36,7 +36,7 @@ public class InventoryEntity {
      * (One Food Item has One Inventory Record).
      */
     @NotNull
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "food_item_id", nullable = false, unique = true)
     private FoodItemEntity foodItem;
 

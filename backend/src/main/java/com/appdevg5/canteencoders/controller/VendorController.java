@@ -1,6 +1,8 @@
 package com.appdevg5.canteencoders.controller;
 
+import com.appdevg5.canteencoders.dto.ShopDTO;
 import com.appdevg5.canteencoders.entity.FoodItemEntity;
+import com.appdevg5.canteencoders.entity.InventoryEntity;
 import com.appdevg5.canteencoders.entity.OrderEntity;
 import com.appdevg5.canteencoders.service.FoodItemService;
 import com.appdevg5.canteencoders.service.InventoryService;
@@ -9,6 +11,7 @@ import com.appdevg5.canteencoders.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -97,6 +101,23 @@ public class VendorController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/inventory")
+    public ResponseEntity<List<InventoryEntity>> getMyInventory() {
+        org.springframework.security.core.Authentication auth = 
+            SecurityContextHolder.getContext().getAuthentication();
+        
+        // Get shop using the helper we created earlier
+        ShopDTO shop = shopService.getVendorShop(auth.getName());
+        
+        return ResponseEntity.ok(inventoryService.getInventoryByShop(shop.getId()));
+    }
+
+
+    @PutMapping("/inventory/{foodItemId}")
+    public ResponseEntity<String> updateStock(@PathVariable Integer foodItemId, @RequestParam Integer quantity) {
+        inventoryService.updateInventory(foodItemId, quantity);
+        return ResponseEntity.ok("Stock updated");
+    }
     /**
      * Update inventory for a food item.
      * @param inventoryUpdate DTO containing inventory update details.

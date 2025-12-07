@@ -135,7 +135,7 @@ const VendorDashboard = () => {
             </div>
             <span className="text-xl font-bold" style={{ color: '#8C343A' }}>
               {/* Display the real shop name here if available, or fallback to default */}
-              {stats.shopName || 'Canteen Express - Vendor'}
+              {"Canteen Express : "+stats.shopName || 'Canteen Express - Vendor'}
             </span>
           </div>
           <button 

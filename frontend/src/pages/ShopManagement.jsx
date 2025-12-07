@@ -17,6 +17,10 @@ const [shopImage, setShopImage] = useState('');
 const [savingProfile, setSavingProfile] = useState(false);
 const [paymentNumber, setPaymentNumber] = useState('');
 
+// ✅ Inventory State
+const [inventory, setInventory] = useState([]);
+const [loadingInventory, setLoadingInventory] = useState(false);
+
 // --- MENU MANAGEMENT STATE ---
   const [menuItems, setMenuItems] = useState([]);
   const [loadingMenu, setLoadingMenu] = useState(false);
@@ -32,6 +36,83 @@ const [paymentNumber, setPaymentNumber] = useState('');
   const [itemPrice, setItemPrice] = useState('');
   const [itemCategory, setItemCategory] = useState('');
   const [itemImage, setItemImage] = useState('');
+
+
+
+  // 1. Fetch Data
+  useEffect(() => {
+    const fetchAllData = async () => {
+      if (!user || user.role !== 'VENDOR') return;
+      
+      const token = sessionStorage.getItem('token');
+      const headers = { 'Authorization': `Bearer ${token}` };
+
+      try {
+        // Fetch Shop Details
+        const shopRes = await axios.get('http://localhost:8080/api/vendor/shop', { headers });
+        setIsOpen(shopRes.data.isOpen);
+        setShopName(shopRes.data.name);
+        setShopDescription(shopRes.data.description);
+        setShopImage(shopRes.data.imageUrl || '');
+        setPaymentNumber(shopRes.data.paymentNumber || '');
+
+        // ✅ Fetch Inventory
+        fetchInventory();
+
+      } catch (error) {
+        console.error("Error loading shop data", error);
+      } finally {
+        setLoadingShop(false);
+      }
+    };
+
+    fetchAllData();
+  }, [user]);
+
+  // ✅ Helper to fetch Inventory
+  const fetchInventory = async () => {
+    setLoadingInventory(true);
+    try {
+      const token = sessionStorage.getItem('token');
+      const res = await axios.get('http://localhost:8080/api/vendor/inventory', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setInventory(res.data);
+    } catch (err) {
+      console.error("Failed to load inventory", err);
+    } finally {
+      setLoadingInventory(false);
+    }
+  };
+
+  // ✅ Helper to update stock
+  const handleUpdateStock = async (foodItemId, currentQty) => {
+    const newQty = prompt("Enter new stock quantity:", currentQty);
+    if (newQty === null) return; // Cancelled
+    
+    const parsedQty = parseInt(newQty);
+    if (isNaN(parsedQty) || parsedQty < 0) {
+      alert("Please enter a valid number");
+      return;
+    }
+
+    try {
+      const token = sessionStorage.getItem('token');
+      // Call the new specific update endpoint
+      await axios.put(`http://localhost:8080/api/vendor/inventory/${foodItemId}`, null, {
+        headers: { 'Authorization': `Bearer ${token}` },
+        params: { quantity: parsedQty }
+      });
+      
+      // Refresh list
+      fetchInventory();
+      alert("Stock updated!");
+    } catch (err) {
+      console.error("Failed to update stock", err);
+      alert("Failed to update stock");
+    }
+  };
+
 
   // 1. Fetch Menu from Backend
   const fetchMenu = async () => {
@@ -99,6 +180,7 @@ const [paymentNumber, setPaymentNumber] = useState('');
       setShowForm(false);
       resetForm();
       fetchMenu();
+      fetchInventory();
     } catch (error) {
       console.log('error', error);
       console.log('error.response', error.response);
@@ -193,14 +275,6 @@ const [paymentNumber, setPaymentNumber] = useState('');
     }
   };
 
-  // Store data
-  const inventory = [
-    { id: 1, item: 'Lumpiang Shanghai', stock: 50, status: 'In Stock' },
-    { id: 2, item: 'Chicken Curry', stock: 30, status: 'In Stock' },
-    { id: 3, item: 'Bottled Water', stock: 5, status: 'Low Stock' },
-    { id: 4, item: 'Graham Bars', stock: 0, status: 'Out of Stock' }
-  ];
-
 
   const handleUpdateProfile = async () => {
     setSavingProfile(true);
@@ -229,6 +303,13 @@ const [paymentNumber, setPaymentNumber] = useState('');
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  // Helper to determine status style
+  const getStockStatus = (qty) => {
+    if (qty === 0) return { label: 'Out of Stock', color: 'bg-red-100 text-red-700' };
+    if (qty < 10) return { label: 'Low Stock', color: 'bg-yellow-100 text-yellow-700' };
+    return { label: 'In Stock', color: 'bg-green-100 text-green-700' };
   };
 
   if (loading) {
@@ -264,7 +345,7 @@ const [paymentNumber, setPaymentNumber] = useState('');
               <span className="text-2xl">🍽️</span>
             </div>
             <span className="text-xl font-bold" style={{ color: '#8C343A' }}>
-              Canteen Express - Vendor
+              Canteen Express : {shopName}
             </span>
           </div>
           <button 
@@ -446,19 +527,35 @@ const [paymentNumber, setPaymentNumber] = useState('');
                   </button>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  {inventory.map((item) => (
-                    <div key={item.id} className="bg-white border-2 border-[#8C343A] rounded-2xl p-4">
-                      <h3 className="font-bold text-lg text-[#8C343A] mb-2">{item.item}</h3>
-                      <p className="text-2xl font-bold text-gray-700 mb-1">{item.stock} units</p>
-                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                        item.status === 'In Stock' ? 'bg-green-100 text-green-700' :
-                        item.status === 'Low Stock' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-red-100 text-red-700'
-                      }`}>
-                        {item.status}
-                      </span>
+                  {inventory.map((inv) => {
+                // Safe check to handle if quantity is null (default to 0)
+                const qty = inv.quantityAvailable ?? 0;
+                const status = getStockStatus(qty);
+                
+                return (
+                  <div key={inv.inventoryId} className="bg-white border-2 border-[#8C343A] rounded-2xl p-4 flex justify-between items-center">
+                    <div>
+                      <h3 className="font-bold text-lg text-[#8C343A]">
+                        {/* Use Optional Chaining (?.) to prevent crashes if foodItem isn't loaded yet */}
+                        {inv.foodItem?.itemName || 'Loading...'}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-2xl font-bold text-gray-700">{qty} units</p>
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${status.color}`}>
+                          {status.label}
+                        </span>
+                      </div>
                     </div>
-                  ))}
+                    <button 
+                      // Pass the correct Food Item ID and current Quantity to the handler
+                      onClick={() => handleUpdateStock(inv.foodItem?.foodItemId, qty)}
+                      className="text-sm bg-blue-50 text-blue-600 px-3 py-1 rounded hover:bg-blue-100 font-semibold"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                );
+              })}
                 </div>
               </div>
             </div>
