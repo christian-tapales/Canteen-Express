@@ -15,6 +15,9 @@ const VendorDashboard = () => {
     itemsSold: 0,
     shopName: 'My Shop' // Default placeholder
   });
+  const [topSellers, setTopSellers] = useState([]);
+  const [recentTransactions, setRecentTransactions] = useState([]);
+  const [peakTimes, setPeakTimes] = useState([]);
   const [loadingStats, setLoadingStats] = useState(true);
 
   // 2. Check authentication and redirect if needed
@@ -31,15 +34,23 @@ const VendorDashboard = () => {
       if (!user || !user.token) return;
 
       try {
-        const response = await axios.get('http://localhost:8080/api/vendor/dashboard/stats', {
-          headers: {
-            'Authorization': `Bearer ${user.token}`
-          }
-        });
-        // Update state with real numbers from Java backend
-        setStats(response.data);
+        const headers = { 'Authorization': `Bearer ${user.token}` };
+        
+        // Fetch all dashboard data in parallel
+        const [statsRes, topSellersRes, transactionsRes, peakTimesRes] = await Promise.all([
+          axios.get('http://localhost:8080/api/vendor/dashboard/stats', { headers }),
+          axios.get('http://localhost:8080/api/vendor/dashboard/top-sellers', { headers }),
+          axios.get('http://localhost:8080/api/vendor/dashboard/recent-transactions', { headers }),
+          axios.get('http://localhost:8080/api/vendor/dashboard/peak-times', { headers })
+        ]);
+
+        // Update state with real data
+        setStats(statsRes.data);
+        setTopSellers(topSellersRes.data);
+        setRecentTransactions(transactionsRes.data);
+        setPeakTimes(peakTimesRes.data);
       } catch (error) {
-        console.error("Failed to load dashboard stats", error);
+        console.error("Failed to load dashboard data", error);
         // Optional: Add toast notification here
       } finally {
         setLoadingStats(false);
@@ -53,25 +64,9 @@ const VendorDashboard = () => {
   const salesMetrics = [
     { label: 'Gross Revenue', value: `₱${stats.revenue.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`, icon: '💰', change: '+12%' },
     { label: 'Total Orders', value: stats.totalOrders, icon: '📦', change: '+8%' },
-    { label: 'Average Order Value', value: '₱60.00', icon: '💵', change: '+5%' }, // You can calculate this: revenue / totalOrders
+    { label: 'Average Order Value', value: stats.totalOrders > 0 ? `₱${(stats.revenue / stats.totalOrders).toLocaleString('en-PH', { minimumFractionDigits: 2 })}` : '₱0.00', icon: '💵', change: '+5%' },
     { label: 'Items Sold', value: stats.itemsSold, icon: '🛒', change: '+15%' },
     { label: 'Net Profit', value: `₱${(stats.revenue * 0.8).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`, icon: '📊', change: '+10%' } // Example: 80% of revenue
-  ];
-
-  const topSellers = [
-    { name: 'Lumpiang Shanghai', sold: 80, revenue: '₱4,800' },
-    { name: 'Chicken Curry', sold: 65, revenue: '₱5,850' },
-    { name: 'Beef Caldereta', sold: 52, revenue: '₱5,200' },
-    { name: 'Bottled Water', sold: 58, revenue: '₱580' },
-    { name: 'Graham Bars', sold: 48, revenue: '₱1,440' }
-  ];
-
-  const recentTransactions = [
-    { id: '#001', date: 'Nov 15, 2023', time: '10:30 AM', total: '₱180.00', payment: 'Cash', status: 'Completed' },
-    { id: '#002', date: 'Nov 15, 2023', time: '11:15 AM', total: '₱95.00', payment: 'GCash', status: 'Completed' },
-    { id: '#003', date: 'Nov 15, 2023', time: '12:00 PM', total: '₱250.00', payment: 'Cash', status: 'Completed' },
-    { id: '#004', date: 'Nov 15, 2023', time: '01:20 PM', total: '₱120.00', payment: 'GCash', status: 'Completed' },
-    { id: '#005', date: 'Nov 15, 2023', time: '02:45 PM', total: '₱75.00', payment: 'Cash', status: 'Completed' }
   ];
 
   const handleExportCSV = () => {
@@ -84,7 +79,7 @@ const VendorDashboard = () => {
       [''],
       ['Top Sellers'],
       ['Item', 'Quantity', 'Revenue'],
-      ...topSellers.map(item => [item.name, item.sold, item.revenue])
+      ...topSellers.map(item => [item.name, item.sold, `₱${item.revenue}`])
     ].map(row => row.join(',')).join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -218,24 +213,26 @@ const VendorDashboard = () => {
           <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 shadow-md">
             <h2 className="text-xl font-bold mb-4 text-[#8C343A]">Peak Order Times</h2>
             <div className="relative h-64">
-              {/* Simple bar chart */}
+              {/* Simple bar chart with real data */}
               <div className="flex items-end justify-around h-full pb-8">
-                {[
-                  { time: '11:30 AM', orders: 20 },
-                  { time: '12:00 PM', orders: 60 }
-                ].map((data, index) => (
-                  <div key={index} className="flex flex-col items-center w-24">
-                    <div className="text-sm font-semibold mb-2 text-[#8C343A]">{data.orders}</div>
-                    <div
-                      className="w-full rounded-t-lg transition-all hover:opacity-80 bg-[#8C343A]"
-                      style={{
-                        height: `${(data.orders / 60) * 100}%`,
-                        minHeight: '20px'
-                      }}
-                    />
-                    <div className="text-xs font-semibold mt-2 text-[#8C343A]">{data.time}</div>
-                  </div>
-                ))}
+                {peakTimes.length > 0 ? peakTimes.map((data, index) => {
+                  const maxOrders = Math.max(...peakTimes.map(t => t.orders));
+                  return (
+                    <div key={index} className="flex flex-col items-center w-24">
+                      <div className="text-sm font-semibold mb-2 text-[#8C343A]">{data.orders}</div>
+                      <div
+                        className="w-full rounded-t-lg transition-all hover:opacity-80 bg-[#8C343A]"
+                        style={{
+                          height: `${(data.orders / maxOrders) * 100}%`,
+                          minHeight: '20px'
+                        }}
+                      />
+                      <div className="text-xs font-semibold mt-2 text-[#8C343A]">{data.time}</div>
+                    </div>
+                  );
+                }) : (
+                  <div className="text-center text-gray-500">No order data available</div>
+                )}
               </div>
               <div className="absolute bottom-0 left-0 right-0 border-t-2 border-[#8C343A]"></div>
               <div className="absolute left-0 top-0 bottom-8 flex flex-col justify-between text-xs text-gray-500">
@@ -257,7 +254,7 @@ const VendorDashboard = () => {
           <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 shadow-md">
             <h2 className="text-xl font-bold mb-4 text-[#8C343A]">Top 3 Best-Sellers</h2>
             <div className="space-y-4">
-              {topSellers.slice(0, 3).map((item, index) => (
+              {topSellers.slice(0, 3).length > 0 ? topSellers.slice(0, 3).map((item, index) => (
                 <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-[#FFF9E6]">
                   <div className="flex items-center gap-3">
                     <span className="text-2xl font-bold text-[#8C343A]">{index + 1}.</span>
@@ -265,7 +262,9 @@ const VendorDashboard = () => {
                   </div>
                   <span className="font-bold text-[#8C343A]">({item.sold} sold)</span>
                 </div>
-              ))}
+              )) : (
+                <div className="text-center text-gray-500 py-4">No sales data available</div>
+              )}
             </div>
           </div>
         </div>
@@ -329,7 +328,7 @@ const VendorDashboard = () => {
             <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 shadow-md">
               <h3 className="text-xl font-bold mb-4 text-[#8C343A]">Best Selling Items</h3>
               <div className="space-y-3">
-                {topSellers.map((item, index) => (
+                {topSellers.length > 0 ? topSellers.map((item, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-[#FFF9E6] rounded-lg">
                     <div className="flex items-center gap-3">
                       <span className="text-lg font-bold text-[#8C343A]">{index + 1}</span>
@@ -339,10 +338,12 @@ const VendorDashboard = () => {
                       <span className="px-3 py-1 rounded-full text-xs font-bold text-white" style={{ backgroundColor: '#10B981' }}>
                         {item.sold} sold
                       </span>
-                      <p className="text-sm font-bold text-[#8C343A] mt-1">{item.revenue}</p>
+                      <p className="text-sm font-bold text-[#8C343A] mt-1">₱{typeof item.revenue === 'number' ? item.revenue.toLocaleString('en-PH', { minimumFractionDigits: 2 }) : item.revenue}</p>
                     </div>
                   </div>
-                ))}
+                )) : (
+                  <div className="text-center text-gray-500 py-4">No sales data available</div>
+                )}
               </div>
             </div>
           </div>
@@ -363,24 +364,35 @@ const VendorDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {recentTransactions.map((transaction) => (
+                {recentTransactions.length > 0 ? recentTransactions.map((transaction) => (
                   <tr key={transaction.id} className="border-b border-gray-200 hover:bg-[#FFF9E6] transition-colors">
                     <td className="py-3 px-4 font-semibold text-[#8C343A]">{transaction.id}</td>
                     <td className="py-3 px-4 text-gray-700">
                       <div>{transaction.date}</div>
                       <div className="text-sm text-gray-500">{transaction.time}</div>
                     </td>
-                    <td className="py-3 px-4 font-bold text-[#8C343A]">{transaction.total}</td>
+                    <td className="py-3 px-4 font-bold text-[#8C343A]">
+                      ₱{typeof transaction.total === 'number' ? transaction.total.toLocaleString('en-PH', { minimumFractionDigits: 2 }) : transaction.total}
+                    </td>
                     <td className="py-3 px-4 text-gray-700">{transaction.payment}</td>
                     <td className="py-3 px-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        transaction.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                        transaction.status === 'COMPLETED' || transaction.status === 'Completed' ? 'bg-green-100 text-green-700' : 
+                        transaction.status === 'READY' ? 'bg-blue-100 text-blue-700' :
+                        transaction.status === 'PREPARING' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-gray-100 text-gray-700'
                       }`}>
                         {transaction.status}
                       </span>
                     </td>
                   </tr>
-                ))}
+                )) : (
+                  <tr>
+                    <td colSpan="5" className="py-8 text-center text-gray-500">
+                      No transactions available
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
             <div className="px-4 py-3 border-t border-gray-200">
