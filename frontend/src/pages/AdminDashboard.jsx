@@ -7,6 +7,10 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user, logout, loading } = useAuth();
   const [statistics, setStatistics] = useState(null);
+  const [sales7d, setSales7d] = useState([]);
+  const [rangeFrom, setRangeFrom] = useState(null);
+  const [rangeTo, setRangeTo] = useState(null);
+  const [topStalls, setTopStalls] = useState([]);
   const [loadingStats, setLoadingStats] = useState(true);
 
   // Check authentication and redirect if needed
@@ -27,6 +31,13 @@ const AdminDashboard = () => {
           }
         });
         setStatistics(response.data);
+
+        const [salesRes, stallsRes] = await Promise.all([
+          axios.get('http://localhost:8080/api/admin/metrics/sales-7d', { headers: { 'Authorization': `Bearer ${token}` } }),
+          axios.get('http://localhost:8080/api/admin/metrics/top-stalls', { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+        setSales7d(salesRes.data || []);
+        setTopStalls(stallsRes.data || []);
       } catch (error) {
         console.error('Error fetching statistics:', error);
       } finally {
@@ -38,6 +49,24 @@ const AdminDashboard = () => {
       fetchStatistics();
     }
   }, [user]);
+
+  // Fetch sales when date range changes
+  useEffect(() => {
+    const fetchSales = async () => {
+      try {
+        const token = user?.token || sessionStorage.getItem('token');
+        const params = new URLSearchParams();
+        if (rangeFrom) params.append('from', rangeFrom);
+        if (rangeTo) params.append('to', rangeTo);
+        const res = await axios.get(`http://localhost:8080/api/admin/metrics/sales-7d${params.toString() ? '?' + params.toString() : ''}`,
+          { headers: { 'Authorization': `Bearer ${token}` } });
+        setSales7d(res.data || []);
+      } catch (e) {
+        console.error('Error fetching sales range', e);
+      }
+    };
+    if (user && user.role === 'ADMIN') fetchSales();
+  }, [user, rangeFrom, rangeTo]);
 
   const handleLogout = () => {
     logout();
@@ -185,70 +214,48 @@ const AdminDashboard = () => {
           {/* Activity Charts */}
           <div className="grid grid-cols-2 gap-6 mb-8">
             <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 shadow-md">
-              <h3 className="text-lg font-bold mb-4 text-[#8C343A]">Sales Chart (Last 7 Days)</h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold text-[#8C343A]">Sales Chart (Date Range)</h3>
+                <div className="flex items-center gap-2">
+                  <input type="date" className="border rounded px-2 py-1" value={rangeFrom || ''}
+                         onChange={e => setRangeFrom(e.target.value || null)} />
+                  <span className="text-[#8C343A] font-semibold">to</span>
+                  <input type="date" className="border rounded px-2 py-1" value={rangeTo || ''}
+                         onChange={e => setRangeTo(e.target.value || null)} />
+                </div>
+              </div>
               <div className="h-64 flex items-end justify-between gap-2">
-                <div className="flex-1 flex flex-col items-center">
-                  <div className="w-full rounded-t-lg" style={{ backgroundColor: '#10B981', height: '60%' }}></div>
-                  <span className="text-xs text-gray-600 mt-2">Mon</span>
-                </div>
-                <div className="flex-1 flex flex-col items-center">
-                  <div className="w-full rounded-t-lg" style={{ backgroundColor: '#10B981', height: '75%' }}></div>
-                  <span className="text-xs text-gray-600 mt-2">Tue</span>
-                </div>
-                <div className="flex-1 flex flex-col items-center">
-                  <div className="w-full rounded-t-lg" style={{ backgroundColor: '#10B981', height: '50%' }}></div>
-                  <span className="text-xs text-gray-600 mt-2">Wed</span>
-                </div>
-                <div className="flex-1 flex flex-col items-center">
-                  <div className="w-full rounded-t-lg" style={{ backgroundColor: '#10B981', height: '85%' }}></div>
-                  <span className="text-xs text-gray-600 mt-2">Thu</span>
-                </div>
-                <div className="flex-1 flex flex-col items-center">
-                  <div className="w-full rounded-t-lg" style={{ backgroundColor: '#10B981', height: '70%' }}></div>
-                  <span className="text-xs text-gray-600 mt-2">Fri</span>
-                </div>
-                <div className="flex-1 flex flex-col items-center">
-                  <div className="w-full rounded-t-lg" style={{ backgroundColor: '#10B981', height: '40%' }}></div>
-                  <span className="text-xs text-gray-600 mt-2">Sat</span>
-                </div>
-                <div className="flex-1 flex flex-col items-center">
-                  <div className="w-full rounded-t-lg" style={{ backgroundColor: '#10B981', height: '35%' }}></div>
-                  <span className="text-xs text-gray-600 mt-2">Sun</span>
-                </div>
+                {sales7d.map((d, idx) => {
+                  const maxRevenue = Math.max(...sales7d.map(x => Number(x.revenue || 0)));
+                  const heightPct = maxRevenue > 0 ? (Number(d.revenue || 0) / maxRevenue) * 100 : 0;
+                  const dayLabel = new Date(d.date).toLocaleDateString(undefined, { weekday: 'short' });
+                  return (
+                    <div key={idx} className="flex-1 flex flex-col items-center">
+                      <div className="w-full rounded-t-lg" style={{ backgroundColor: '#10B981', height: `${heightPct}%` }}></div>
+                      <span className="text-xs text-gray-600 mt-2">{dayLabel}</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
             <div className="bg-white border-2 border-[#8C343A] rounded-2xl p-6 shadow-md">
               <h3 className="text-lg font-bold mb-4 text-[#8C343A]">Top Performing Stalls</h3>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-[#FFF9E6] rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🍖</span>
-                    <span className="font-semibold text-gray-700">Tita's BBQ</span>
+                {topStalls.slice(0, 5).map((stall, idx) => (
+                  <div key={stall.shopId || idx} className="flex items-center justify-between p-3 bg-[#FFF9E6] rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg font-bold text-[#8C343A]">{idx + 1}</span>
+                      <span className="font-semibold text-gray-700">{stall.shopName}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="px-3 py-1 rounded-full text-xs font-bold text-white" style={{ backgroundColor: '#10B981' }}>
+                        {stall.orderCount} orders
+                      </span>
+                      <p className="text-sm font-bold text-[#8C343A] mt-1">₱{Number(stall.revenue || 0).toLocaleString()}</p>
+                    </div>
                   </div>
-                  <span className="font-bold text-[#8C343A]">₱3,240</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-[#FFF9E6] rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🥗</span>
-                    <span className="font-semibold text-gray-700">Green Plate Veggie Bar</span>
-                  </div>
-                  <span className="font-bold text-[#8C343A]">₱2,890</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-[#FFF9E6] rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🥤</span>
-                    <span className="font-semibold text-gray-700">Cool Sips & Shakes</span>
-                  </div>
-                  <span className="font-bold text-[#8C343A]">₱2,650</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-[#FFF9E6] rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🍰</span>
-                    <span className="font-semibold text-gray-700">Campus Bakery Bites</span>
-                  </div>
-                  <span className="font-bold text-[#8C343A]">₱2,120</span>
-                </div>
+                ))}
               </div>
             </div>
           </div>

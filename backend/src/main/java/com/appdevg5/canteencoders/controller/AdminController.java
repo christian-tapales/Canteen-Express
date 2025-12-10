@@ -275,7 +275,7 @@ public class AdminController {
         stats.setTotalShops((long) shopService.getAllShops().size());
         stats.setTotalFoodItems((long) foodItemService.getAllFoodItems().size());
         
-        // Calculate revenue and order counts by status
+        // Calculate revenue using Payments (source of truth) and order counts by status
         java.math.BigDecimal totalRevenue = java.math.BigDecimal.ZERO;
         java.math.BigDecimal completedRevenue = java.math.BigDecimal.ZERO;
         java.math.BigDecimal pendingRevenue = java.math.BigDecimal.ZERO;
@@ -283,12 +283,9 @@ public class AdminController {
         long pending = 0, preparing = 0, ready = 0, completed = 0, cancelled = 0, rejected = 0;
         
         for (OrderEntity order : allOrders) {
-            totalRevenue = totalRevenue.add(order.getTotalAmount());
-            
             switch (order.getStatus()) {
                 case PENDING:
                     pending++;
-                    pendingRevenue = pendingRevenue.add(order.getTotalAmount());
                     break;
                 case PREPARING:
                     preparing++;
@@ -298,7 +295,6 @@ public class AdminController {
                     break;
                 case COMPLETED:
                     completed++;
-                    completedRevenue = completedRevenue.add(order.getTotalAmount());
                     break;
                 case CANCELLED:
                     cancelled++;
@@ -306,6 +302,17 @@ public class AdminController {
                 case REJECTED:
                     rejected++;
                     break;
+            }
+        }
+
+        // Sum revenue from payments
+        List<PaymentEntity> allPayments = paymentService.getAllPayments();
+        for (PaymentEntity payment : allPayments) {
+            totalRevenue = totalRevenue.add(payment.getAmount());
+            if (payment.getStatus() == PaymentEntity.PaymentStatus.COMPLETED) {
+                completedRevenue = completedRevenue.add(payment.getAmount());
+            } else if (payment.getStatus() == PaymentEntity.PaymentStatus.PENDING) {
+                pendingRevenue = pendingRevenue.add(payment.getAmount());
             }
         }
         
@@ -320,5 +327,99 @@ public class AdminController {
         stats.setRejectedOrders(rejected);
         
         return ResponseEntity.ok(stats);
+    }
+
+    /**
+     * Sales for the last 7 days based on completed payments.
+     */
+    @GetMapping("/metrics/sales-7d")
+    public ResponseEntity<List<Map<String, Object>>> getSalesLast7Days(
+            @RequestParam(value = "from", required = false) String from,
+            @RequestParam(value = "to", required = false) String to) {
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.LocalDate start = today.minusDays(6);
+        if (from != null && !from.isBlank()) {
+            try { start = java.time.LocalDate.parse(from); } catch (Exception ignored) {}
+        }
+        if (to != null && !to.isBlank()) {
+            try { today = java.time.LocalDate.parse(to); } catch (Exception ignored) {}
+        }
+        List<PaymentEntity> allPayments = paymentService.getAllPayments();
+
+        java.util.Map<java.time.LocalDate, java.math.BigDecimal> revenueByDay = new java.util.HashMap<>();
+        java.util.Map<java.time.LocalDate, Long> ordersByDay = new java.util.HashMap<>();
+
+        long days = java.time.temporal.ChronoUnit.DAYS.between(start, today) + 1;
+        if (days < 1) { days = 1; }
+        for (int i = 0; i < days; i++) {
+            java.time.LocalDate d = start.plusDays(i);
+            revenueByDay.put(d, java.math.BigDecimal.ZERO);
+            ordersByDay.put(d, 0L);
+        }
+
+        for (PaymentEntity p : allPayments) {
+            if (p.getPaymentDate() != null && p.getStatus() == PaymentEntity.PaymentStatus.COMPLETED) {
+                java.time.LocalDate d = p.getPaymentDate().toLocalDate();
+                if (!d.isBefore(start) && !d.isAfter(today)) {
+                    revenueByDay.put(d, revenueByDay.get(d).add(p.getAmount()));
+                    ordersByDay.put(d, ordersByDay.get(d) + 1);
+                }
+            }
+        }
+
+        List<Map<String, Object>> result = new java.util.ArrayList<>();
+        for (int i = 0; i < days; i++) {
+            java.time.LocalDate d = start.plusDays(i);
+            Map<String, Object> row = new java.util.HashMap<>();
+            row.put("date", d.toString());
+            row.put("orderCount", ordersByDay.get(d));
+            row.put("revenue", revenueByDay.get(d));
+            result.add(row);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * Top performing stalls ranked by completed payment revenue.
+     */
+    @GetMapping("/metrics/top-stalls")
+    public ResponseEntity<List<Map<String, Object>>> getTopStalls() {
+        List<ShopEntity> shops = shopService.getAllShops();
+        List<PaymentEntity> payments = paymentService.getAllPayments();
+
+        java.util.Map<Integer, java.math.BigDecimal> revenueByShop = new java.util.HashMap<>();
+        java.util.Map<Integer, Long> ordersByShop = new java.util.HashMap<>();
+
+        for (ShopEntity s : shops) {
+            revenueByShop.put(s.getShopId(), java.math.BigDecimal.ZERO);
+            ordersByShop.put(s.getShopId(), 0L);
+        }
+
+        for (PaymentEntity p : payments) {
+            if (p.getStatus() == PaymentEntity.PaymentStatus.COMPLETED && p.getOrder() != null && p.getOrder().getShop() != null) {
+                Integer shopId = p.getOrder().getShop().getShopId();
+                revenueByShop.put(shopId, revenueByShop.get(shopId).add(p.getAmount()));
+                ordersByShop.put(shopId, ordersByShop.get(shopId) + 1);
+            }
+        }
+
+        List<Map<String, Object>> result = new java.util.ArrayList<>();
+        for (ShopEntity s : shops) {
+            Map<String, Object> row = new java.util.HashMap<>();
+            row.put("shopId", s.getShopId());
+            row.put("shopName", s.getShopName());
+            row.put("orderCount", ordersByShop.get(s.getShopId()));
+            row.put("revenue", revenueByShop.get(s.getShopId()));
+            result.add(row);
+        }
+
+        result.sort((a, b) -> {
+            java.math.BigDecimal ra = (java.math.BigDecimal) a.get("revenue");
+            java.math.BigDecimal rb = (java.math.BigDecimal) b.get("revenue");
+            return rb.compareTo(ra);
+        });
+
+        return ResponseEntity.ok(result);
     }
 }
