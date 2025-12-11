@@ -45,6 +45,7 @@ public class FoodItemService {
 
     /**
      * Converts FoodItemEntity to FoodItemDTO.
+     * Checks inventory and sets isAvailable to false if out of stock.
      */
     private FoodItemDTO convertToFoodItemDTO(FoodItemEntity item) {
         FoodItemDTO dto = new FoodItemDTO();
@@ -54,6 +55,22 @@ public class FoodItemService {
         dto.setPrice(item.getPrice());
         dto.setCategory(item.getCategory());
         dto.setImageUrl(item.getImageUrl());
+        
+        // Check inventory quantity and override isAvailable if out of stock
+        boolean isAvailable = item.getIsAvailable() != null ? item.getIsAvailable() : true;
+        
+        // Check inventory - if quantity is 0, mark as unavailable
+        try {
+            java.util.Optional<com.appdevg5.canteencoders.entity.InventoryEntity> inventory = 
+                inventoryRepository.findByFoodItem(item);
+            if (inventory.isPresent() && inventory.get().getQuantityAvailable() <= 0) {
+                isAvailable = false;
+            }
+        } catch (Exception e) {
+            // If inventory not found, use the item's isAvailable value
+        }
+        
+        dto.setIsAvailable(isAvailable);
         return dto;
     }
 

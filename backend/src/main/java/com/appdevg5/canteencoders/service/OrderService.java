@@ -166,6 +166,11 @@ public class OrderService {
             FoodItemEntity foodItem = foodItemRepository.findById(item.getFoodItem().getFoodItemId())
                 .orElseThrow(() -> new IllegalStateException("Food item not found"));
             
+            // Check if item is available
+            if (foodItem.getIsAvailable() == null || !foodItem.getIsAvailable()) {
+                throw new IllegalStateException(foodItem.getItemName() + " is currently unavailable");
+            }
+            
             // Check Inventory
             InventoryEntity inventory = inventoryRepository.findByFoodItem(foodItem)
                 .orElseThrow(() -> new IllegalStateException("Inventory not found"));
@@ -177,6 +182,12 @@ public class OrderService {
             // Deduct Inventory
             inventory.setQuantityAvailable(inventory.getQuantityAvailable() - item.getQuantity());
             inventoryRepository.save(inventory);
+            
+            // If inventory reaches 0, mark the food item as unavailable
+            if (inventory.getQuantityAvailable() <= 0) {
+                foodItem.setIsAvailable(false);
+                foodItemRepository.save(foodItem);
+            }
 
             // Set Price
             item.setPriceAtOrder(foodItem.getPrice());

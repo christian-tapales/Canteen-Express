@@ -11,6 +11,7 @@ public class FoodItemDTO {
     private BigDecimal price;
     private String category;
     private String imageUrl;
+    private Boolean isAvailable;
 
     // Explicit getters and setters for compatibility
     public Integer getId() {
@@ -59,5 +60,13 @@ public class FoodItemDTO {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public Boolean getIsAvailable() {
+        return isAvailable;
+    }
+
+    public void setIsAvailable(Boolean isAvailable) {
+        this.isAvailable = isAvailable;
     }
 }
