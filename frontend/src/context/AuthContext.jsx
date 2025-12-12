@@ -99,6 +99,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     loading,
+    token: user?.token || sessionStorage.getItem('token'),
   };
 
   return (
