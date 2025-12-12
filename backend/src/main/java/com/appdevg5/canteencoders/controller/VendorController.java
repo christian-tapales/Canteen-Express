@@ -32,6 +32,7 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api/vendor")
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('VENDOR')")
 public class VendorController {
 
     @Autowired

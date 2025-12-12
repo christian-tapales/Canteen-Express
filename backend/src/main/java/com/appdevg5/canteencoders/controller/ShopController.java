@@ -48,6 +48,7 @@ public class ShopController {
      * @return Created shop as DTO.
      */
     @PostMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ShopDTO> createShop(@Valid @RequestBody ShopEntity shopEntity) {
         ShopEntity createdShop = shopService.createShop(shopEntity);
         ShopDTO shopDTO = shopService.convertToShopDTO(createdShop);
@@ -106,6 +107,7 @@ public class ShopController {
      * @return Updated shop as DTO.
      */
     @PutMapping("/{shopId}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ShopDTO> updateShop(@PathVariable Integer shopId, @Valid @RequestBody ShopEntity shopDetails) {
         ShopEntity updatedShop = shopService.updateShop(shopId, shopDetails);
         ShopDTO shopDTO = shopService.convertToShopDTO(updatedShop);
@@ -118,6 +120,7 @@ public class ShopController {
      * @return No content.
      */
     @DeleteMapping("/{shopId}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> deleteShop(@PathVariable Integer shopId) {
         shopService.deleteShop(shopId);
         return ResponseEntity.noContent().build();

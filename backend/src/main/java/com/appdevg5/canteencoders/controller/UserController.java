@@ -13,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -79,6 +80,29 @@ public class UserController {
         } catch (Exception e) {
             // This will catch bad credentials
             return ResponseEntity.status(401).body(null); // 401 Unauthorized
+        }
+    }
+
+    /**
+     * Returns authenticated user's basic info. Used by frontend to validate token and get authoritative role.
+     */
+    @GetMapping("/me")
+    public ResponseEntity<Map<String, Object>> getCurrentUser() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(401).body(null);
+            }
+
+            UserEntity user = userService.findByEmail(authentication.getName());
+            Map<String, Object> resp = new java.util.HashMap<>();
+            resp.put("userId", user.getUserId());
+            resp.put("email", user.getEmail());
+            resp.put("role", user.getRole().toString());
+            resp.put("firstName", user.getFirstName());
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(null);
         }
     }
 }

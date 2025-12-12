@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/vendor/dashboard")
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('VENDOR')")
 public class VendorDashboardController {
 
     @Autowired

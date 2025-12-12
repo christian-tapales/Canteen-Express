@@ -19,6 +19,7 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api/admin")
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ADMIN')")
 public class AdminController {
 
     @Autowired
