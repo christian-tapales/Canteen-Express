@@ -32,6 +32,7 @@ CREATE TABLE tbl_food_items (
     category VARCHAR(50),
     shop_id INT NOT NULL,
     image_url VARCHAR(500),
+    is_available BOOLEAN DEFAULT 1, -- ✅ NEW COLUMN ADDED HERE
     is_deleted BOOLEAN DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
