@@ -46,7 +46,15 @@ public class OrderController {
      */
     @PostMapping
     public ResponseEntity<OrderEntity> createOrder(@Valid @RequestBody OrderDTO dto) {
+        // DEBUG: Log incoming DTO (JSON) for troubleshooting
         try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            String dtoJson = mapper.writeValueAsString(dto);
+            System.out.println("DEBUG: Received OrderDTO JSON: " + dtoJson);
+        } catch (Exception logEx) {
+            System.out.println("DEBUG: Failed to serialize OrderDTO for logging: " + logEx.getMessage());
+        }
+
             // Map DTO order items to entities
             List<OrderItemEntity> items = new ArrayList<>();
             for (OrderItemDTO oi : dto.getOrderItems()) {
@@ -58,13 +66,26 @@ public class OrderController {
                 items.add(entity);
             }
 
-            // ✅ PASS 'dto' TO THE SERVICE
-            OrderEntity created = orderService.createOrder(dto.getUserId(), dto.getShopId(), items, dto);
+            // Derive userId from authenticated principal (do NOT trust client-supplied userId)
+            org.springframework.security.core.Authentication authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            Integer userIdToUse = null;
+            try {
+                String email = authentication.getName();
+                com.appdevg5.canteencoders.entity.UserEntity authUser = userService.findByEmail(email);
+                userIdToUse = authUser.getUserId();
+            } catch (Exception e) {
+                System.err.println("ERROR: Unable to resolve authenticated user for order creation: " + e.getMessage());
+                return ResponseEntity.status(401).build();
+            }
+
+            if (!userIdToUse.equals(dto.getUserId())) {
+                System.out.println("WARN: Client-supplied userId (" + dto.getUserId() + ") ignored. Using authenticated userId=" + userIdToUse);
+            }
+
+            // Call service with authenticated user id
+            OrderEntity created = orderService.createOrder(userIdToUse, dto.getShopId(), items, dto);
 
             return ResponseEntity.ok(created);
-        } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
     }
 
     /**
