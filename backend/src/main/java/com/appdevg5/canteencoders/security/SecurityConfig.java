@@ -8,6 +8,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,35 +24,55 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(
-        HttpSecurity http,
-        JwtAuthenticationFilter jwtAuthFilter,
-        AuthenticationProvider authenticationProvider
-    ) throws Exception {
-        http
-            // 1. ENABLE CORS HERE (This is the specific fix for your error)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(authz -> authz
-                // Public endpoints
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/shops/**").permitAll()
-                // Allow preflight OPTIONS requests
-                .requestMatchers("OPTIONS", "/**").permitAll()
-                .requestMatchers("/api/orders/**").authenticated()
-                .anyRequest().authenticated()
-            )
-            .sessionManagement(sess -> sess
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .authenticationProvider(authenticationProvider)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+public SecurityFilterChain securityFilterChain(
+    HttpSecurity http,
+    JwtAuthenticationFilter jwtAuthFilter,
+    AuthenticationProvider authenticationProvider
+) throws Exception {
+    http
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .csrf(csrf -> csrf.disable())
+        .exceptionHandling(ex -> ex
+            .authenticationEntryPoint(new RestAuthenticationEntryPoint())
+            .accessDeniedHandler(new StealthAccessDeniedHandler())
+        )
+        .authorizeHttpRequests(authz -> authz
+            // 1. PUBLIC AUTH ENDPOINTS (only login/register)
+            .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+            // Keep /api/auth/me protected (will require authentication)
+            
+            // 2. SHOP ENDPOINTS (Split by Method)
+            // Allow everyone to VIEW shops and menus
+            .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/shops/**").permitAll()
+            // Only ADMIN can Create/Update/Delete shops via this controller
+            .requestMatchers("/api/shops/**").hasAuthority("ADMIN") 
 
-        return http.build();
-    }
+            // 3. ROLE-SPECIFIC ENDPOINTS
+            // Only ADMIN role can access /api/admin/**
+            .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+            
+            // Only VENDOR role can access /api/vendor/**
+            .requestMatchers("/api/vendor/**").hasAuthority("VENDOR")
+            
+            // 4. ORDER ENDPOINTS
+            // Any logged-in user (Customer/Vendor/Admin) can access orders
+            .requestMatchers("/api/orders/**").authenticated()
+            
+            // 5. CATCH-ALL
+            .anyRequest().authenticated()
+        )
+        .sessionManagement(sess -> sess
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        )
+        .authenticationProvider(authenticationProvider)
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+    return http.build();
+}
 
     // 2. Define the Rules: Allow localhost:5173
     @Bean
