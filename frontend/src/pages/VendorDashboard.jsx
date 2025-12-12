@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios'; // Import axios
 import { useAuth } from '../context/useAuth';
+import NotFoundPage from './NotFoundPage';
 
 const VendorDashboard = () => {
   const navigate = useNavigate();
   const { user, logout, loading: authLoading } = useAuth();
   const [dateFilter, setDateFilter] = useState('Today');
+  const [isForbidden, setIsForbidden] = useState(false);
 
   // 1. Define State for Dashboard Data
   const [stats, setStats] = useState({
@@ -49,9 +51,16 @@ const VendorDashboard = () => {
         setTopSellers(topSellersRes.data);
         setRecentTransactions(transactionsRes.data);
         setPeakTimes(peakTimesRes.data);
+        
+        setLoadingStats(false);
+
       } catch (error) {
         console.error("Failed to load dashboard data", error);
-        // Optional: Add toast notification here
+        if (error.response && error.response.status === 403) {
+            setIsForbidden(true); // Trigger the "Ghost" 404
+            setLoadingStats(false); // Stop loading
+            return;
+        }
       } finally {
         setLoadingStats(false);
       }
@@ -59,6 +68,10 @@ const VendorDashboard = () => {
 
     fetchDashboardData();
   }, [user]);
+
+  if (isForbidden) {
+    return <NotFoundPage />;
+  }
 
   // Static data for charts (You can replace this later with a charts endpoint)
   const salesMetrics = [
@@ -102,11 +115,8 @@ const VendorDashboard = () => {
   // Show loading while checking authentication OR fetching stats
   if (authLoading || loadingStats) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FFF9E6]">
-        <div className="text-center">
-          <div className="text-4xl mb-4">🔄</div>
-          <p className="text-xl font-semibold text-[#8C343A]">Loading Dashboard...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-[#F5F5F5]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8C343A]"></div>
       </div>
     );
   }
@@ -173,7 +183,7 @@ const VendorDashboard = () => {
                 onClick={handleExportCSV}
                 className="px-4 py-2 rounded-lg font-semibold bg-white text-[#8C343A] border-2 border-[#8C343A] hover:bg-[#FFF9E6] transition-colors shadow-sm"
               >
-                Import CSV
+                Export CSV
               </button>
               <button
                 onClick={handleExportPDF}

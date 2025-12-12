@@ -40,12 +40,18 @@ const AdminDashboard = () => {
         setTopStalls(stallsRes.data || []);
       } catch (error) {
         console.error('Error fetching statistics:', error);
+
+        if (error.response && error.response.status === 403) {
+            navigate('/404', { replace: true });
+            return;
+        }
+
       } finally {
         setLoadingStats(false);
       }
     };
 
-    if (user && user.role === 'ADMIN') {
+    if (user) {
       fetchStatistics();
     }
   }, [user]);

@@ -61,6 +61,13 @@ const LoginPage = () => {
           border: '3px solid #8C343A'
         }}
       >
+        <button
+          onClick={() => navigate('/')}
+          className="absolute top-6 left-6 text-sm font-bold hover:underline flex items-center gap-1 transition-colors"
+          style={{ color: '#8C343A' }}
+        >
+          <span>←</span> Home
+        </button>
         {/* Logo/Brand */}
         <div className="flex justify-center mb-6">
           <div 

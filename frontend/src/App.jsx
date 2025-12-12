@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
+import RoleGuard from './components/RoleGuard.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
@@ -18,6 +19,7 @@ import OrderHistoryPage from './pages/OrderHistoryPage.jsx';
 function App() {
   return (
     <div className="min-h-screen bg-gray-100">
+      <RoleGuard>
       <Routes>
         {/* Landing Page - No Navbar */}
         <Route path="/" element={<LandingPage />} />
@@ -27,14 +29,14 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         
         {/* Admin Routes - No Navbar (Consolidated 3-page structure) */}
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/management" element={<AdminManagement />} />
-        <Route path="/admin/ledger" element={<AdminLedger />} />
+        <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={["ADMIN"]} redirectToLogin={false}><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin/management" element={<ProtectedRoute allowedRoles={["ADMIN"]} redirectToLogin={false}><AdminManagement /></ProtectedRoute>} />
+        <Route path="/admin/ledger" element={<ProtectedRoute allowedRoles={["ADMIN"]} redirectToLogin={false}><AdminLedger /></ProtectedRoute>} />
         
         {/* Vendor Routes - No Navbar (Consolidated 3-page structure) */}
-        <Route path="/vendor/dashboard" element={<VendorDashboard />} />
-        <Route path="/vendor/orders" element={<VendorOrders />} />
-        <Route path="/vendor/shop-management" element={<ShopManagement />} />
+        <Route path="/vendor/dashboard" element={<ProtectedRoute allowedRoles={["VENDOR"]} redirectToLogin={false}><VendorDashboard /></ProtectedRoute>} />
+        <Route path="/vendor/orders" element={<ProtectedRoute allowedRoles={["VENDOR"]} redirectToLogin={false}><VendorOrders /></ProtectedRoute>} />
+        <Route path="/vendor/shop-management" element={<ProtectedRoute allowedRoles={["VENDOR"]} redirectToLogin={false}><ShopManagement /></ProtectedRoute>} />
         
         {/* Regular Routes with Navbar */}
         <Route path="/shops" element={
@@ -70,6 +72,7 @@ function App() {
           </>
         } />
       </Routes>
+      </RoleGuard>
     </div>
   );
 }

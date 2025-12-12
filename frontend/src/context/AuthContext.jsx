@@ -57,26 +57,41 @@ export const AuthProvider = ({ children }) => {
   // ===================================
 
   useEffect(() => {
-    // 1. Define the function to run the logic
-    const initializeAuth = () => {
-        const token = sessionStorage.getItem('token');
-        const userId = sessionStorage.getItem('userId');
-        const role = sessionStorage.getItem('role');
-        const firstName = sessionStorage.getItem('firstName');
-        
-        if (token && userId && role && firstName) {
-            // 2. Set the user state if valid data is found
-            setUser({ token, userId, role, firstName }); 
-        }
-
-        // 3. Mark the loading process as complete (This is critical)
+    // Initialize auth by validating token with server (do NOT trust client-stored role)
+    const initializeAuth = async () => {
+      const token = sessionStorage.getItem('token');
+      if (!token) {
         setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await axios.get('http://localhost:8080/api/auth/me', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const { userId, role, firstName, email } = res.data;
+        // Overwrite client storage with authoritative server values
+        sessionStorage.setItem('token', token);
+        sessionStorage.setItem('userId', userId);
+        sessionStorage.setItem('role', role);
+        sessionStorage.setItem('firstName', firstName);
+
+        setUser({ token, userId, role, firstName, email });
+      } catch (err) {
+        // Token invalid or expired — clear local auth
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('userId');
+        sessionStorage.removeItem('role');
+        sessionStorage.removeItem('firstName');
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    // Call the function
     initializeAuth();
-
-}, []); // Run only once on mount
+  }, []);
 
   const value = {
     user,
