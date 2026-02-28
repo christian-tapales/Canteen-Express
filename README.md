@@ -132,14 +132,11 @@ Canteen-Express/
 '''
 📸 Screenshots
 (Add screenshots of your Landing Page, Shop Menu, and Vendor Dashboard here)
-
-<img width="1908" height="985" alt="Seller (Dashboard)" src="https://github.com/user-attachments/assets/0ecb357e-fea6-437d-afcd-e26b57987b46" />
 <details>
-  <summary>📂 Click to view more screenshots</summary>
-  
-  ### User Dashboard
-  <img src="https://github.com/user-attachments/assets/0ecb357e-fea6-437d-afcd-e26b57987b46" width="100%">
-  
-  ### Cart View
-  <img src="URL_HERE" width="100%">
+<summary>📸 Click to view more screenshots</summary>
+
+### User Dashboard
+
+<img src="https://github.com/user-attachments/assets/0ecb357e-fea6-437d-afcd-e26b57987b46" width="100%" alt="User Dashboard">
+
 </details>
