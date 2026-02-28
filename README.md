@@ -131,3 +131,4 @@ Canteen-Express/
 └── sample_data.sql        # Database seeding script
 📸 Screenshots
 (Add screenshots of your Landing Page, Shop Menu, and Vendor Dashboard here)
+<img width="1908" height="985" alt="Seller (Dashboard)" src="https://github.com/user-attachments/assets/0ecb357e-fea6-437d-afcd-e26b57987b46" />
