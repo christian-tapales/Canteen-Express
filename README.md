@@ -139,9 +139,9 @@ Canteen-Express/
 ### 👤 User Experience
 *Browse stalls and manage your orders.*
 
-| **Shop View** | **User Dashboard** |
-|---|---|
-| <img src="https://github.com/user-attachments/assets/5d8bffd0-ac4c-4021-a296-fbde9d11360d" width="100%"> | <img src="https://github.com/user-attachments/assets/0ecb357e-fea6-437d-afcd-e26b57987b46" width="100%"> |
+| **Shop View** |
+|---|
+| <img src="https://github.com/user-attachments/assets/5d8bffd0-ac4c-4021-a296-fbde9d11360d" width="100%"> |
 
 ---
 
