@@ -75,7 +75,6 @@ Follow these instructions to set up the project locally.
 1.  Open your MySQL client (Workbench, CLI, etc.).
 2.  Create a new database named `canteen_express_db`.
 3.  (Optional) Run the `sample_data.sql` script located in the root to populate the database with dummy shops and food items.
-<img width="1884" height="984" alt="Admin (Master Ledger) Part 1" src="https://github.com/user-attachments/assets/45883557-ade2-47d6-93a3-5a3584574cf5" />
 
 ### 2. Backend Setup
 Navigate to the backend directory:
