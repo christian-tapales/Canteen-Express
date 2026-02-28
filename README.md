@@ -75,6 +75,7 @@ Follow these instructions to set up the project locally.
 1.  Open your MySQL client (Workbench, CLI, etc.).
 2.  Create a new database named `canteen_express_db`.
 3.  (Optional) Run the `sample_data.sql` script located in the root to populate the database with dummy shops and food items.
+<img width="1884" height="984" alt="Admin (Master Ledger) Part 1" src="https://github.com/user-attachments/assets/45883557-ade2-47d6-93a3-5a3584574cf5" />
 
 ### 2. Backend Setup
 Navigate to the backend directory:
@@ -130,13 +131,44 @@ Canteen-Express/
 │
 └── sample_data.sql        # Database seeding script
 '''
-📸 Screenshots
-(Add screenshots of your Landing Page, Shop Menu, and Vendor Dashboard here)
+```
+## 📸 Screenshots
+
 <details>
-<summary>📸 Click to view more screenshots</summary>
+<summary><b>Click to expand project gallery</b></summary>
 
-### User Dashboard
+### 👤 User Experience
+*Browse stalls and manage your orders.*
 
-<img src="https://github.com/user-attachments/assets/0ecb357e-fea6-437d-afcd-e26b57987b46" width="100%" alt="User Dashboard">
+| **Shop View** | **User Dashboard** |
+|---|---|
+| <img src="https://github.com/user-attachments/assets/5d8bffd0-ac4c-4021-a296-fbde9d11360d" width="100%"> | <img src="https://github.com/user-attachments/assets/0ecb357e-fea6-437d-afcd-e26b57987b46" width="100%"> |
+
+---
+
+### 🏪 Vendor Dashboard
+*Manage your stall, inventory, and track real-time sales.*
+
+**Analytics & Management**
+<img src="https://github.com/user-attachments/assets/0d902c8b-c79c-43fe-9770-455e7e00dac7" width="100%" alt="Seller Dashboard" />
+
+**Order Processing & Shop Settings**
+| **Order Management** | **Stall Configuration** |
+|---|---|
+| <img src="https://github.com/user-attachments/assets/d0edf603-7afc-4df0-bc83-05968c0b260b" width="100%"> | <img src="https://github.com/user-attachments/assets/fa4441a9-3888-4597-b35e-401819f3ea32" width="100%"> |
+
+---
+
+### 🛡️ Admin Panel (Master Control)
+*System-wide oversight of accounts, stalls, and financial ledgers.*
+
+**User & Stall Management**
+| **Account Control** | **Stall Management** |
+|---|---|
+| <img src="https://github.com/user-attachments/assets/57ed7b93-e3ff-474e-ab89-bb70f4c6caa2" width="100%"> | <img src="https://github.com/user-attachments/assets/d5d2945e-c937-4d07-9087-723b28ddd996" width="100%"> |
+
+**Master Ledgers**
+<img src="https://github.com/user-attachments/assets/8ba25639-301e-4a05-90af-dbf60144dd69" width="100%" alt="Master Ledger Part 1" />
+<img src="https://github.com/user-attachments/assets/6f4c7ffd-2ec7-4148-9d80-04e5eb4ebd37" width="100%" alt="Master Ledger Part 2" />
 
 </details>
